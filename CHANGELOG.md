@@ -41,6 +41,18 @@ earlier development took place in a private working copy and is summarised here,
   results; `test_private` images get a prediction, never ground truth. The reference list is filled as soon
   as a category is selected and keeps the user's choice.
 - UI strings may also live in feature files `education/i18n/ui_<lang>_<part>.yaml` (merged at start-up).
+- **Supervised learning in the Methods Library** (U-Net segmentation, CNN image classification OK / NOK,
+  YOLO object detection) at the same visual level as the other families: summary with the type of
+  supervision and the labels needed; architecture diagrams drawn by the application (U-Net as a U with
+  encoder, bottleneck, decoder and skip connections; CNN feature extraction → global pooling → classifier →
+  OK / NOK; YOLO backbone → S×S head → box / class / confidence → threshold + NMS); worked examples with
+  small models trained in about a second on labelled synthetic images (image labels, boxes, pixel masks),
+  labelled *toy illustrations* and shown with their held-out figures; and a classification · detection ·
+  segmentation comparison (label needed, output, localisation, annotation level, indicative labelling cost,
+  when to use) in the Overview tab of the three methods. English and Spanish; no dataset, download or
+  checkpoint. The diagram widget gains a grid layout and two node kinds (labelled data, learned prediction
+  head). The comparison pictures have a fixed cell size so captions never overlap or crop the images.
+  The Library header no longer repeats the year when the venue contains it.
 
 ### Student Edition
 - Instructor / Student / Auto profiles from one codebase (`core/profile.py`).
@@ -64,7 +76,12 @@ earlier development took place in a private working copy and is summarised here,
   example) and the Methods Laboratory reference comparison; the Canny view was re-taken for the new
   Laboratory tabs; the other images are unchanged (renumbered). README sections on the visual library, the
   interactive diagrams, synthetic examples, real versus simplified examples and the reference comparison.
-- Tests for the visual library and the reference comparison; `scripts/qt_reference_check.py` (real Qt check of
+- Gallery extended to 18 images with three supervised-learning views — the U-Net architecture, a
+  YOLO-style detection example and the classification · detection · segmentation comparison — taken in the
+  Student profile from a clean copy (synthetic data only); the two earlier Methods Library views were
+  re-taken (the method tree now marks the supervised methods ◆); the other images are unchanged (renumbered).
+- Tests for the visual library (`tests/test_method_visuals.py`, `tests/test_supervised_visuals.py`) and the
+  reference comparison; `scripts/qt_reference_check.py` (real Qt check of
   the reference comparison in English and Spanish at 1280×800; uses MVTec AD 2 if installed, otherwise the
   synthetic data).
 - `scripts/readiness.py`, `scripts/check_docs.py`, `scripts/build_release.py`, Qt flow checks.

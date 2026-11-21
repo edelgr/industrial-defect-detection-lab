@@ -1,0 +1,35 @@
+# Biblioteca de métodos — comparaciones entre métodos, mostradas en la pestaña Resumen de cada método de `methods`.
+# Mismas claves, métodos, filas y marcadores que education/en/method_comparisons.yaml.
+
+supervised:
+  methods: [cnn_classification, yolo, unet]
+  short: {cnn_classification: cls, yolo: det, unet: seg}
+  title: "¿Clasificación, detección o segmentación?"
+  intro: "Los tres planteamientos supervisados responden a preguntas distintas sobre la misma imagen y necesitan **etiquetas** distintas para entrenarse. La misma pieza sintética (una raya y una picadura) se muestra con la etiqueta que necesita cada método y la salida que da cada uno."
+  columns: {cnn_classification: "Clasificación (CNN)", yolo: "Detección (YOLO)", unet: "Segmentación (U-Net)"}
+  figure:
+    row_label: "Etiqueta necesaria para entrenar"
+    row_output: "Salida en la prueba"
+    captions:
+      label_cls: "Una etiqueta para toda la imagen"
+      label_det: "Una caja + clase alrededor de cada defecto"
+      label_seg: "Cada píxel defectuoso pintado"
+      out_cls: "¿Es defectuosa? P(NOK) = {p:.2f}, pero no dónde"
+      out_det: "Dónde y qué: {n_boxes} caja(s) con clase y confianza"
+      out_seg: "Exactamente qué píxeles (Dice {dice:.2f})"
+  rows:
+    - label: "Salida"
+      values: {cnn_classification: "Una **clase** para toda la imagen (OK / NOK o tipo de defecto) + probabilidad", yolo: "Una **caja** por defecto + clase + confianza", unet: "Una **máscara**: una clase para cada píxel"}
+    - label: "¿Localiza el defecto?"
+      values: {cnn_classification: "**No**: solo si la imagen es defectuosa", yolo: "**Sí, de forma aproximada**: posición y tamaño de un rectángulo", unet: "**Sí, con precisión**: forma y área exactas"}
+    - label: "Etiquetas necesarias"
+      values: {cnn_classification: "Una etiqueta por imagen", yolo: "Un rectángulo + clase por cada defecto", unet: "Una máscara de píxeles por cada defecto"}
+    - label: "Nivel de anotación"
+      values: {cnn_classification: "Imagen", yolo: "Objeto (instancia)", unet: "Píxel"}
+    - label: "Coste de etiquetado (orientativo)"
+      values: {cnn_classification: "**Bajo**: un clic por imagen", yolo: "**Medio**: un arrastre por defecto", unet: "**Alto**: contornear cada defecto, a menudo minutos por imagen"}
+    - label: "¿Puede contar defectos?"
+      values: {cnn_classification: "No", yolo: "Sí (una caja por instancia)", unet: "Sí, mediante las regiones conexas de la máscara"}
+    - label: "Cuándo usarlo"
+      values: {cnn_classification: "Basta con pasa / no pasa por pieza; muchas imágenes etiquetadas de cada clase", yolo: "Hay que localizar o contar tipos de defecto conocidos a la velocidad de la línea", unet: "Importa el tamaño, la longitud o el área del defecto (tolerancias, graduación)"}
+  note: "Los tres necesitan **defectos etiquetados** de cada tipo que deban encontrar; por eso se prefiere la detección de anomalías no supervisada (grupos D–F) cuando los defectos son escasos o desconocidos. Imágenes: los modelos de juguete de las pestañas *Ejemplo*, entrenados con imágenes sintéticas etiquetadas; ilustrativas, no la exactitud de redes reales. Los costes de etiquetado son órdenes de magnitud orientativos."

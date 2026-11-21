@@ -11,8 +11,10 @@ import yaml
 from core import paths
 
 PRIORITY = ["reference_difference", "otsu", "morphology", "canny", "gabor", "adaptive_threshold",
-            "padim", "patchcore", "efficientad", "winclip", "anomalydino", "pc_deviation", "multimodal_fusion"]
-KINDS = {"data", "train", "pre", "feature", "model", "score", "decision", "step"}
+            "padim", "patchcore", "efficientad", "winclip", "anomalydino", "pc_deviation", "multimodal_fusion",
+            "cnn_classification", "yolo", "unet"]
+SUPERVISED = ["cnn_classification", "yolo", "unet"]
+KINDS = {"data", "train", "label", "pre", "feature", "model", "head", "score", "decision", "step"}
 PH = re.compile(r"\{[^}]*\}")
 
 
@@ -54,6 +56,10 @@ def test_spanish_mirrors_english_structure():
         assert lanes(en[m]) == lanes(es[m]), m
         links = lambda d: [(lk["from"], lk["to"]) for lk in d["diagram"].get("links", [])]
         assert links(en[m]) == links(es[m]), m
+        grid = lambda d: (d["diagram"].get("layout"), [n.get("pos") for lane in d["diagram"]["lanes"] for n in lane["nodes"]],
+                          d["diagram"].get("edges"), [nt["pos"] for nt in d["diagram"].get("notes", [])])
+        assert grid(en[m]) == grid(es[m]), m
+        assert ("legend" in en[m]["example"]) == ("legend" in es[m]["example"]), m
         ce, cs = en[m]["example"]["captions"], es[m]["example"]["captions"]
         assert set(ce) == set(cs), m
         for k in ce:
@@ -85,7 +91,8 @@ def test_classical_examples_use_the_real_implementation(examples):
         assert ex.provenance == "implementation"
         np.testing.assert_allclose(ex.facts["_replay"], ex.facts["_real_map"], atol=1e-4, err_msg=m)
     assert examples["gabor"].provenance == "implementation"
-    for m in ("padim", "patchcore", "efficientad", "winclip", "anomalydino", "pc_deviation", "multimodal_fusion"):
+    for m in ("padim", "patchcore", "efficientad", "winclip", "anomalydino", "pc_deviation", "multimodal_fusion",
+              *SUPERVISED):
         assert examples[m].provenance == "toy", m
 
 
@@ -158,7 +165,7 @@ def test_diagram_click_selects_stage(library, qtbot):
 
 def test_library_fits_1280x800(library):
     w, lib = library
-    for m in ("patchcore", "multimodal_fusion", "reference_difference"):
+    for m in ("patchcore", "multimodal_fusion", "reference_difference", *SUPERVISED):
         for t in range(lib.center.count()):
             w.navigate("library", method_id=m)
             lib.center.setCurrentIndex(t)
@@ -169,7 +176,7 @@ def test_library_fits_1280x800(library):
 
 def test_method_without_curated_visuals_falls_back(library):
     w, lib = library
-    w.navigate("library", method_id="unet")
+    w.navigate("library", method_id="conv_autoencoder")
     assert lib.how.diagram.nodes() and all(n["kind"] == "step" for n in lib.how.diagram.nodes())
     assert not lib.how.caption.isHidden()
     lib.center.setCurrentIndex(lib.TAB_EXAMPLE)

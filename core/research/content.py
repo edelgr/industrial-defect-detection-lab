@@ -58,5 +58,25 @@ def method_visual(method_id: str, lang: str | None = None) -> dict | None:
     return None
 
 
+def method_comparison(key: str, lang: str | None = None) -> dict | None:
+    """Cross-method comparison for the Methods Library (e.g. ``supervised``: classification · detection ·
+    segmentation): education/<lang>/method_comparisons.yaml, falling back to English."""
+    lang = lang or _lang()
+    for lg in dict.fromkeys((lang, "en")):
+        rec = (_yaml(paths.EDUCATION / lg / "method_comparisons.yaml") or {}).get(key)
+        if rec:
+            return rec
+    return None
+
+
+def comparison_for(method_id: str, lang: str | None = None) -> tuple[str, dict] | None:
+    """(key, spec) of the comparison that includes ``method_id``, if any."""
+    data = _yaml(paths.EDUCATION / "en" / "method_comparisons.yaml") or {}
+    for key, spec in data.items():
+        if method_id in (spec or {}).get("methods", []):
+            return key, method_comparison(key, lang)
+    return None
+
+
 def workshop(lang: str | None = None) -> dict:
     return yaml_content("workshop.yaml", lang) or {}

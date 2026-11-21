@@ -29,6 +29,8 @@ core/                GUI-independent, unit-tested
   experiments/       SQLite experiment store with provenance categories
   visualization/     method_examples: worked examples on synthetic images generated at run time (real
                      implementation for classical methods, labelled toy re-enactments for the others)
+                     supervised_examples: group B (classification · detection · segmentation) — small models
+                     trained at run time on labelled synthetic images; comparison pictures
   system/            diagnostics, offline readiness (instructor and student profiles)
   profile.py         Instructor / Student / Auto edition resolution
   model_manager.py   per-algorithm availability, weight licences, explicit preparation

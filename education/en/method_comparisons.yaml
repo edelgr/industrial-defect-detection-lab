@@ -1,0 +1,36 @@
+# Methods Library — cross-method comparisons, shown in the Overview tab of every method listed in `methods`.
+# Pictures: core/visualization/method_examples.comparison_images(key) — keys "<label|out>_<short>".
+# The Spanish file education/es/method_comparisons.yaml must keep the same keys, methods, rows and placeholders.
+
+supervised:
+  methods: [cnn_classification, yolo, unet]
+  short: {cnn_classification: cls, yolo: det, unet: seg}
+  title: "Classification, detection or segmentation?"
+  intro: "The three supervised set-ups answer different questions about the same image — and need different **labels** to be trained. The same synthetic part (a scratch and a pit) is shown with the label each method needs and the output each one gives."
+  columns: {cnn_classification: "Classification (CNN)", yolo: "Detection (YOLO)", unet: "Segmentation (U-Net)"}
+  figure:
+    row_label: "Label needed for training"
+    row_output: "Output at test time"
+    captions:
+      label_cls: "One tag for the whole image"
+      label_det: "A box + class around every defect"
+      label_seg: "Every defect pixel painted"
+      out_cls: "Is it defective? P(NOK) = {p:.2f} — but not where"
+      out_det: "Where and what: {n_boxes} box(es) with class and confidence"
+      out_seg: "Exactly which pixels (Dice {dice:.2f})"
+  rows:
+    - label: "Output"
+      values: {cnn_classification: "A **class** for the whole image (OK / NOK or defect type) + probability", yolo: "A **box** per defect + class + confidence", unet: "A **mask**: a class for every pixel"}
+    - label: "Localises the defect?"
+      values: {cnn_classification: "**No** — only whether the image is defective", yolo: "**Yes, coarsely** — position and size of a rectangle", unet: "**Yes, precisely** — exact shape and area"}
+    - label: "Labels needed"
+      values: {cnn_classification: "One label per image", yolo: "A rectangle + class for every defect", unet: "A pixel mask for every defect"}
+    - label: "Annotation level"
+      values: {cnn_classification: "Image", yolo: "Object (instance)", unet: "Pixel"}
+    - label: "Labelling cost (indicative)"
+      values: {cnn_classification: "**Low** — a click per image", yolo: "**Medium** — one drag per defect", unet: "**High** — outlining every defect, often minutes per image"}
+    - label: "Can count defects?"
+      values: {cnn_classification: "No", yolo: "Yes (one box per instance)", unet: "Yes, via connected regions of the mask"}
+    - label: "When to use it"
+      values: {cnn_classification: "Pass / fail per part is enough; many labelled images of every class", yolo: "Known defect types must be located or counted at line speed", unet: "Size, length or area of the defect matters (tolerances, grading)"}
+  note: "All three need **labelled defects** of every type they should find — the reason why unsupervised anomaly detection (groups D–F) is preferred when defects are rare or unknown. Pictures: the toy models of the *Example* tabs, trained on labelled synthetic images; illustrative, not the accuracy of real networks. Labelling costs are indicative orders of magnitude."

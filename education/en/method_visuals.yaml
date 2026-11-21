@@ -666,3 +666,197 @@ multimodal_fusion:
     - "Poorly calibrated modality (too few held-out normals) dominates the fused score."
     - "Mis-registered sensors: modalities disagree on where the defect is."
   industry: "Multi-sensor inspection cells: RGB + 3D for surface and shape, infrared for thermal anomalies (welds, electronics)."
+
+# ---------------------------------------------------------------- B — supervised learning
+# Examples: toy models trained at run time on LABELLED synthetic images (core/visualization/supervised_examples.py).
+cnn_classification:
+  summary:
+    problem: "Decide whether a whole image shows a **good (OK)** or a **defective (NOK)** part — or which defect class it shows."
+    idea: "A convolutional network turns the image into feature maps, **global pooling** summarises them into one vector, and a classifier learned from labelled examples maps that vector to a class probability."
+    when: "Many labelled images of every class are available, the defect types are known and stable, and a pass/fail decision per part is enough."
+    limits: "**No localisation** — it says *whether*, not *where*. Needs many labelled defective images, and an unseen defect type may be classified OK."
+    io: "image → P(NOK) (or one probability per class) → OK / NOK"
+    training: "Hundreds to thousands of images, each with one label (OK / NOK or defect class)"
+    supervision: "Supervised — image-level labels"
+    labels: "One tag per image (the cheapest annotation)"
+  diagram:
+    lanes:
+      - label: "Training (labelled images)"
+        nodes:
+          - {id: labels, kind: label, title: "Images labelled OK / NOK", text: "Every training image carries ONE label for the whole image. Defective examples are required — typically hundreds per class."}
+          - {id: loss, kind: score, title: "Cross-entropy loss", text: "L = −Σ y·log p: compares the predicted probability with the label; back-propagation adjusts all filters and the classifier."}
+      - label: "Inference"
+        nodes:
+          - {id: image, kind: data, title: "Image", text: "The part to inspect (resized to the network's input size, e.g. 224×224)."}
+          - {id: conv, kind: feature, title: "Convolutional feature extraction", text: "Stacked convolution + non-linearity + down-sampling layers produce feature maps: early layers respond to edges and contrast, deeper ones to larger patterns."}
+          - {id: pool, kind: feature, title: "Global pooling", text: "Each feature map is reduced to one number (average or maximum over all positions): a short vector that describes the whole image — and throws away WHERE things are."}
+          - {id: fc, kind: head, title: "Classifier (fully connected + softmax)", text: "A learned linear layer maps the pooled vector to class scores; softmax turns them into probabilities that sum to 1."}
+          - {id: out, kind: decision, title: "OK / NOK", text: "P(NOK) is compared with a decision threshold (0.5 by default, or chosen on validation data for the required false-accept / false-reject balance)."}
+    links:
+      - {from: labels, to: conv, label: "learns filters + classifier"}
+  example:
+    note: "Toy illustration of the supervised set-up — trained here, in about a second, on labelled synthetic images. Hand-crafted maps (dark, bright and edge response) replace the learned convolutions, followed by global pooling and a logistic-regression classifier. The supervision (image-level labels), the mechanism and the kind of output are those of a CNN classifier; the accuracy is not."
+    legend: "Green outline (input only): where the synthetic defect really is. The classifier never receives this location — only one OK / NOK label per training image."
+    captions:
+      train: "1 · {n_train} training images, each with ONE label: OK or NOK (no location)"
+      test: "2 · Test image (green: true defect, unknown to the model)"
+      features: "3 · Feature maps (dark, bright, edge response) at 1/8 resolution"
+      pooling: "4 · Global pooling: {n_features} numbers for the whole image (red: far from OK images)"
+      classifier: "5 · Classifier output on {n_val} validation images; this image: P(NOK) = {p_test:.2f}"
+      decision: "6 · Decision for the whole image"
+      out_input: "Test image (green: true defect)"
+      out_decision: "Prediction: P(NOK) = {p_test:.2f}"
+      out_shifted: "Same image rotated 180° (scratch elsewhere): P(NOK) = {p_shift:.2f} — same answer, no 'where'"
+    interpretation: |
+      The classifier learned from **{n_train} images with one label each**; on {n_val} held-out validation
+      images it is right {val_acc:.0f} % of the time. For this test image it answers **P(NOK) = {p_test:.2f}**.
+      Panel 4 shows why it cannot say *where*: global pooling keeps only "how strong is the most unusual
+      response", not its position — so the same scratch moved elsewhere (the image rotated by 180°) gives the same answer
+      ({p_shift:.2f}). A good part gets {p_ok:.2f}. A real CNN learns its filters instead of using hand-made
+      ones, but its output is the same kind: one probability per image. To find the defect you need
+      detection (boxes) or segmentation (masks) — see the comparison in the Overview tab.
+  strengths:
+    - "Simplest supervised set-up and the cheapest labels (one tag per image)."
+    - "Very fast inference; mature tools and pretrained backbones (transfer learning)."
+    - "Can distinguish several known defect classes, not only OK / NOK."
+  limitations:
+    - "No localisation: it does not tell where the defect is (saliency maps are only a rough hint)."
+    - "Needs many labelled DEFECTIVE images — rare in a good production line; classes are usually imbalanced."
+    - "Only recognises what it was trained on: a new defect type may be classified OK."
+  failures:
+    - "A new defect type or a new product variant appears after training."
+    - "Very small defects in a large image: their signal is diluted by global pooling at low input resolution."
+    - "Labels that are inconsistent between operators (borderline defects)."
+  industry: "Sorting with a fixed, well-sampled set of defect classes: surface grading, presence / absence of a component, OK / NOK gates where the position is not needed."
+
+yolo:
+  summary:
+    problem: "Find every defect instance in the image, draw a **box** around it and say **which class** it is, with a **confidence**."
+    idea: "One network looks at the whole image once: its head divides the image into an S×S grid and every cell predicts boxes, an objectness / confidence score and class probabilities; low-confidence and duplicate boxes are removed (threshold + non-maximum suppression)."
+    when: "Known defect types that must be located and counted, at line speed; a box is precise enough (not the exact outline)."
+    limits: "Needs every defect labelled with a box and a class. Boxes are coarse for thin or irregular defects, and only trained classes are found."
+    io: "image → list of (box x, y, w, h · class · confidence)"
+    training: "Hundreds to thousands of images with a box and a class drawn around every defect"
+    supervision: "Supervised — box-level labels"
+    labels: "A box + class for every defect instance (medium cost)"
+  diagram:
+    layout: grid
+    lanes:
+      - nodes:
+          - {id: labels, kind: label, pos: [0, 0], title: "Images + labelled boxes", text: "Every defect is annotated with a rectangle and a class. The cell that contains a box centre is 'responsible' for predicting it."}
+          - {id: image, kind: data, pos: [0, 1], title: "Image", text: "The whole image goes through the network ONCE (resized, e.g. 640×640) — hence 'You Only Look Once'."}
+          - {id: backbone, kind: feature, pos: [1, 1], title: "Backbone (CNN features)", text: "Convolutional layers compute feature maps at decreasing resolution (often with a neck that mixes scales, so small and large defects are both visible)."}
+          - {id: head, kind: head, pos: [2, 1], title: "Detection head on an S×S grid", text: "Each grid cell (each position of the feature map) predicts, for its anchor boxes, a box, an objectness score and class probabilities."}
+          - {id: box, kind: head, pos: [3, 0], title: "Box (x, y, w, h)", text: "Offset of the box centre inside the cell and its width / height, regressed from the cell's features."}
+          - {id: cls, kind: head, pos: [3, 1], title: "Class probabilities", text: "Which defect class the box contains (e.g. scratch, stain, spot)."}
+          - {id: conf, kind: score, pos: [3, 2], title: "Objectness / confidence", text: "How sure the cell is that a defect is centred in it. Confidence = objectness × class probability."}
+          - {id: nms, kind: decision, pos: [4, 1], title: "Threshold + NMS", text: "Boxes below the confidence threshold are dropped; of overlapping boxes of the same class only the most confident is kept (non-maximum suppression)."}
+          - {id: out, kind: decision, pos: [4, 2], title: "Boxes · class · confidence", text: "The final list of detections. Count them, check positions, or trigger a reject."}
+    edges: [[image, backbone], [backbone, head], [head, box], [head, cls], [head, conf], [box, nms], [cls, nms], [conf, nms], [nms, out]]
+    links:
+      - {from: labels, to: head, label: "box + class + objectness loss"}
+    notes:
+      - {text: "one forward pass for the whole image", pos: [1, 0]}
+      - {text: "every grid cell predicts", pos: [2, 2]}
+  example:
+    note: "Toy illustration of the supervised set-up — trained here, in about a second, on labelled synthetic boxes. Each grid cell is described by the unusual region centred in it (hand-crafted features instead of a learned backbone); logistic-regression heads learn objectness and class, a ridge regression learns the box. The supervision (boxes + classes), the grid mechanism and the output are YOLO's; the accuracy is not."
+    legend: "Green boxes: labelled defects (ground truth). Coloured boxes: predictions with class and confidence — red scratch, blue stain, yellow spot."
+    captions:
+      train: "1 · {n_train} training images with a box and a class drawn around every defect"
+      grid: "2 · Test image divided into a {grid}×{grid} grid: each cell predicts what is centred in it"
+      features: "3 · 'Backbone' features: unusual regions found in each cell (cyan)"
+      objectness: "4 · Objectness per cell: is a defect centred here?"
+      classes: "5 · Most likely class per cell (red scratch, blue stain, yellow spot)"
+      raw: "6 · {n_raw} candidate boxes before the threshold and NMS"
+      nms: "7 · After confidence ≥ {conf:.1f} and NMS: {n_kept} detection(s)"
+      out_input: "Labelled boxes (ground truth): {n_gt}"
+      out_boxes: "Predictions: box · class · confidence"
+    interpretation: |
+      The detector learned only from **boxes and classes**. On this image it keeps **{n_kept} detection(s)**
+      and matches {n_matched} of the {n_gt} labelled boxes (same class, box overlap IoU ≥ 0.3); the best
+      confidence is {best:.2f}. Notice what the box tells you — position, rough size and class — and what
+      it does not: the exact outline of the thin scratch. On {val_boxes} held-out labelled boxes this toy
+      detector reaches precision {val_precision:.0f} % and recall {val_recall:.0f} %: faint stains are the usual
+      misses, exactly the kind of borderline case that needs more labelled examples.
+  strengths:
+    - "Locates AND classifies every instance, so defects can be counted and their position checked."
+    - "Real-time: one forward pass for the whole image."
+    - "Box labels are much cheaper than pixel masks."
+  limitations:
+    - "Needs a box and a class for every defect in every training image."
+    - "Boxes are coarse for thin, long or irregular defects (a diagonal scratch fills only a small part of its box)."
+    - "Only finds the classes it was trained on; unknown defects are ignored."
+    - "Modern implementations (e.g. Ultralytics) are AGPL-3.0 — check the licence before deployment; IDD Lab does not bundle them."
+  failures:
+    - "Very small defects at low input resolution (they fall inside one cell and vanish in the features)."
+    - "Many touching defects: NMS may merge or suppress neighbours."
+    - "Defect types or appearances absent from the labelled set."
+  industry: "Locating and counting known defects or components at line speed: missing / extra parts, solder defects, weld spatter, surface defects with a clear class."
+
+unet:
+  summary:
+    problem: "Label **every pixel** of the image as defect or background (or defect class) — the exact shape and area of each defect."
+    idea: "An **encoder** compresses the image into context ('is there a defect around here?'), a **decoder** expands it back to full resolution, and **skip connections** copy fine details from the encoder to the decoder so the boundaries come out sharp."
+    when: "The defect area or shape matters (measure, grade, tolerances), and pixel-accurate masks can be annotated for the training images."
+    limits: "Pixel masks are the most expensive labels. Like any supervised model it only learns the annotated defect types."
+    io: "image → per-pixel probability map → defect mask"
+    training: "Tens to hundreds of images with a pixel mask of every defect (with data augmentation)"
+    supervision: "Supervised — pixel-level labels"
+    labels: "A mask painted over every defect pixel (the most expensive annotation)"
+  diagram:
+    layout: grid
+    lanes:
+      - nodes:
+          - {id: labels, kind: label, pos: [2, 0], title: "Images + pixel masks", text: "For every training image an annotator paints the defect pixels. The loss compares the predicted mask with this one, pixel by pixel."}
+          - {id: input, kind: data, pos: [0, 0], title: "Input image", text: "The image to segment (any size compatible with the down-sampling factor)."}
+          - {id: enc1, kind: feature, pos: [0, 1], title: "Encoder 1 · full resolution", text: "Convolutions at full resolution: edges, fine contrast — precise WHERE, little context."}
+          - {id: enc2, kind: feature, pos: [1, 2], title: "Encoder 2 · ½ resolution", text: "Down-sampling (pooling) halves the resolution and doubles the channels: larger patterns, less precise position."}
+          - {id: bottleneck, kind: feature, pos: [2, 3], title: "Bottleneck · ⅛ resolution", text: "The most compressed representation: wide context ('there is a defect in this region') but coarse position."}
+          - {id: dec2, kind: head, pos: [3, 2], title: "Decoder 2 · up-sample + merge", text: "Up-sampling doubles the resolution; the encoder-2 features arriving through the skip connection are concatenated and convolved."}
+          - {id: dec1, kind: head, pos: [4, 1], title: "Decoder 1 · full resolution", text: "Back to full resolution, merged with the fine encoder-1 details: the boundaries become sharp."}
+          - {id: out, kind: decision, pos: [4, 0], title: "Defect mask", text: "A per-pixel probability, thresholded (e.g. 0.5) into the mask. Area, length or position of each defect can be measured."}
+    edges: [[input, enc1], [enc1, enc2], [enc2, bottleneck], [bottleneck, dec2], [dec2, dec1], [dec1, out]]
+    links:
+      - {from: enc1, to: dec1, label: "skip connection: copy fine details"}
+      - {from: enc2, to: dec2, label: "skip connection"}
+      - {from: labels, to: out, label: "pixel-wise loss (training)"}
+    notes:
+      - {text: "ENCODER ↓ what is in the image?", pos: [0, 3]}
+      - {text: "DECODER ↑ where exactly?", pos: [4, 3]}
+  example:
+    note: "Toy illustration of the supervised set-up — trained here, in about a second, on labelled synthetic pixel masks. A per-pixel logistic regression uses coarse context features computed at ⅛ resolution (the encoder / bottleneck) with and without full-resolution detail features (the skip connections); hand-crafted maps replace the learned convolutions. The supervision (pixel masks), the encoder–decoder idea and the output are U-Net's; the accuracy is not."
+    legend: "Overlay: yellow = predicted and true (correct), red = predicted only (false positive), green = true defect pixels that were missed."
+    captions:
+      train: "1 · {n_train} training images with a painted pixel mask (green)"
+      test: "2 · Test image"
+      enc1: "3 · Encoder level 1 (full resolution): fine contrast everywhere"
+      enc2: "4 · Encoder level 2 (¼ resolution): stronger, coarser"
+      bottleneck: "5 · Bottleneck (⅛ resolution): context — roughly where"
+      dec_noskip: "6 · Decoder WITHOUT skip connections: coarse probability (Dice {dice_noskip:.2f})"
+      dec_skip: "7 · Decoder WITH skip connections: sharp probability (Dice {dice_skip:.2f})"
+      mask: "8 · Predicted mask (probability ≥ 0.5)"
+      out_input: "Test image"
+      out_gt: "Ground-truth mask (label)"
+      out_pred: "Predicted mask"
+      out_overlay: "Overlay: correct · false positive · missed"
+    interpretation: |
+      The segmenter learned from **pixel masks** — the most detailed and most expensive labels. Panels 6 and 7
+      show what the skip connections are for: with context only (the bottleneck up-sampled) the prediction
+      is a blurred blob, Dice {dice_noskip:.2f}; adding the full-resolution details brings the thin scratch and
+      the pits back, Dice {dice_skip:.2f} ({pred_px} predicted vs. {gt_px} true defect pixels). On {n_val} held-out
+      images the mean Dice is {val_dice_skip:.2f} with and {val_dice_noskip:.2f} without skip connections. A real
+      U-Net learns all of these filters and reaches far higher Dice — but the output is the same kind: a label
+      for every pixel, from which area and length can be measured.
+  strengths:
+    - "Precise localisation: the exact shape and area of every defect."
+    - "Works with a few hundred annotated images thanks to data augmentation (the original U-Net was trained on 30 images)."
+    - "The mask can be measured (area, length, position) against tolerances."
+  limitations:
+    - "Pixel masks are slow and expensive to annotate, and annotators disagree on boundaries."
+    - "Only learns the annotated defect types; a new defect may be missed."
+    - "Strong class imbalance (few defect pixels) needs a suitable loss (weighted cross-entropy, Dice)."
+  failures:
+    - "Novel defect types or appearances."
+    - "Inconsistent or sloppy masks in the training set (the model learns the inconsistency)."
+    - "Defects thinner than the annotation precision (one-pixel cracks)."
+  industry: "Measuring defects against tolerances: crack length, corrosion or coating area, weld-bead geometry, any task where 'how big' matters, not only 'is there one'."

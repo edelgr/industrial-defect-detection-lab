@@ -16,7 +16,7 @@ from app import i18n
 from app.i18n import tr
 from app.widgets.common import Badge, Card, PageHeader, amp, markdown_browser, muted, title_label
 from app.widgets.method_visuals import (MethodDiagramPanel, MethodExamplePanel, MethodSummaryCard, ProsConsPanel,
-                                        drop_layout_items, wrap_label)
+                                        TaskComparisonPanel, drop_layout_items, wrap_label)
 from app.widgets.references import ReferencesPanel
 from app.widgets.steps import StepsWidget
 from core import settings
@@ -44,6 +44,12 @@ STATUS_LABEL = {
 }
 
 
+def venue_year(r: dict) -> str:
+    """'CVPR 2016' — the year is not repeated when the venue already contains it."""
+    venue, year = (r.get("venue") or "").strip(), str(r.get("year") or "").strip()
+    return venue if year and year in venue else f"{venue} {year}".strip()
+
+
 def method_markdown(r: dict) -> str:
     es = settings.get().language == "es"
     intuitive = r["intuitive_explanation_es"] if es else r["intuitive_explanation_en"]
@@ -52,7 +58,7 @@ def method_markdown(r: dict) -> str:
     steps = "\n".join(f"{i + 1}. {s}" for i, s in enumerate(r["main_processing_steps"]))
     parts = [
         f"## {r['name']}",
-        f"*{r['family']}* · {r.get('venue') or ''} {r.get('year') or ''}",
+        f"*{r['family']}* · {venue_year(r)}",
         f"### {tr('lib.q1', 'What problem does this method solve?')}", r.get("industrial_use") or r["scientific_principle"].split(".")[0] + ".",
         f"### {tr('lib.q2', 'Underlying idea (intuitive)')}", intuitive,
         f"### {tr('lib.q3', 'How does it work?')}", r["scientific_principle"], "", steps,
@@ -172,6 +178,10 @@ class LibraryPage(QWidget):
             nav.addWidget(b)
         nav.addStretch(1)
         ov.addLayout(nav)
+        # cross-method comparison (e.g. supervised classification · detection · segmentation)
+        self.compare = TaskComparisonPanel()
+        self.compare.setVisible(False)
+        ov.addWidget(self.compare)
         self.families = markdown_browser(content.markdown("methods", "_families") or "")
         self.families.setMinimumHeight(420)
         ov.addWidget(self.families)
@@ -270,6 +280,24 @@ class LibraryPage(QWidget):
             QGuiApplication.restoreOverrideCursor()
         self.example.set_example(ex, v.get("example", {}))
 
+    def _show_comparison(self, method_id: str, lang: str) -> None:
+        """Comparison card for methods that belong to a comparison group (pictures built once, cached)."""
+        found = content.comparison_for(method_id, lang)
+        if not found or not found[1]:
+            self.compare.setVisible(False)
+            return
+        key, spec = found
+        QGuiApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            images = method_examples.comparison_images(key, lambda k, d: tr("mv." + k, d), lang)
+        except Exception as e:  # never break the page for a picture
+            images = {"facts": {}}
+            print("comparison images not generated:", e)
+        finally:
+            QGuiApplication.restoreOverrideCursor()
+        self.compare.set_comparison(spec, images, method_id, images.get("facts"))
+        self.compare.setVisible(True)
+
     # ------------------------------------------------------------------ main
     def show(self, method_id: str):
         r = self.main.catalog.algorithms[method_id]
@@ -280,7 +308,7 @@ class LibraryPage(QWidget):
             self.center.setTabEnabled(i, True)
         # Overview
         self.ov_title.setText(r["name"])
-        self.ov_family.setText(f"{r['family']} · {r.get('venue') or ''} {r.get('year') or ''}".strip(" ·"))
+        self.ov_family.setText(f"{r['family']} · {venue_year(r)}".strip(" ·"))
         drop_layout_items(self.ov_badges)
         lab, kind = STATUS_LABEL.get(r["implementation_status"], (r["implementation_status"], ""))
         self.ov_badges.addWidget(Badge(lab, kind))
@@ -297,6 +325,7 @@ class LibraryPage(QWidget):
         has_example = method_examples.available(method_id)
         self.go_example.setVisible(has_example)
         self.go_lab.setVisible(ok)
+        self._show_comparison(method_id, lang)
         # How it works
         cap = "" if v["curated"] else tr("mv.generic_diagram", "Generic pipeline generated from the catalog's "
                                                                 "processing steps (no curated diagram yet).")

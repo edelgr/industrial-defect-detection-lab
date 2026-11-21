@@ -24,11 +24,12 @@ from PySide6.QtWidgets import (QDialog, QFrame, QGridLayout, QHBoxLayout, QLabel
 from app.i18n import tr
 from app.widgets.common import Badge, Card, np_to_pixmap, title_label
 
-KINDS = ("data", "train", "pre", "feature", "model", "score", "decision", "step")
-KIND_COLORS = {"data": "#4f8fd6", "train": "#4e9f55", "pre": "#8a98a8", "feature": "#d08a2a",
-               "model": "#2bb3a3", "score": "#9b6cd0", "decision": "#d9534f", "step": "#6f8fa8"}
-KIND_LABELS = {"data": "data", "train": "normal data / fitting", "pre": "pre-processing", "feature": "features",
-               "model": "model of normality", "score": "scoring", "decision": "decision",
+KINDS = ("data", "train", "label", "pre", "feature", "model", "head", "score", "decision", "step")
+KIND_COLORS = {"data": "#4f8fd6", "train": "#4e9f55", "label": "#c9a227", "pre": "#8a98a8", "feature": "#d08a2a",
+               "model": "#2bb3a3", "head": "#d0629b", "score": "#9b6cd0", "decision": "#d9534f", "step": "#6f8fa8"}
+KIND_LABELS = {"data": "data", "train": "normal data / fitting", "label": "labelled data (supervision)",
+               "pre": "pre-processing", "feature": "features", "model": "model of normality",
+               "head": "learned prediction head", "score": "scoring", "decision": "decision",
                "step": "processing step"}
 
 
@@ -95,8 +96,9 @@ class MethodSummaryCard(QWidget):
         self.lay = QVBoxLayout(self)
         self.lay.setContentsMargins(0, 0, 0, 0)
         self.lay.setSpacing(8)
-        self.chips = QHBoxLayout()
-        self.chips.setSpacing(8)
+        self.chips = QGridLayout()
+        self.chips.setHorizontalSpacing(12)
+        self.chips.setVerticalSpacing(4)
         self.lay.addLayout(self.chips)
         self.grid = QGridLayout()
         self.grid.setSpacing(8)
@@ -115,10 +117,16 @@ class MethodSummaryCard(QWidget):
 
     def set_summary(self, summary: dict) -> None:
         drop_layout_items(self.chips)
-        for key, label in (("io", tr("mv.sum.io", "Input → output")), ("training", tr("mv.sum.training", "Training data"))):
+        k = 0
+        for key, label in (("io", tr("mv.sum.io", "Input → output")), ("training", tr("mv.sum.training", "Training data")),
+                           ("supervision", tr("mv.sum.supervision", "Type of supervision")),
+                           ("labels", tr("mv.sum.labels", "Labels needed"))):
             if summary.get(key):
                 chip = wrap_label(f"**{label}:** {summary[key]}", "Muted", rich=True)
-                self.chips.addWidget(chip, 1)
+                self.chips.addWidget(chip, k // 2, k % 2)
+                k += 1
+        self.chips.setColumnStretch(0, 1)
+        self.chips.setColumnStretch(1, 1)
         for key, lab in self.cards.items():
             lab.setText(summary.get(key) or "—")
 
@@ -131,10 +139,16 @@ class MethodDiagramWidget(QWidget):
                    "links": [{"from": id, "to": id, "label": str?}]}
     Stages inside a lane are chained left → right (wrapping to new rows when narrow); ``links``
     connect stages of different lanes (e.g. the memory bank built in training feeds test scoring).
+
+    ``"layout": "grid"`` draws an architecture instead of a pipeline: every node has ``pos: [col, row]``,
+    solid arrows follow ``edges: [[from, to], …]`` in any direction (e.g. the U of a U-Net, or one head
+    fanning out to box / class / confidence), dashed ``links`` are drawn straight when both ends are on
+    the same row (skip connections), and ``notes: [{text, pos}]`` label empty cells.
     """
 
     nodeSelected = Signal(str)
     MIN_W, MAX_W, GAP, ROW_GAP, LANE_GAP, PAD = 112, 172, 30, 30, 22, 10
+    GRID_MIN_W, GRID_GAP, GRID_ROW_GAP = 96, 22, 26
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -154,8 +168,27 @@ class MethodDiagramWidget(QWidget):
         nodes = self.nodes()
         self.selected = nodes[0]["id"] if nodes else None
         self._geo = None
+        if self.is_grid():
+            cols = self._grid_size()[0]
+            self.setMinimumWidth(cols * self.GRID_MIN_W + (cols - 1) * self.GRID_GAP + 2 * self.PAD)
+        else:
+            self.setMinimumWidth(2 * self.MIN_W)
         self.updateGeometry()
         self.update()
+
+    def is_grid(self) -> bool:
+        return self.diagram.get("layout") == "grid"
+
+    def _grid_size(self) -> tuple[int, int]:
+        pos = [n.get("pos", [0, 0]) for n in self.nodes()] + [n.get("pos", [0, 0]) for n in self.diagram.get("notes", [])]
+        return (max((p[0] for p in pos), default=0) + 1, max((p[1] for p in pos), default=0) + 1)
+
+    def edges(self) -> list[tuple[str, str]]:
+        """Solid arrows: explicit ``edges`` (grid layout) or the chain of each lane."""
+        if self.is_grid():
+            return [tuple(e) for e in self.diagram.get("edges", [])]
+        return [(a["id"], b["id"]) for lane in self.diagram.get("lanes", [])
+                for a, b in zip(lane.get("nodes", []), lane.get("nodes", [])[1:])]
 
     def nodes(self) -> list[dict]:
         return [n for lane in self.diagram.get("lanes", []) for n in lane.get("nodes", [])]
@@ -188,9 +221,40 @@ class MethodDiagramWidget(QWidget):
         small.setPointSizeF(max(7.0, self.font().pointSizeF() * 0.82))
         return f, small
 
+    def _node_height(self, bold, fms, title: str, bw: float) -> int:
+        tf = QFontMetrics(self._title_font(bold, title, bw - 37))
+        r = tf.boundingRect(0, 0, int(bw) - 37, 2000, Qt.TextWordWrap, title)
+        return max(54, r.height() + fms.height() + 20)
+
+    def _layout_grid(self, width: int):
+        bold, small = self._fonts()
+        fms = QFontMetrics(small)
+        cols, rows = self._grid_size()
+        avail = max(width - 2 * self.PAD, cols * self.GRID_MIN_W + (cols - 1) * self.GRID_GAP)
+        bw = min(self.MAX_W, (avail - (cols - 1) * self.GRID_GAP) / cols)
+        x0 = self.PAD + (avail - (cols * bw + (cols - 1) * self.GRID_GAP)) / 2
+        heights = [54] * rows
+        for n in self.nodes():
+            c, r = n.get("pos", [0, 0])
+            heights[r] = max(heights[r], self._node_height(bold, fms, n.get("title", ""), bw))
+        ys, y = [], float(self.PAD)
+        for h in heights:
+            ys.append(y)
+            y += h + self.GRID_ROW_GAP
+        rects = {}
+        for n in self.nodes():
+            c, r = n.get("pos", [0, 0])
+            rects[n["id"]] = QRectF(x0 + c * (bw + self.GRID_GAP), ys[r], bw, heights[r])
+        cells = {"x0": x0, "bw": bw, "ys": ys, "heights": heights}
+        total = int(y - self.GRID_ROW_GAP + 12 + fms.height() + 8 + self.PAD)
+        self._geo = (width, rects, [("grid", cells)], total)
+        return self._geo
+
     def _layout(self, width: int):
         if self._geo and self._geo[0] == width:
             return self._geo
+        if self.is_grid():
+            return self._layout_grid(width)
         bold, small = self._fonts()
         fm, fms = QFontMetrics(bold), QFontMetrics(small)
         avail = max(width - 2 * self.PAD, self.MIN_W)
@@ -273,6 +337,38 @@ class MethodDiagramWidget(QWidget):
         p.setPen(Qt.NoPen)
         p.drawPolygon(poly)
 
+    @staticmethod
+    def _border_point(r: QRectF, toward: QPointF, gap: float = 3.0) -> QPointF:
+        """Where the segment from the centre of ``r`` to ``toward`` leaves the rectangle (+ a small gap)."""
+        c = r.center()
+        dx, dy = toward.x() - c.x(), toward.y() - c.y()
+        if abs(dx) < 1e-6 and abs(dy) < 1e-6:
+            return c
+        sx = (r.width() / 2 + gap) / abs(dx) if abs(dx) > 1e-6 else float("inf")
+        sy = (r.height() / 2 + gap) / abs(dy) if abs(dy) > 1e-6 else float("inf")
+        s = min(sx, sy)
+        return QPointF(c.x() + dx * s, c.y() + dy * s)
+
+    def _paint_grid(self, p: QPainter, rects: dict, cells: dict, pal: dict, small: QFont) -> None:
+        """Grid layout: notes in empty cells, then solid arrows in any direction."""
+        muted_c, line_c = QColor(pal["muted"]), QColor(pal["muted"])
+        p.setFont(small)
+        for note in self.diagram.get("notes", []):
+            c, r = note.get("pos", [0, 0])
+            box = QRectF(cells["x0"] + c * (cells["bw"] + self.GRID_GAP), cells["ys"][r], cells["bw"], cells["heights"][r])
+            p.setPen(muted_c)
+            p.drawText(box.adjusted(4, 4, -4, -4), Qt.TextWordWrap | Qt.AlignCenter, note.get("text", ""))
+        pen = QPen(line_c, 1.8)
+        for a, b in self.edges():
+            ra, rb = rects.get(a), rects.get(b)
+            if ra is None or rb is None:
+                continue
+            s, t = self._border_point(ra, rb.center()), self._border_point(rb, ra.center())
+            p.setPen(pen)
+            p.setBrush(Qt.NoBrush)
+            p.drawLine(s, t)
+            self._arrow_head(p, t, t - s, line_c)
+
     def paintEvent(self, _e):
         pal = _palette()
         _, rects, lanes_geo, total = self._layout(self.width())
@@ -281,6 +377,9 @@ class MethodDiagramWidget(QWidget):
         bold, small = self._fonts()
         text_c, muted_c = QColor(pal["text"]), QColor(pal["muted"])
         line_c = QColor(pal["muted"])
+        if self.is_grid():
+            self._paint_grid(p, rects, lanes_geo[0][1], pal, small)
+            lanes_geo = []
         # lane labels + in-lane arrows
         for lane, label_y, nodes in lanes_geo:
             if label_y is not None:
@@ -311,28 +410,42 @@ class MethodDiagramWidget(QWidget):
             ra, rb = rects.get(link.get("from")), rects.get(link.get("to"))
             if ra is None or rb is None:
                 continue
-            down = rb.top() >= ra.bottom()
-            s = QPointF(ra.center().x() + 10, ra.bottom() + 2 if down else ra.top() - 2)
-            t = QPointF(rb.center().x() + 10, rb.top() - 2 if down else rb.bottom() + 2)
-            dy = (t.y() - s.y()) * 0.5
-            path = QPainterPath(s)
-            path.cubicTo(QPointF(s.x(), s.y() + dy), QPointF(t.x(), t.y() - dy), t)
+            same_row = abs(ra.center().y() - rb.center().y()) < 1
+            if same_row:                                              # e.g. a U-Net skip connection
+                right = rb.left() > ra.right()
+                s = QPointF(ra.right() + 3 if right else ra.left() - 3, ra.center().y())
+                t = QPointF(rb.left() - 3 if right else rb.right() + 3, rb.center().y())
+                path = QPainterPath(s)
+                path.lineTo(t)
+                head = QPointF(1 if right else -1, 0)
+            else:
+                down = rb.top() >= ra.bottom()
+                s = QPointF(ra.center().x() + 10, ra.bottom() + 2 if down else ra.top() - 2)
+                t = QPointF(rb.center().x() + 10, rb.top() - 2 if down else rb.bottom() + 2)
+                dy = (t.y() - s.y()) * 0.5
+                path = QPainterPath(s)
+                path.cubicTo(QPointF(s.x(), s.y() + dy), QPointF(t.x(), t.y() - dy), t)
+                head = QPointF(0, 1 if down else -1)
             pen = QPen(accent, 1.8, Qt.DashLine)
             p.setPen(pen)
             p.setBrush(Qt.NoBrush)
             p.drawPath(path)
-            self._arrow_head(p, t, QPointF(0, 1 if down else -1), accent, 8)
+            self._arrow_head(p, t, head, accent, 8)
             if link.get("label"):
                 p.setFont(small)
                 m = path.pointAtPercent(0.5)
                 fm = QFontMetrics(small)
                 tw = fm.horizontalAdvance(link["label"]) + 10
-                box = QRectF(m.x() + 6, m.y() - fm.height() / 2 - 1, tw, fm.height() + 2)
+                if same_row:                                          # centred on the line, inside the gap
+                    tw = min(tw, abs(t.x() - s.x()) - 6)
+                    box = QRectF(m.x() - tw / 2, m.y() - fm.height() / 2 - 1, tw, fm.height() + 2)
+                else:
+                    box = QRectF(m.x() + 6, m.y() - fm.height() / 2 - 1, tw, fm.height() + 2)
                 p.setPen(Qt.NoPen)
                 p.setBrush(QColor(pal["panel"]))
                 p.drawRoundedRect(box, 4, 4)
                 p.setPen(accent)
-                p.drawText(box, Qt.AlignCenter, link["label"])
+                p.drawText(box, Qt.AlignCenter, fm.elidedText(link["label"], Qt.ElideRight, int(box.width()) - 4))
         # boxes
         fm_small = QFontMetrics(small)
         for k, n in enumerate(self.nodes()):
@@ -539,6 +652,7 @@ class MethodExamplePanel(QWidget):
     """Worked example: provenance, step-by-step gallery, final outputs and interpretation."""
 
     OUT = 210
+    OUT_SMALL = 150
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -617,7 +731,8 @@ class MethodExamplePanel(QWidget):
             box = QVBoxLayout()
             pic = QLabel()
             pm = np_to_pixmap(s.image)
-            side = self.OUT if len(example.outputs) > 1 else 2 * self.OUT
+            n_out = len(example.outputs)
+            side = 2 * self.OUT if n_out == 1 else self.OUT if n_out <= 3 else self.OUT_SMALL   # 4 fit at 1280 px
             pic.setPixmap(pm.scaled(side, side, Qt.KeepAspectRatio, Qt.SmoothTransformation))
             box.addWidget(pic)
             lab = wrap_label(cap(s.key))
@@ -628,12 +743,120 @@ class MethodExamplePanel(QWidget):
             holder.setLayout(box)
             self.out_row.addWidget(holder)
         self.out_row.addStretch(1)
-        self.legend.setText(tr("mv.ex.legend", "Green outline: where the synthetic defect really is (known because "
-                                               "the image was generated). Red: what the method flags."))
+        self.legend.setText(texts.get("legend") or tr("mv.ex.legend", "Green outline: where the synthetic defect really "
+                                                                      "is (known because the image was generated). "
+                                                                      "Red: what the method flags."))
         self.legend.setVisible(example.method_id != "multimodal_fusion")
         self.interp.setText(fill(texts.get("interpretation", ""), facts))
         self.notice.setText(tr("mv.ex.synthetic", "Synthetic educational image generated by IDD Lab (fixed seed) — "
                                                   "not real industrial data; freely redistributable."))
+
+
+# ================================================================================ task comparison
+class TaskComparisonPanel(Card):
+    """Side-by-side comparison of related methods (e.g. supervised classification · detection ·
+    segmentation): the same synthetic image with the LABEL each method needs for training and the
+    OUTPUT it gives, then a comparison table. The column of the method being viewed is highlighted.
+
+    ``spec`` (education/<lang>/method_comparisons.yaml): methods, columns, title, intro, figure
+    (row titles + captions keyed like the images), rows [{label, values{method: text}}], note.
+    """
+
+    IMG = 176
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.title = title_label("")
+        self.intro = wrap_label("", rich=True)
+        self.figure = QGridLayout()
+        self.figure.setHorizontalSpacing(10)
+        self.figure.setVerticalSpacing(4)
+        self.table = QGridLayout()
+        self.table.setHorizontalSpacing(6)
+        self.table.setVerticalSpacing(6)
+        self.note = wrap_label("", "Muted", rich=True)
+        self.lay.addWidget(self.title)
+        self.lay.addWidget(self.intro)
+        self.lay.addLayout(self.figure)
+        self.lay.addLayout(self.table)
+        self.lay.addWidget(self.note)
+        self.current: str | None = None
+        self.columns: list[str] = []
+
+    def set_comparison(self, spec: dict, images: dict, current: str, facts: dict | None = None) -> None:
+        pal = _palette()
+        self.current = current
+        self.columns = list(spec.get("methods", []))
+        self.title.setText(spec.get("title", ""))
+        self.intro.setText(spec.get("intro", ""))
+        self.note.setText(fill(spec.get("note", ""), facts))
+        for lay in (self.figure, self.table):
+            drop_layout_items(lay)
+        names = spec.get("columns", {})
+        hl = f"border: 2px solid {pal['accent']}; border-radius: 6px; padding: 4px;"
+
+        def head(m: str) -> QLabel:
+            lab = wrap_label(f"**{names.get(m, m)}**" + ("  ◀" if m == current else ""), rich=True)
+            lab.setAlignment(Qt.AlignCenter)
+            return lab
+        fig = spec.get("figure", {})
+        caps = fig.get("captions", {})
+        for c, m in enumerate(self.columns):
+            self.figure.addWidget(head(m), 0, c)
+        row = 1
+        for key, prefix in (("row_label", "label"), ("row_output", "out")):
+            t = title_label(fig.get(key, ""))
+            self.figure.addWidget(t, row, 0, 1, len(self.columns))
+            row += 1
+            for c, m in enumerate(self.columns):
+                k = f"{prefix}_{spec.get('short', {}).get(m, m)}"
+                box = QVBoxLayout()
+                box.setSpacing(2)
+                pic = QLabel()
+                frame = 12 if m == current else 0             # highlight border + padding around the picture
+                if images.get(k) is not None:
+                    pm = np_to_pixmap(images[k]).scaled(self.IMG, self.IMG, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    pic.setPixmap(pm)
+                    # fixed size: the layout must never squeeze (and crop) the picture inside its frame
+                    pic.setFixedSize(pm.width() + frame, pm.height() + frame)
+                pic.setAlignment(Qt.AlignCenter)
+                if m == current:
+                    pic.setStyleSheet(hl)
+                box.setContentsMargins(0, 0, 0, 0)
+                box.addWidget(pic, 0, Qt.AlignHCenter)
+                cw = self.IMG + 12
+                cap = wrap_label(fill(caps.get(k, ""), facts))
+                cap.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+                cap.setFixedWidth(cw)                         # fixed width → reliable wrapped height
+                box.addWidget(cap, 0, Qt.AlignHCenter)
+                holder = QWidget()
+                holder.setLayout(box)
+                # fixed size = picture (+ frame) + caption at its real wrapped height: the grid can never
+                # squeeze the cell, so the caption never overlaps the picture
+                pic_h = pic.height() if images.get(k) is not None else 0
+                holder.setParent(self)                        # inherit the final style (font) before measuring
+                cap.ensurePolished()
+                holder.setFixedSize(cw, pic_h + box.spacing() + cap.heightForWidth(cw) + 4)
+                self.figure.addWidget(holder, row, c, Qt.AlignTop | Qt.AlignHCenter)
+            row += 1
+        for c in range(len(self.columns)):
+            self.figure.setColumnStretch(c, 1)
+        # comparison table
+        self.table.addWidget(QLabel(""), 0, 0)
+        for c, m in enumerate(self.columns):
+            self.table.addWidget(head(m), 0, c + 1)
+        for r, spec_row in enumerate(spec.get("rows", []), start=1):
+            self.table.addWidget(wrap_label(f"**{spec_row.get('label', '')}**", rich=True), r, 0, Qt.AlignTop)
+            for c, m in enumerate(self.columns):
+                cell = wrap_label(spec_row.get("values", {}).get(m, "—"), rich=True)
+                if m == current:
+                    cell.setStyleSheet(f"background-color: {pal['sel']}; border-radius: 4px; padding: 3px;")
+                else:
+                    cell.setStyleSheet("padding: 3px;")
+                self.table.addWidget(cell, r, c + 1, Qt.AlignTop)
+        self.table.setColumnStretch(0, 2)
+        for c in range(len(self.columns)):
+            self.table.setColumnStretch(c + 1, 3)
 
 
 # ================================================================================ pros & cons

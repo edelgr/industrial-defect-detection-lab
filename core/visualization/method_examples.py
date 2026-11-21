@@ -760,17 +760,35 @@ BUILDERS: dict[str, Callable[[Text], Example]] = {
 }
 
 _cache: dict[tuple, Example] = {}
+_cmp_cache: dict[tuple, dict] = {}
+
+
+def _builders() -> dict[str, Callable[[Text], Example]]:
+    """Group B (supervised) lives in its own module, which imports this one: register it lazily."""
+    from core.visualization import supervised_examples as sup
+    return {**BUILDERS, **sup.BUILDERS}
 
 
 def available(method_id: str) -> bool:
-    return method_id in BUILDERS
+    return method_id in _builders()
 
 
 def build(method_id: str, t: Text = _t_default, lang: str = "en") -> Example | None:
     """Example for ``method_id`` (cached per language, because chart labels are translated)."""
-    if method_id not in BUILDERS:
+    builders = _builders()
+    if method_id not in builders:
         return None
     key = (method_id, lang)
     if key not in _cache:
-        _cache[key] = BUILDERS[method_id](t)
+        _cache[key] = builders[method_id](t)
     return _cache[key]
+
+
+def comparison_images(key: str, t: Text = _t_default, lang: str = "en") -> dict:
+    """Pictures of a cross-method comparison (``supervised``: the label each method needs, its output)."""
+    if (key, lang) not in _cmp_cache:
+        if key != "supervised":
+            raise KeyError(key)
+        from core.visualization import supervised_examples as sup
+        _cmp_cache[(key, lang)] = sup.comparison(t)
+    return _cmp_cache[(key, lang)]

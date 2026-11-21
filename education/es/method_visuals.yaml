@@ -666,3 +666,197 @@ multimodal_fusion:
     - "Una modalidad mal calibrada (muy pocas normales reservadas) domina la puntuación fusionada."
     - "Sensores mal registrados entre sí: las modalidades no coinciden en dónde está el defecto."
   industry: "Celdas de inspección multisensor: RGB + 3D para superficie y forma, infrarrojo para anomalías térmicas (soldaduras, electrónica)."
+
+# ---------------------------------------------------------------- B — aprendizaje supervisado
+# Ejemplos: modelos de juguete entrenados al vuelo con imágenes sintéticas ETIQUETADAS (core/visualization/supervised_examples.py).
+cnn_classification:
+  summary:
+    problem: "Decidir si una imagen completa muestra una pieza **correcta (OK)** o **defectuosa (NOK)**, o qué clase de defecto muestra."
+    idea: "Una red convolucional convierte la imagen en mapas de características, el **pooling global** los resume en un vector y un clasificador aprendido con ejemplos etiquetados transforma ese vector en una probabilidad por clase."
+    when: "Se dispone de muchas imágenes etiquetadas de cada clase, los tipos de defecto son conocidos y estables y basta con una decisión pasa/no pasa por pieza."
+    limits: "**No localiza**: dice *si* hay defecto, no *dónde*. Necesita muchas imágenes defectuosas etiquetadas, y un tipo de defecto nuevo puede clasificarse como OK."
+    io: "imagen → P(NOK) (o una probabilidad por clase) → OK / NOK"
+    training: "De cientos a miles de imágenes, cada una con una etiqueta (OK / NOK o clase de defecto)"
+    supervision: "Supervisada — etiquetas a nivel de imagen"
+    labels: "Una etiqueta por imagen (la anotación más barata)"
+  diagram:
+    lanes:
+      - label: "Entrenamiento (imágenes etiquetadas)"
+        nodes:
+          - {id: labels, kind: label, title: "Imágenes etiquetadas OK / NOK", text: "Cada imagen de entrenamiento lleva UNA etiqueta para toda la imagen. Hacen falta ejemplos defectuosos: normalmente cientos por clase."}
+          - {id: loss, kind: score, title: "Pérdida de entropía cruzada", text: "L = −Σ y·log p: compara la probabilidad predicha con la etiqueta; la retropropagación ajusta todos los filtros y el clasificador."}
+      - label: "Inferencia"
+        nodes:
+          - {id: image, kind: data, title: "Imagen", text: "La pieza a inspeccionar (redimensionada al tamaño de entrada de la red, p. ej. 224×224)."}
+          - {id: conv, kind: feature, title: "Extracción de características convolucional", text: "Capas apiladas de convolución + no linealidad + submuestreo producen mapas de características: las primeras responden a bordes y contraste; las profundas, a patrones mayores."}
+          - {id: pool, kind: feature, title: "Pooling global", text: "Cada mapa se reduce a un número (media o máximo sobre todas las posiciones): un vector corto que describe toda la imagen y descarta DÓNDE están las cosas."}
+          - {id: fc, kind: head, title: "Clasificador (capa densa + softmax)", text: "Una capa lineal aprendida transforma el vector en puntuaciones por clase; softmax las convierte en probabilidades que suman 1."}
+          - {id: out, kind: decision, title: "OK / NOK", text: "P(NOK) se compara con un umbral de decisión (0,5 por defecto, o elegido con datos de validación según el equilibrio deseado entre falsa aceptación y falso rechazo)."}
+    links:
+      - {from: labels, to: conv, label: "aprende filtros + clasificador"}
+  example:
+    note: "Ilustración simplificada del planteamiento supervisado, entrenada aquí en un segundo con imágenes sintéticas etiquetadas. Mapas diseñados a mano (respuesta oscura, clara y de borde) sustituyen a las convoluciones aprendidas, seguidos de pooling global y un clasificador de regresión logística. La supervisión (etiquetas por imagen), el mecanismo y el tipo de salida son los de un clasificador CNN; la exactitud no."
+    legend: "Contorno verde (solo en la entrada): dónde está realmente el defecto sintético. El clasificador nunca recibe esa posición, solo una etiqueta OK / NOK por imagen de entrenamiento."
+    captions:
+      train: "1 · {n_train} imágenes de entrenamiento, cada una con UNA etiqueta: OK o NOK (sin posición)"
+      test: "2 · Imagen de prueba (verde: defecto real, desconocido para el modelo)"
+      features: "3 · Mapas de características (respuesta oscura, clara y de borde) a 1/8 de resolución"
+      pooling: "4 · Pooling global: {n_features} números para toda la imagen (rojo: lejos de las imágenes OK)"
+      classifier: "5 · Salida del clasificador en {n_val} imágenes de validación; esta imagen: P(NOK) = {p_test:.2f}"
+      decision: "6 · Decisión para toda la imagen"
+      out_input: "Imagen de prueba (verde: defecto real)"
+      out_decision: "Predicción: P(NOK) = {p_test:.2f}"
+      out_shifted: "La misma imagen girada 180° (la raya en otro sitio): P(NOK) = {p_shift:.2f}; misma respuesta, sin «dónde»"
+    interpretation: |
+      El clasificador aprendió de **{n_train} imágenes con una etiqueta cada una**; en {n_val} imágenes de validación
+      reservadas acierta el {val_acc:.0f} % de las veces. Para esta imagen de prueba responde **P(NOK) = {p_test:.2f}**.
+      El panel 4 muestra por qué no puede decir *dónde*: el pooling global solo conserva «cuán fuerte es la
+      respuesta más inusual», no su posición; por eso la misma raya llevada a otro sitio (la imagen girada 180°)
+      da la misma respuesta ({p_shift:.2f}). Una pieza correcta obtiene {p_ok:.2f}. Una CNN real aprende sus filtros en
+      lugar de usarlos diseñados a mano, pero su salida es del mismo tipo: una probabilidad por imagen. Para
+      encontrar el defecto hace falta detección (cajas) o segmentación (máscaras): vea la comparación en la pestaña Resumen.
+  strengths:
+    - "El planteamiento supervisado más sencillo y las etiquetas más baratas (una por imagen)."
+    - "Inferencia muy rápida; herramientas maduras y redes preentrenadas (aprendizaje por transferencia)."
+    - "Puede distinguir varias clases de defecto conocidas, no solo OK / NOK."
+  limitations:
+    - "No localiza: no indica dónde está el defecto (los mapas de saliencia son solo una pista aproximada)."
+    - "Necesita muchas imágenes DEFECTUOSAS etiquetadas, escasas en una línea que funciona bien; las clases suelen estar desequilibradas."
+    - "Solo reconoce lo que vio en el entrenamiento: un tipo de defecto nuevo puede clasificarse como OK."
+  failures:
+    - "Aparece un tipo de defecto o una variante de producto nuevos después del entrenamiento."
+    - "Defectos muy pequeños en una imagen grande: el pooling global diluye su señal a baja resolución de entrada."
+    - "Etiquetas inconsistentes entre operarios (defectos límite)."
+  industry: "Clasificación con un conjunto fijo y bien muestreado de clases de defecto: graduación de superficies, presencia / ausencia de un componente, controles OK / NOK donde no hace falta la posición."
+
+yolo:
+  summary:
+    problem: "Encontrar cada instancia de defecto en la imagen, dibujar una **caja** a su alrededor e indicar **qué clase** es, con una **confianza**."
+    idea: "Una sola red mira la imagen completa una vez: su cabeza divide la imagen en una cuadrícula S×S y cada celda predice cajas, una puntuación de objetividad / confianza y probabilidades de clase; las cajas poco fiables o duplicadas se eliminan (umbral + supresión de no máximos)."
+    when: "Tipos de defecto conocidos que hay que localizar y contar a la velocidad de la línea; una caja es suficientemente precisa (no hace falta el contorno exacto)."
+    limits: "Necesita cada defecto etiquetado con una caja y una clase. Las cajas son toscas para defectos finos o irregulares y solo encuentra las clases entrenadas."
+    io: "imagen → lista de (caja x, y, w, h · clase · confianza)"
+    training: "De cientos a miles de imágenes con una caja y una clase dibujadas alrededor de cada defecto"
+    supervision: "Supervisada — etiquetas a nivel de caja"
+    labels: "Una caja + clase por cada instancia de defecto (coste medio)"
+  diagram:
+    layout: grid
+    lanes:
+      - nodes:
+          - {id: labels, kind: label, pos: [0, 0], title: "Imágenes + cajas etiquetadas", text: "Cada defecto se anota con un rectángulo y una clase. La celda que contiene el centro de una caja es la «responsable» de predecirla."}
+          - {id: image, kind: data, pos: [0, 1], title: "Imagen", text: "La imagen completa atraviesa la red UNA vez (redimensionada, p. ej. 640×640): de ahí «You Only Look Once»."}
+          - {id: backbone, kind: feature, pos: [1, 1], title: "Backbone (características CNN)", text: "Capas convolucionales calculan mapas de características de resolución decreciente (a menudo con un «neck» que mezcla escalas, para ver defectos pequeños y grandes)."}
+          - {id: head, kind: head, pos: [2, 1], title: "Cabeza de detección en cuadrícula S×S", text: "Cada celda de la cuadrícula (cada posición del mapa de características) predice, para sus cajas ancla, una caja, una objetividad y probabilidades de clase."}
+          - {id: box, kind: head, pos: [3, 0], title: "Caja (x, y, w, h)", text: "Desplazamiento del centro de la caja dentro de la celda y su ancho / alto, obtenidos por regresión a partir de las características de la celda."}
+          - {id: cls, kind: head, pos: [3, 1], title: "Probabilidades de clase", text: "Qué clase de defecto contiene la caja (p. ej. raya, mancha, picadura)."}
+          - {id: conf, kind: score, pos: [3, 2], title: "Objetividad / confianza", text: "Cuán segura está la celda de que hay un defecto centrado en ella. Confianza = objetividad × probabilidad de clase."}
+          - {id: nms, kind: decision, pos: [4, 1], title: "Umbral + NMS", text: "Se descartan las cajas por debajo del umbral de confianza; de las cajas solapadas de la misma clase solo se conserva la más fiable (supresión de no máximos)."}
+          - {id: out, kind: decision, pos: [4, 2], title: "Cajas · clase · confianza", text: "La lista final de detecciones. Se pueden contar, comprobar su posición o provocar un rechazo."}
+    edges: [[image, backbone], [backbone, head], [head, box], [head, cls], [head, conf], [box, nms], [cls, nms], [conf, nms], [nms, out]]
+    links:
+      - {from: labels, to: head, label: "pérdida de caja + clase + objetividad"}
+    notes:
+      - {text: "una sola pasada para toda la imagen", pos: [1, 0]}
+      - {text: "cada celda de la cuadrícula predice", pos: [2, 2]}
+  example:
+    note: "Ilustración simplificada del planteamiento supervisado, entrenada aquí en un segundo con cajas sintéticas etiquetadas. Cada celda de la cuadrícula se describe por la región inusual centrada en ella (características diseñadas a mano en lugar de un backbone aprendido); cabezas de regresión logística aprenden la objetividad y la clase, y una regresión ridge aprende la caja. La supervisión (cajas + clases), el mecanismo de cuadrícula y la salida son los de YOLO; la exactitud no."
+    legend: "Cajas verdes: defectos etiquetados (verdad de terreno). Cajas de color: predicciones con clase y confianza: rojo raya, azul mancha, amarillo picadura."
+    captions:
+      train: "1 · {n_train} imágenes de entrenamiento con una caja y una clase dibujadas alrededor de cada defecto"
+      grid: "2 · Imagen de prueba dividida en una cuadrícula de {grid}×{grid}: cada celda predice lo que está centrado en ella"
+      features: "3 · Características del «backbone»: regiones inusuales encontradas en cada celda (cian)"
+      objectness: "4 · Objetividad por celda: ¿hay un defecto centrado aquí?"
+      classes: "5 · Clase más probable por celda (rojo raya, azul mancha, amarillo picadura)"
+      raw: "6 · {n_raw} cajas candidatas antes del umbral y de NMS"
+      nms: "7 · Tras confianza ≥ {conf:.1f} y NMS: {n_kept} detección(es)"
+      out_input: "Cajas etiquetadas (verdad de terreno): {n_gt}"
+      out_boxes: "Predicciones: caja · clase · confianza"
+    interpretation: |
+      El detector aprendió solo de **cajas y clases**. En esta imagen conserva **{n_kept} detección(es)**
+      y coincide con {n_matched} de las {n_gt} cajas etiquetadas (misma clase, solapamiento IoU ≥ 0,3); la mayor
+      confianza es {best:.2f}. Observe lo que dice la caja (posición, tamaño aproximado y clase) y lo que no
+      dice: el contorno exacto de la raya fina. En {val_boxes} cajas etiquetadas reservadas, este detector
+      simplificado alcanza una precisión del {val_precision:.0f} % y una exhaustividad (recall) del {val_recall:.0f} %: las manchas
+      tenues son los fallos habituales, justo el tipo de caso límite que necesita más ejemplos etiquetados.
+  strengths:
+    - "Localiza Y clasifica cada instancia, así que se pueden contar los defectos y comprobar su posición."
+    - "Tiempo real: una sola pasada para toda la imagen."
+    - "Las etiquetas de caja son mucho más baratas que las máscaras de píxeles."
+  limitations:
+    - "Necesita una caja y una clase para cada defecto de cada imagen de entrenamiento."
+    - "Las cajas son toscas para defectos finos, largos o irregulares (una raya diagonal ocupa solo una pequeña parte de su caja)."
+    - "Solo encuentra las clases con las que se entrenó; los defectos desconocidos se ignoran."
+    - "Las implementaciones modernas (p. ej. Ultralytics) son AGPL-3.0: revise la licencia antes de desplegar; IDD Lab no las incluye."
+  failures:
+    - "Defectos muy pequeños con baja resolución de entrada (caen dentro de una celda y desaparecen de las características)."
+    - "Muchos defectos que se tocan: NMS puede fusionar o suprimir vecinos."
+    - "Tipos o aspectos de defecto ausentes del conjunto etiquetado."
+  industry: "Localizar y contar defectos o componentes conocidos a la velocidad de la línea: piezas que faltan o sobran, defectos de soldadura, salpicaduras, defectos superficiales con una clase clara."
+
+unet:
+  summary:
+    problem: "Etiquetar **cada píxel** de la imagen como defecto o fondo (o clase de defecto): la forma y el área exactas de cada defecto."
+    idea: "Un **codificador** comprime la imagen en contexto («¿hay un defecto por aquí?»), un **decodificador** la expande de nuevo a resolución completa y las **conexiones de salto** copian los detalles finos del codificador al decodificador para que los bordes salgan nítidos."
+    when: "Importa el área o la forma del defecto (medir, graduar, tolerancias) y se pueden anotar máscaras precisas a nivel de píxel en las imágenes de entrenamiento."
+    limits: "Las máscaras de píxeles son las etiquetas más caras. Como todo modelo supervisado, solo aprende los tipos de defecto anotados."
+    io: "imagen → mapa de probabilidad por píxel → máscara del defecto"
+    training: "De decenas a cientos de imágenes con una máscara de píxeles de cada defecto (con aumento de datos)"
+    supervision: "Supervisada — etiquetas a nivel de píxel"
+    labels: "Una máscara pintada sobre cada píxel defectuoso (la anotación más cara)"
+  diagram:
+    layout: grid
+    lanes:
+      - nodes:
+          - {id: labels, kind: label, pos: [2, 0], title: "Imágenes + máscaras de píxeles", text: "En cada imagen de entrenamiento un anotador pinta los píxeles defectuosos. La pérdida compara, píxel a píxel, la máscara predicha con esta."}
+          - {id: input, kind: data, pos: [0, 0], title: "Imagen de entrada", text: "La imagen a segmentar (cualquier tamaño compatible con el factor de submuestreo)."}
+          - {id: enc1, kind: feature, pos: [0, 1], title: "Codificador 1 · resolución completa", text: "Convoluciones a resolución completa: bordes, contraste fino; DÓNDE preciso, poco contexto."}
+          - {id: enc2, kind: feature, pos: [1, 2], title: "Codificador 2 · ½ resolución", text: "El submuestreo (pooling) reduce la resolución a la mitad y duplica los canales: patrones mayores, posición menos precisa."}
+          - {id: bottleneck, kind: feature, pos: [2, 3], title: "Cuello de botella · ⅛ resolución", text: "La representación más comprimida: contexto amplio («hay un defecto en esta zona») pero posición tosca."}
+          - {id: dec2, kind: head, pos: [3, 2], title: "Decodificador 2 · sobremuestreo + unión", text: "El sobremuestreo duplica la resolución; las características del codificador 2 que llegan por la conexión de salto se concatenan y se convolucionan."}
+          - {id: dec1, kind: head, pos: [4, 1], title: "Decodificador 1 · resolución completa", text: "De vuelta a resolución completa, unido a los detalles finos del codificador 1: los bordes se vuelven nítidos."}
+          - {id: out, kind: decision, pos: [4, 0], title: "Máscara del defecto", text: "Una probabilidad por píxel, umbralizada (p. ej. 0,5) en la máscara. Se puede medir el área, la longitud o la posición de cada defecto."}
+    edges: [[input, enc1], [enc1, enc2], [enc2, bottleneck], [bottleneck, dec2], [dec2, dec1], [dec1, out]]
+    links:
+      - {from: enc1, to: dec1, label: "conexión de salto: copia los detalles finos"}
+      - {from: enc2, to: dec2, label: "conexión de salto"}
+      - {from: labels, to: out, label: "pérdida por píxel (entrenamiento)"}
+    notes:
+      - {text: "CODIFICADOR ↓ ¿qué hay en la imagen?", pos: [0, 3]}
+      - {text: "DECODIFICADOR ↑ ¿dónde exactamente?", pos: [4, 3]}
+  example:
+    note: "Ilustración simplificada del planteamiento supervisado, entrenada aquí en un segundo con máscaras de píxeles sintéticas etiquetadas. Una regresión logística por píxel usa características de contexto calculadas a ⅛ de resolución (el codificador / cuello de botella) con y sin características de detalle a resolución completa (las conexiones de salto); mapas diseñados a mano sustituyen a las convoluciones aprendidas. La supervisión (máscaras de píxeles), la idea codificador–decodificador y la salida son las de U-Net; la exactitud no."
+    legend: "Superposición: amarillo = predicho y real (acierto), rojo = solo predicho (falso positivo), verde = píxeles de defecto real no detectados."
+    captions:
+      train: "1 · {n_train} imágenes de entrenamiento con una máscara de píxeles pintada (verde)"
+      test: "2 · Imagen de prueba"
+      enc1: "3 · Nivel 1 del codificador (resolución completa): contraste fino en todas partes"
+      enc2: "4 · Nivel 2 del codificador (¼ de resolución): más fuerte, más tosco"
+      bottleneck: "5 · Cuello de botella (⅛ de resolución): contexto; aproximadamente dónde"
+      dec_noskip: "6 · Decodificador SIN conexiones de salto: probabilidad tosca (Dice {dice_noskip:.2f})"
+      dec_skip: "7 · Decodificador CON conexiones de salto: probabilidad nítida (Dice {dice_skip:.2f})"
+      mask: "8 · Máscara predicha (probabilidad ≥ 0,5)"
+      out_input: "Imagen de prueba"
+      out_gt: "Máscara real (etiqueta)"
+      out_pred: "Máscara predicha"
+      out_overlay: "Superposición: acierto · falso positivo · no detectado"
+    interpretation: |
+      El segmentador aprendió de **máscaras de píxeles**, las etiquetas más detalladas y más caras. Los paneles 6 y 7
+      muestran para qué sirven las conexiones de salto: solo con contexto (el cuello de botella sobremuestreado) la
+      predicción es una mancha borrosa, Dice {dice_noskip:.2f}; al añadir los detalles a resolución completa vuelven la
+      raya fina y las picaduras, Dice {dice_skip:.2f} ({pred_px} píxeles predichos frente a {gt_px} píxeles de defecto reales).
+      En {n_val} imágenes reservadas, el Dice medio es {val_dice_skip:.2f} con y {val_dice_noskip:.2f} sin conexiones de salto.
+      Una U-Net real aprende todos estos filtros y alcanza un Dice mucho mayor, pero la salida es del mismo tipo:
+      una etiqueta para cada píxel, con la que se pueden medir el área y la longitud.
+  strengths:
+    - "Localización precisa: la forma y el área exactas de cada defecto."
+    - "Funciona con unos cientos de imágenes anotadas gracias al aumento de datos (la U-Net original se entrenó con 30 imágenes)."
+    - "La máscara se puede medir (área, longitud, posición) frente a tolerancias."
+  limitations:
+    - "Las máscaras de píxeles son lentas y caras de anotar, y los anotadores discrepan en los bordes."
+    - "Solo aprende los tipos de defecto anotados; un defecto nuevo puede pasar desapercibido."
+    - "El fuerte desequilibrio de clases (pocos píxeles defectuosos) exige una pérdida adecuada (entropía cruzada ponderada, Dice)."
+  failures:
+    - "Tipos o aspectos de defecto nuevos."
+    - "Máscaras inconsistentes o descuidadas en el conjunto de entrenamiento (el modelo aprende la inconsistencia)."
+    - "Defectos más finos que la precisión de la anotación (grietas de un píxel)."
+  industry: "Medir defectos frente a tolerancias: longitud de grietas, área de corrosión o de recubrimiento, geometría del cordón de soldadura; cualquier tarea en la que importe «cuánto», no solo «si hay»."

@@ -235,16 +235,28 @@ def align_to_reference(image_g: np.ndarray, ref_g: np.ndarray, motion: str = "eu
     return out, warp, True
 
 
-def _prep_pair(image, reference, align: str, blur: int):
+def _prep_pair(image, reference, align: str, blur: int, stages: dict | None = None):
+    """Grey → (resize reference to the test size) → ECC-warp the TEST onto the reference → pre-blur.
+
+    ``stages`` (optional) receives the intermediate arrays exactly as used, so the GUI can show the
+    real pipeline (no recomputation): ``reference_gray``, ``test_gray``, ``test_aligned``, ``warp``,
+    ``reference_pre``, ``test_pre`` (the two arrays that are subtracted / compared).
+    """
     g, r = _gray(image), _gray(reference)
     if r.shape != g.shape:
         r = cv2.resize(r, (g.shape[1], g.shape[0]), interpolation=cv2.INTER_AREA)
-    aligned = False
+    if stages is not None:
+        stages.update(reference_gray=r, test_gray=g, reference_resized=r.shape != _gray(reference).shape)
+    aligned, warp = False, None
     if align != "none":
-        g, _, aligned = align_to_reference(g, r, align)
+        g, warp, aligned = align_to_reference(g, r, align)
+    if stages is not None:
+        stages.update(test_aligned=g, warp=None if warp is None else np.asarray(warp).copy())
     k = int(blur) | 1
     if k > 1:
         g, r = cv2.GaussianBlur(g, (k, k), 0), cv2.GaussianBlur(r, (k, k), 0)
+    if stages is not None:
+        stages.update(reference_pre=r, test_pre=g, blur_kernel=k)
     return g, r, aligned
 
 
@@ -265,12 +277,13 @@ class ReferenceDifference(AnomalyMethod):
         return _ver("opencv")
 
     def _predict(self, image, reference):
-        g, r, aligned = _prep_pair(image, reference, self.params["align"], self.params["blur"])
+        stages: dict = {}
+        g, r, aligned = _prep_pair(image, reference, self.params["align"], self.params["blur"], stages)
         amap = cv2.absdiff(g, r).astype(np.float32)
         thr = float(self.params["threshold"])
         return MethodResult(self.method_id, amap, float(np.percentile(amap, 99.9)), amap > thr, thr,
                             score_semantics="map: |test − reference| (grey levels); score: 99.9th percentile",
-                            extras={"aligned": aligned})
+                            extras={"aligned": aligned, "stages": stages})
 
 
 class SSIMComparison(AnomalyMethod):

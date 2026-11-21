@@ -14,9 +14,9 @@ to its original paper, code and licence.
 
 <table>
 <tr>
-<td width="33%" valign="top"><a href="docs/screenshots/09_experiment_b_basic.png"><img src="docs/screenshots/09_experiment_b_basic.png" alt="Educational Experiments, illumination experiment in Basic mode: one scene under six lighting conditions with stored scores, threshold and TP/FN outcomes, a score chart and a plain-language explanation" width="100%"></a><br><sub><b>Educational Experiments</b> — illumination, Basic mode (stored results)</sub></td>
-<td width="33%" valign="top"><a href="docs/screenshots/06_lab_canny_synthetic.png"><img src="docs/screenshots/06_lab_canny_synthetic.png" alt="Methods Laboratory running Canny edge detection on a synthetic brushed-metal scratch, with anomaly map, heat-map overlay and predicted mask" width="100%"></a><br><sub><b>Methods Laboratory</b> — Canny on Synthetic Educational Data</sub></td>
-<td width="33%" valign="top"><a href="docs/screenshots/03_atlas_gallery.png"><img src="docs/screenshots/03_atlas_gallery.png" alt="Dataset Research Atlas gallery with eight industrial anomaly-detection datasets, their modalities and access conditions" width="100%"></a><br><sub><b>Dataset Research Atlas</b> — eight benchmarks</sub></td>
+<td width="33%" valign="top"><a href="docs/screenshots/06_library_morphology_example.png"><img src="docs/screenshots/06_library_morphology_example.png" alt="Methods Library, worked example of mathematical morphology on a synthetic surface: five intermediate steps from the input to the cleaned mask, and the result next to the true defect" width="100%"></a><br><sub><b>Methods Library</b> — worked example, real implementation on a synthetic image</sub></td>
+<td width="33%" valign="top"><a href="docs/screenshots/08_lab_reference_comparison.png"><img src="docs/screenshots/08_lab_reference_comparison.png" alt="Methods Laboratory, reference comparison: normal reference, test image, test aligned by ECC, difference map and detected differences on a synthetic scratch" width="100%"></a><br><sub><b>Methods Laboratory</b> — reference comparison on Synthetic Educational Data</sub></td>
+<td width="33%" valign="top"><a href="docs/screenshots/11_experiment_b_basic.png"><img src="docs/screenshots/11_experiment_b_basic.png" alt="Educational Experiments, illumination experiment in Basic mode: one scene under six lighting conditions with stored scores, threshold and TP/FN outcomes, a score chart and a plain-language explanation" width="100%"></a><br><sub><b>Educational Experiments</b> — illumination, Basic mode (stored results)</sub></td>
 </tr>
 </table>
 
@@ -212,13 +212,56 @@ Continue with [Exercise 1 — Classical Defect Detection](docs/exercises/EXERCIS
 | **Start Learning** | Nine guided topics (≈ 10–25 min each), from the basics to industrial deployment constraints: short explanation, intuitive example, scientific background, buttons that open the relevant demo, exercise sheet, reflection questions, recommended papers |
 | **Dataset Research Atlas** | Understand *why* so many benchmarks exist: timeline, gallery, filters, side-by-side comparison and a scientific profile of eight datasets (purpose, protocol, challenges, limitations), with links to papers, official pages and licences — works offline |
 | **Dataset Explorer** | Browse normal and defective samples, overlay ground truth, inspect pixel values and sample metadata, view point clouds, export a view with attribution |
-| **Methods Library** | 23 methods in 7 families: concept, limitations, *How This Algorithm Works* step-by-step diagrams, optional mathematical and implementation details, references and source code |
-| **Methods Laboratory** | Run a method on one sample, see every intermediate output, fit deep models on normal images, calibrate thresholds on normal images only, re-threshold and evaluate on a test split |
+| **Methods Library** | 23 methods in 7 families, each with seven tabs: *Overview*, *How it works* (interactive pipeline diagram), *Step by step*, *Example* (worked example on a synthetic image), *Strengths & limits*, *Technical sheet* and *References*. 13 methods marked ◆ have curated visual content in English and Spanish — see [Visual Methods Library](#visual-methods-library) |
+| **Methods Laboratory** | Run a method on one sample, see every intermediate output, fit deep models on normal images, calibrate thresholds on normal images only, re-threshold and evaluate on a test split. *Reference image difference* opens a **Reference comparison** tab — see [Reference comparison](#reference-comparison) |
 | **3D & Multimodal Lab** | Align a test point cloud to normal references and colour it by geometric deviation; compare RGB, infrared and 3D of the same object; run a late-fusion experiment |
 | **Compare Methods** | Run several methods on the same image, with each score divided by its own calibrated threshold so that results become comparable |
 | **Educational Experiments** | A · image resolution, B · illumination robustness (**Basic** mode: one scene, its images, scores, threshold and TP/TN/FP/FN; **Advanced** mode: all scenes, decisions that change, AUROC per lighting with confidence intervals), C · *Understanding Evaluation Metrics* (ranking versus decision). Results are always labelled **stored** or **live**: stored verified results work without datasets or checkpoints; live inference needs the dataset and the models |
 | **Model Manager** | For every algorithm: implementation, availability on this computer, weight source, size and licence, CPU/GPU support, and an explicit download action |
 | **Guided Workshop** | The timed CIARP 2026 activities with objectives, instructions, expected observations and real, verified results |
+
+### Visual Methods Library
+
+Select a method on the left; the methods marked ◆ open a three-level explanation:
+
+- **Overview** — the problem it solves, the key idea, when to use it, its main limit, input → output and
+  the training data it needs.
+- **How it works** — an **interactive pipeline diagram**. Fitting (normal images only) and test are drawn
+  as separate lanes, colours mark the role of each stage (data, normal data, features, model of normality,
+  scoring, decision), and clicking a stage highlights its description below the diagram.
+- **Example** — a worked example on a **synthetic image** generated by IDD Lab at run time (fixed seed, no
+  dataset, no download, no checkpoint): the intermediate steps, the final map and mask, and the true
+  defect outlined in green, with a *How to read this result* note.
+- **Strengths & limits** — strengths, limitations, typical failure cases and when to use the method.
+
+Curated content exists for reference difference, Otsu, morphology, Canny, Gabor, adaptive thresholding,
+PaDiM, PatchCore, EfficientAD, WinCLIP, AnomalyDINO, registration + geometric deviation and late score
+fusion; the other methods show a summary and diagram generated from the research catalog.
+
+**Real examples and simplified illustrations.** Every example carries a badge:
+
+| Badge | Methods | What it means |
+|---|---|---|
+| *Real IDD Lab implementation · synthetic image* (green) | Classical methods (A) | The map and mask are computed by the same code as the Methods Laboratory, with default parameters; the intermediate panels replay the same operations (a test checks that the replayed final stage equals the real output for reference difference, Otsu, morphology, Canny and adaptive thresholding; Gabor uses the real filter bank) |
+| *Toy illustration of the mechanism — not the real model* (orange) | Feature, teacher–student, foundation, 3D and fusion methods (D–G) | A simplified re-enactment of the mechanism (for example, nearest-neighbour distances to a small memory of normal patches) that runs instantly without pretrained weights. It explains the idea; it is **not** PatchCore, EfficientAD or WinCLIP output and its numbers must not be compared with them. Real results need the full profile (Methods Laboratory) or the stored results (Educational Experiments) |
+
+### Reference comparison
+
+In the Methods Laboratory, choosing **Reference image difference** opens the **Reference comparison** tab,
+which shows the comparison step by step with the arrays the algorithm actually computed:
+
+**Reference** (the selected normal image, with dataset · category · split · identifier) · **Test** ·
+**Aligned (ECC)** (the test image warped onto the reference) · **Difference** (|test − reference| on a fixed
+colour scale, comparable between references) · **Detected** (the pixels above the threshold).
+
+- Mouse wheel zooms, dragging pans, and all panels move together; ⤢ opens them enlarged side by side.
+- ◀ ▶ step through the normal references; **Compare** runs the comparison again. A table lists every
+  reference tried on the same test image, so you can see how much the result depends on that choice.
+- The information card separates the **global** score (one number per image: the 99.9th percentile of the
+  difference map) from the **local** differences (pixels and regions above the threshold).
+- Changing the reference discards the result, thresholds and evaluation computed with the previous one —
+  a stale result is never shown. For `test_private` images (labels withheld by the benchmark) an OK/NOK is
+  shown only as a *prediction, not ground truth*, and no metric is computed.
 
 ## 7. Application Screenshots
 
@@ -238,7 +281,8 @@ and **stored verified results** — no images from third-party datasets. Click a
 <td width="50%" valign="top"><a href="docs/screenshots/04_atlas_mvtec_ad2.png"><img src="docs/screenshots/04_atlas_mvtec_ad2.png" alt="MVTec AD 2 dataset profile with scientific purpose, protocol and verified links to paper, DOI, PDF, dataset page and licence" width="100%"></a><br><sub><b>Dataset profile</b> — research sources and licence</sub></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><a href="docs/screenshots/05_library_patchcore_steps.png"><img src="docs/screenshots/05_library_patchcore_steps.png" alt="Methods Library: step 4 of How This Algorithm Works for PatchCore (memory bank of normal features) next to its references" width="100%"></a><br><sub><b>Methods Library</b> — How This Algorithm Works</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/05_library_patchcore_pipeline.png"><img src="docs/screenshots/05_library_patchcore_pipeline.png" alt="Methods Library, How it works for PatchCore: interactive pipeline diagram with a fitting lane (normal images, patch features, coreset) and a test lane (test image, features, nearest neighbour, map and score, threshold), and the description of each stage" width="100%"></a><br><sub><b>Methods Library</b> — PatchCore pipeline diagram (click a stage)</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/06_library_morphology_example.png"><img src="docs/screenshots/06_library_morphology_example.png" alt="Methods Library, worked example of mathematical morphology: closing, black-hat response, threshold and opening on a synthetic surface with pits and a scratch, the predicted mask next to the true defect, and how to read the result" width="100%"></a><br><sub><b>Methods Library</b> — worked example, real implementation on a synthetic image</sub></td>
 </tr>
 </table>
 
@@ -246,8 +290,11 @@ and **stored verified results** — no images from third-party datasets. Click a
 
 <table>
 <tr>
-<td width="50%" valign="top"><a href="docs/screenshots/06_lab_canny_synthetic.png"><img src="docs/screenshots/06_lab_canny_synthetic.png" alt="Methods Laboratory running Canny edge detection on a synthetic scratch: original, ground truth, edges, anomaly map, heat-map and predicted mask" width="100%"></a><br><sub><b>Methods Laboratory</b> — every intermediate output</sub></td>
-<td width="50%" valign="top"><a href="docs/screenshots/07_compare_synthetic.png"><img src="docs/screenshots/07_compare_synthetic.png" alt="Compare Methods: four classical methods on the same synthetic image, each map scaled by its own calibrated threshold, with a results table" width="100%"></a><br><sub><b>Compare Methods</b> — scores divided by each method's calibrated threshold</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/07_lab_canny_synthetic.png"><img src="docs/screenshots/07_lab_canny_synthetic.png" alt="Methods Laboratory running Canny edge detection on a synthetic scratch: original, ground truth, edges, anomaly map, heat-map and predicted mask" width="100%"></a><br><sub><b>Methods Laboratory</b> — every intermediate output</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/08_lab_reference_comparison.png"><img src="docs/screenshots/08_lab_reference_comparison.png" alt="Methods Laboratory, Reference comparison tab: the selected normal reference, the test image, the test aligned to the reference by ECC, the difference map on a fixed scale and the detected differences, with the global score and local differences in an information card" width="100%"></a><br><sub><b>Methods Laboratory</b> — reference comparison, step by step</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><a href="docs/screenshots/09_compare_synthetic.png"><img src="docs/screenshots/09_compare_synthetic.png" alt="Compare Methods: four classical methods on the same synthetic image, each map scaled by its own calibrated threshold, with a results table" width="100%"></a><br><sub><b>Compare Methods</b> — scores divided by each method's calibrated threshold</sub></td>
 </tr>
 </table>
 
@@ -264,12 +311,12 @@ per lighting with cluster-bootstrap confidence intervals, statistical limitation
 
 <table>
 <tr>
-<td width="50%" valign="top"><a href="docs/screenshots/08_experiment_a_resolution.png"><img src="docs/screenshots/08_experiment_a_resolution.png" alt="Experiment A, why image resolution matters: stored verified metrics of PatchCore at 256x256 and 1024x256 next to the explanation of the experiment" width="100%"></a><br><sub><b>A · Resolution</b> — stored verified metrics ²</sub></td>
-<td width="50%" valign="top"><a href="docs/screenshots/09_experiment_b_basic.png"><img src="docs/screenshots/09_experiment_b_basic.png" alt="Experiment B in Basic mode: six lighting conditions of one anomalous scene with stored scores against the threshold, TP and FN outcomes, a score chart with OK and NOK zones and a plain-language explanation" width="100%"></a><br><sub><b>B · Illumination — Basic mode</b> ²</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/10_experiment_a_resolution.png"><img src="docs/screenshots/10_experiment_a_resolution.png" alt="Experiment A, why image resolution matters: stored verified metrics of PatchCore at 256x256 and 1024x256 next to the explanation of the experiment" width="100%"></a><br><sub><b>A · Resolution</b> — stored verified metrics ²</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/11_experiment_b_basic.png"><img src="docs/screenshots/11_experiment_b_basic.png" alt="Experiment B in Basic mode: six lighting conditions of one anomalous scene with stored scores against the threshold, TP and FN outcomes, a score chart with OK and NOK zones and a plain-language explanation" width="100%"></a><br><sub><b>B · Illumination — Basic mode</b> ²</sub></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><a href="docs/screenshots/10_experiment_b_advanced.png"><img src="docs/screenshots/10_experiment_b_advanced.png" alt="Experiment B in Advanced mode: all scenes as lines with the selected scene highlighted, its errors and threshold crossing marked, and the scenes by lighting decision table" width="100%"></a><br><sub><b>B · Illumination — Advanced mode</b> ²</sub></td>
-<td width="50%" valign="top"><a href="docs/screenshots/11_experiment_c_metrics.png"><img src="docs/screenshots/11_experiment_c_metrics.png" alt="Experiment C, Understanding Evaluation Metrics: stored score histograms and ROC curve of PaDiM on fruit_jelly with the decision table at the validation threshold" width="100%"></a><br><sub><b>C · Understanding Evaluation Metrics</b> — ranking versus decision ²</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/12_experiment_b_advanced.png"><img src="docs/screenshots/12_experiment_b_advanced.png" alt="Experiment B in Advanced mode: all scenes as lines with the selected scene highlighted, its errors and threshold crossing marked, and the scenes by lighting decision table" width="100%"></a><br><sub><b>B · Illumination — Advanced mode</b> ²</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/13_experiment_c_metrics.png"><img src="docs/screenshots/13_experiment_c_metrics.png" alt="Experiment C, Understanding Evaluation Metrics: stored score histograms and ROC curve of PaDiM on fruit_jelly with the decision table at the validation threshold" width="100%"></a><br><sub><b>C · Understanding Evaluation Metrics</b> — ranking versus decision ²</sub></td>
 </tr>
 </table>
 
@@ -277,8 +324,8 @@ per lighting with cluster-bootstrap confidence intervals, statistical limitation
 
 <table>
 <tr>
-<td width="50%" valign="top"><a href="docs/screenshots/12_lab3d_synthetic.png"><img src="docs/screenshots/12_lab3d_synthetic.png" alt="3D and Multimodal Lab: a synthetic surface patch aligned to a normal reference and coloured by geometric deviation; the bump stands out" width="100%"></a><br><sub><b>3D &amp; Multimodal Lab</b> — synthetic surface patch (Student Full profile) ¹</sub></td>
-<td width="50%" valign="top"><a href="docs/screenshots/13_model_manager.png"><img src="docs/screenshots/13_model_manager.png" alt="Model Manager listing every algorithm with availability, status on this computer, CPU support and GPU memory; PatchCore selected, showing that its pretrained weights still need to be downloaded" width="100%"></a><br><sub><b>Model Manager</b> — fresh Student Full installation, no weights downloaded yet</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/14_lab3d_synthetic.png"><img src="docs/screenshots/14_lab3d_synthetic.png" alt="3D and Multimodal Lab: a synthetic surface patch aligned to a normal reference and coloured by geometric deviation; the bump stands out" width="100%"></a><br><sub><b>3D &amp; Multimodal Lab</b> — synthetic surface patch (Student Full profile) ¹</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/15_model_manager.png"><img src="docs/screenshots/15_model_manager.png" alt="Model Manager listing every algorithm with availability, status on this computer, CPU support and GPU memory; PatchCore selected, showing that its pretrained weights still need to be downloaded" width="100%"></a><br><sub><b>Model Manager</b> — fresh Student Full installation, no weights downloaded yet</sub></td>
 </tr>
 </table>
 

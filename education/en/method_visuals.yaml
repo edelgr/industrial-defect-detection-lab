@@ -1,0 +1,668 @@
+# Methods Library — didactic visual content (English).
+#
+# One entry per method id (research_catalog/algorithms). Used by app/pages/library.py:
+#   summary   — Overview tab (problem · idea · when · limits · io · training)
+#   diagram   — "How it works" tab: lanes of stages drawn by MethodDiagramWidget.
+#               kinds: data | train | pre | feature | model | score | decision
+#               links: arrows between lanes (e.g. training memory → test scoring)
+#   example   — "Example" tab: captions keyed by the stage keys produced by
+#               core/visualization/method_examples.py; {placeholders} are filled with the example's numbers.
+#   strengths / limitations / failures / industry — "Strengths & limits" tab.
+# The Spanish file education/es/method_visuals.yaml must keep the same ids, keys and stage keys.
+
+reference_difference:
+  summary:
+    problem: "Find anything that differs between a part under inspection and a known-good **reference image** of the same part."
+    idea: "Put the test image exactly on top of the reference (alignment), subtract them pixel by pixel and keep the large differences."
+    when: "Rigid, repeatable parts photographed in a fixed set-up: printed circuits, labels, stamped or machined parts."
+    limits: "Every difference counts — misalignment, lighting changes and normal part-to-part variation also appear. The result depends on which reference you choose."
+    io: "test image + one normal reference → |difference| map, binary mask"
+    training: "None — one good reference image"
+  diagram:
+    lanes:
+      - label: "Reference (one normal image)"
+        nodes:
+          - {id: ref, kind: train, title: "Reference image", text: "A defect-free image of the same part, taken with the same camera and lighting."}
+      - label: "Test image"
+        nodes:
+          - {id: test, kind: data, title: "Test image", text: "The part we want to inspect. Converted to grey levels; if sizes differ the reference is resized to the test size."}
+          - {id: align, kind: pre, title: "Align (ECC)", text: "ECC estimates a translation / rotation / affine warp that puts the test image on the reference, so the same point of the part falls on the same pixel."}
+          - {id: blur, kind: pre, title: "Pre-blur", text: "Gaussian blur of both images (5 px by default) to attenuate noise and sub-pixel misalignment."}
+          - {id: diff, kind: score, title: "|test − reference|", text: "Absolute difference per pixel, in grey levels (0–255). This is the anomaly map. Image score = 99.9th percentile of the map."}
+          - {id: thr, kind: decision, title: "Threshold", text: "Pixels whose difference exceeds the threshold (30 grey levels by default) become the predicted defect mask."}
+    links:
+      - {from: ref, to: align, label: "align to"}
+  example:
+    captions:
+      reference: "1 · Normal reference image"
+      test: "2 · Test image: same surface, slightly shifted and rotated, with a scratch (green = true defect)"
+      diff_unaligned: "3 · Difference WITHOUT alignment: the texture itself lights up ({unaligned_px:.1f} % of pixels above threshold)"
+      aligned: "4 · Test image after ECC alignment onto the reference"
+      diff_aligned: "5 · Difference AFTER alignment: only the scratch (and the image border) remains"
+      mask: "6 · Mask: difference > {threshold:.0f} grey levels"
+      out_input: "Test image (green: true defect)"
+      out_map: "Anomaly map |test − reference|"
+      out_mask: "Predicted defect mask (red)"
+    interpretation: |
+      Without alignment, a shift of only 3 px makes the fine texture disagree everywhere — the map is
+      useless. After ECC alignment the texture cancels out and the scratch stands out clearly
+      (image score = {score:.0f} grey levels, {aligned_px:.2f} % of pixels flagged). The thin strip at the top
+      border comes from the warp (pixels without a counterpart): border effects are a typical false positive.
+  strengths:
+    - "Extremely simple and transparent: the map is literally the difference you could see by eye."
+    - "No training data: one good image is enough."
+    - "Detects any kind of change — missing, extra or displaced material."
+  limitations:
+    - "Needs very precise alignment; residual misalignment produces edge-shaped false positives."
+    - "Lighting changes, shadows and reflections look like defects."
+    - "Normal variation between good parts is flagged too; the result depends on the chosen reference."
+  failures:
+    - "Part placed with a large rotation or deformation: ECC does not converge."
+    - "Glossy surfaces whose highlights move with small pose changes."
+  industry: "Printed-circuit and label inspection, presence/absence checks, any fixture-based station with very repeatable parts and illumination."
+
+otsu:
+  summary:
+    problem: "Separate defect pixels from background when the defect is clearly darker (or brighter) than the surface."
+    idea: "Look at the grey-level histogram and pick automatically the threshold that best splits it into two groups (Otsu, 1979)."
+    when: "High-contrast defects on a uniform, evenly lit background: stains, holes, dark inclusions."
+    limits: "Assumes two populations in the histogram. Uneven lighting, textured surfaces or very small defects break it."
+    io: "grey image → binary mask (+ the threshold value)"
+    training: "None"
+  diagram:
+    lanes:
+      - nodes:
+          - {id: in, kind: data, title: "Grey image", text: "The image to inspect, converted to grey levels."}
+          - {id: blur, kind: pre, title: "Gaussian blur", text: "Smooths noise (5 px by default) so the histogram peaks are cleaner."}
+          - {id: hist, kind: feature, title: "Histogram", text: "Count of pixels at each grey level 0–255."}
+          - {id: otsu, kind: score, title: "Otsu threshold t", text: "Tries every t and keeps the one that maximises the between-class variance of the two groups (background vs. dark/bright pixels)."}
+          - {id: mask, kind: decision, title: "Mask", text: "Pixels on the 'defect' side of t (darker if polarity = dark) form the mask. Score = fraction of flagged pixels."}
+  example:
+    captions:
+      input: "1 · Surface with two dark stains (green = true defect)"
+      blurred: "2 · After Gaussian blur (5 px)"
+      histogram: "3 · Histogram: a small dark mode (stains) and a large bright mode (surface). Otsu puts t = {otsu_t:.0f}"
+      mask: "4 · Pixels darker than t: {flagged_pct:.1f} % of the image"
+      out_input: "Input (green: true defect)"
+      out_map: "Map: inverted grey level"
+      out_mask: "Predicted mask (red)"
+    interpretation: |
+      The histogram is clearly **bimodal**: the stains form their own peak, so the automatic threshold
+      (t = {otsu_t:.0f}) falls in the valley between the peaks and the mask matches the stains. Try it in the
+      Laboratory on a textured image with a small scratch: the histogram has only one peak and Otsu splits
+      the texture itself in two — the method has no notion of "normal", only of "two groups".
+  strengths:
+    - "Fully automatic threshold, no parameters to tune except blur and polarity."
+    - "Very fast and easy to explain."
+    - "Good baseline for high-contrast defects."
+  limitations:
+    - "Always finds two classes — even in a defect-free image."
+    - "Sensitive to uneven illumination (a global threshold for the whole image)."
+    - "Small defects barely change the histogram, so they do not shift the threshold."
+  failures:
+    - "Illumination gradient: one side of the image is flagged entirely."
+    - "Textured surfaces: the texture is split, not the defect."
+  industry: "Contrast-based inspection with controlled backlight or diffuse lighting: holes, contamination, blobs on uniform backgrounds."
+
+morphology:
+  summary:
+    problem: "Detect small dark (or bright) spots and thin scratches on a surface whose brightness varies slowly."
+    idea: "Estimate the background by 'erasing' structures smaller than a structuring element, then subtract: what was erased is the defect (top-hat / black-hat)."
+    when: "Defects are smaller than a known size and have consistent polarity: pits, dust, thin scratches, small inclusions."
+    limits: "The structuring-element size must be chosen; textures with grains of similar size respond as strongly as defects."
+    io: "grey image → top-hat response map, binary mask"
+    training: "None"
+  diagram:
+    lanes:
+      - nodes:
+          - {id: in, kind: data, title: "Grey image", text: "The image to inspect, in grey levels."}
+          - {id: close, kind: pre, title: "Closing (background)", text: "Dilation then erosion with an elliptical structuring element (15 px by default): dark structures smaller than it are filled in, leaving an estimate of the background."}
+          - {id: bh, kind: score, title: "Black-hat = closing − image", text: "What the closing filled in: small dark structures. (White-hat = image − opening finds small bright ones.) This is the anomaly map."}
+          - {id: thr, kind: decision, title: "Threshold", text: "Response > 25 grey levels (default) → candidate defect pixels."}
+          - {id: open, kind: decision, title: "Clean (opening)", text: "A small opening (3 px) removes isolated noisy pixels from the mask. Score = maximum response."}
+  example:
+    captions:
+      input: "1 · Polished surface with three pits and a scratch (green = true defect)"
+      closing: "2 · Closing with a 15 px ellipse: pits and scratch filled in → background estimate"
+      blackhat: "3 · Black-hat (closing − image): only the small dark structures remain"
+      threshold: "4 · Response > 25 grey levels: {raw_px} pixels"
+      cleaned: "5 · After a 3 px opening: {clean_px} pixels"
+      out_input: "Input (green: true defect)"
+      out_map: "Black-hat response"
+      out_mask: "Predicted mask (red)"
+    interpretation: |
+      The closing acts as a "defect eraser": anything darker and smaller than the 15 px ellipse disappears,
+      so subtracting the image from it isolates the pits and the scratch while the slow illumination
+      gradient cancels out. The structuring element defines what "small" means: a defect larger than it
+      would be partly treated as background. On coarse brushed textures the grain itself responds — try
+      it in the Laboratory and increase the threshold.
+  strengths:
+    - "Robust to slow illumination changes (the background is estimated locally)."
+    - "The structuring element encodes prior knowledge about defect size and shape."
+    - "Fast, deterministic, no training."
+  limitations:
+    - "Needs a known defect polarity (dark vs. bright) and size range."
+    - "Texture grains of the same size as defects respond equally."
+    - "Large defects are partly absorbed into the background estimate."
+  failures:
+    - "Coarse, high-contrast textures (brushed metal, fabric) → many false positives."
+    - "A defect wider than the structuring element → only its border is detected."
+  industry: "Pits and dust on polished parts, scratches on glass or wafers, particle counting, pre-processing for OCR."
+
+canny:
+  summary:
+    problem: "Locate sharp brightness transitions: cracks, scratches, broken or extra edges."
+    idea: "Smooth, compute the intensity gradient, keep only the thin ridge of the strongest gradients and connect them with two thresholds (Canny, 1986)."
+    when: "Smooth surfaces where any edge is suspicious, or to measure shapes and contours."
+    limits: "Edges are evidence, not defects: texture, part borders and shadows produce edges too."
+    io: "grey image → edge map; IDD Lab adds an edge-density map and mask"
+    training: "None"
+  diagram:
+    lanes:
+      - nodes:
+          - {id: in, kind: data, title: "Grey image", text: "The image to inspect."}
+          - {id: blur, kind: pre, title: "Gaussian smoothing", text: "Removes noise that would create spurious edges (5 px by default)."}
+          - {id: grad, kind: feature, title: "Gradient (Sobel)", text: "Magnitude and direction of the brightness change at every pixel."}
+          - {id: nms, kind: feature, title: "Non-max suppression", text: "Keeps only the local maximum across the edge, so edges are one pixel thick."}
+          - {id: hyst, kind: decision, title: "Hysteresis (40 / 120)", text: "Strong edges (> high) are kept; weak edges (> low) only if connected to a strong one."}
+          - {id: dens, kind: score, title: "Edge density", text: "IDD Lab addition: fraction of edge pixels in a 15 px window. Mask = density > 0.15."}
+  example:
+    captions:
+      input: "1 · Surface with a scratch and a dark triangular mark (green = true defect)"
+      blurred: "2 · Gaussian smoothing (5 px)"
+      gradient: "3 · Gradient magnitude: the defect borders are strong, the texture is weaker but not zero"
+      edges: "4 · Canny edges (red): thin connected contours — {edge_pct:.1f} % of pixels"
+      density: "5 · Edge density in a 15 px window"
+      mask: "6 · Mask: density > 0.15"
+      out_input: "Input (green: true defect)"
+      out_map: "Edge-density map"
+      out_mask: "Predicted mask (red)"
+    interpretation: |
+      Canny finds the **outlines** of the defects (the triangle appears as its contour) but also some
+      edges of the brushed texture. The density map turns the thin edges into regions; where texture
+      edges cluster they also pass the threshold. Edges are only evidence: decide whether an edge is a
+      defect with prior knowledge (where edges should be) or a second method.
+  strengths:
+    - "Precise, thin, well-localised contours."
+    - "Classic, well understood; excellent for measuring geometry."
+    - "Hysteresis keeps continuous cracks while rejecting isolated noise."
+  limitations:
+    - "Responds to every edge, including texture and legitimate part borders."
+    - "Two thresholds and the blur must be tuned per surface."
+    - "Finds borders of large defects, not their interior."
+  failures:
+    - "Textured materials produce dense edge maps everywhere."
+    - "Low-contrast cracks fall below the low threshold and break into pieces."
+  industry: "Crack detection on smooth surfaces, dimension and contour measurement, presence of edges in expected places."
+
+gabor:
+  summary:
+    problem: "Detect regions where the **texture** changes — direction, frequency or roughness — even when the mean brightness does not."
+    idea: "Filter the image with a bank of oriented wave-like filters at several scales; normal texture gives a typical energy pattern, a defect gives an unusual one."
+    when: "Regular or directional textures: fabrics, brushed or machined metal, wood, textiles."
+    limits: "Assumes most of the image is normal texture (statistics are taken from the image itself); needs filter scales that match the texture."
+    io: "grey image → texture-deviation map (robust z-score), mask"
+    training: "None (statistics from the same image)"
+  diagram:
+    lanes:
+      - nodes:
+          - {id: in, kind: data, title: "Grey image", text: "The image to inspect, scaled to 0–1."}
+          - {id: bank, kind: feature, title: "Gabor filter bank", text: "Oriented sinusoids under a Gaussian window: 6 orientations × 3 wavelengths (4, 8, 16 px) = 18 filters."}
+          - {id: energy, kind: feature, title: "Local energy", text: "Each response is squared and averaged in a 15 px window, then log-transformed: 18 texture features per pixel."}
+          - {id: stats, kind: model, title: "Image statistics", text: "Median and MAD of every feature over the whole image — what the texture usually looks like."}
+          - {id: z, kind: score, title: "Robust z-score", text: "|feature − median| / MAD per filter; the map is the maximum over the 18 filters."}
+          - {id: thr, kind: decision, title: "Threshold (z > 4)", text: "Pixels with an unusual texture response form the mask. Score = 99.5th percentile."}
+  example:
+    captions:
+      input: "1 · Brushed surface with a patch whose brushing direction is rotated 90° (green)"
+      bank: "2 · Six orientations of the λ = 8 px filters (one of the 3 scales of the real bank)"
+      energy_0: "3 · Energy of the 0° filter: high where the stripes are vertical — the defect"
+      energy_90: "4 · Energy of the 90° filter: the normal texture; it drops inside the defect"
+      zscore: "5 · Max robust z-score over the {n_filters} filters"
+      mask: "6 · Mask: z > 4"
+      out_input: "Input (green: true defect)"
+      out_map: "Texture-deviation map (z)"
+      out_mask: "Predicted mask (red)"
+    interpretation: |
+      The defect has the **same brightness** as the rest of the surface — Otsu or morphology would not see
+      it. What changes is the orientation of the texture: the 0° filter fires inside the patch while the
+      90° filter (aligned with normal brushing) goes quiet. Measuring every pixel against the image's own
+      median/MAD turns "unusual filter energy" into a z-score; the defect reaches z ≈ {score:.0f}.
+  strengths:
+    - "Sees texture defects that have no brightness contrast."
+    - "Interpretable: each filter corresponds to an orientation and a scale."
+    - "No training images needed."
+  limitations:
+    - "Self-referenced statistics: a defect covering a large part of the image becomes 'normal'."
+    - "Filter scales must match the texture; many filters cost computation."
+    - "Coarse localisation (energy windows blur the borders)."
+  failures:
+    - "Non-stationary textures (pattern changes across the part) look anomalous."
+    - "Defects much smaller than the energy window are diluted."
+  industry: "Textile and fabric inspection, wood and leather grading, machining marks on metal surfaces."
+
+adaptive_threshold:
+  summary:
+    problem: "Find dark (or bright) defects when the illumination is **not uniform** across the image."
+    idea: "Compare each pixel with the mean of its own neighbourhood instead of with one global threshold."
+    when: "Uneven lighting, vignetting or large curved parts where a single threshold fails."
+    limits: "The neighbourhood size must be larger than the defects; textures with local contrast above C are flagged."
+    io: "grey image → deviation from local mean, mask"
+    training: "None"
+  diagram:
+    lanes:
+      - nodes:
+          - {id: in, kind: data, title: "Grey image", text: "The image to inspect."}
+          - {id: local, kind: model, title: "Local mean", text: "Gaussian-weighted mean in a 51 px neighbourhood (default): the expected brightness at each place."}
+          - {id: dev, kind: score, title: "Local mean − pixel", text: "How much darker the pixel is than its surroundings (polarity dark). This is the anomaly map."}
+          - {id: thr, kind: decision, title: "Offset C", text: "Pixels more than C = 12 grey levels darker than their neighbourhood form the mask."}
+  example:
+    captions:
+      input: "1 · Surface lit strongly from the right, with three pits and a scratch (green)"
+      global_otsu: "2 · Global Otsu for comparison: it splits the image by illumination — {global_pct:.0f} % flagged"
+      local_mean: "3 · Local Gaussian mean (51 px): the illumination is estimated, defects are too small to affect it"
+      deviation: "4 · Local mean − pixel: the illumination gradient has vanished"
+      mask: "5 · Mask: darker than the local mean by more than C = 12 ({local_pct:.1f} % of pixels)"
+      out_input: "Input (green: true defect)"
+      out_map: "Deviation from the local mean"
+      out_mask: "Predicted mask (red)"
+    interpretation: |
+      A single global threshold (panel 2) only "sees" the lighting: the dark half of the image is all
+      flagged. Comparing every pixel with its own neighbourhood removes the gradient, and the pits are
+      found on both the dark and the bright side. The few remaining false positives are texture grains
+      darker than C — raise C or the block size in the Laboratory to trade sensitivity for specificity.
+  strengths:
+    - "Handles uneven illumination naturally."
+    - "Simple: two parameters with a clear meaning (neighbourhood size, offset C)."
+    - "Very fast."
+  limitations:
+    - "Defects larger than the neighbourhood pull the local mean and are missed."
+    - "Fine texture with local contrast above C creates false positives."
+    - "Still no notion of what a normal part looks like."
+  failures:
+    - "Large stains or missing areas."
+    - "Strong textures or sharp part borders (the local mean straddles two regions)."
+  industry: "Documents and labels under uneven light, curved or large parts, pre-segmentation before measurement."
+
+padim:
+  summary:
+    problem: "Detect and localise unknown anomalies when you only have **normal** images of a product."
+    idea: "Describe every image position with pretrained CNN features and learn, position by position, a Gaussian of what is normal there. A test patch far from its Gaussian (Mahalanobis distance) is anomalous."
+    when: "Well-aligned objects or textures, tens to hundreds of normal images, need for a heat-map."
+    limits: "Assumes the object is always at the same place (one Gaussian per position); memory grows with feature dimension."
+    io: "image (256×256) → Mahalanobis anomaly map, image score (max)"
+    training: "Tens to hundreds of normal images (no defects needed)"
+  diagram:
+    lanes:
+      - label: "Fitting (normal images only)"
+        nodes:
+          - {id: train, kind: train, title: "Normal images", text: "Only defect-free training images of one category."}
+          - {id: cnn, kind: feature, title: "CNN features (layers 1–3)", text: "A frozen ImageNet ResNet; feature maps of layers 1, 2 and 3 are resized to a common grid and concatenated: one vector per patch position."}
+          - {id: reduce, kind: feature, title: "Random channel subset", text: "A fixed random subset of channels (e.g. 100) keeps the covariance small."}
+          - {id: gauss, kind: model, title: "Gaussian per position", text: "For every grid position (i, j): mean μᵢⱼ and covariance Σᵢⱼ over all training images (+ εI for stability)."}
+      - label: "Test"
+        nodes:
+          - {id: test, kind: data, title: "Test image", text: "Resized to 256×256 like the training images."}
+          - {id: feat, kind: feature, title: "Same features", text: "The same frozen backbone and the same channel subset."}
+          - {id: maha, kind: score, title: "Mahalanobis distance", text: "M(xᵢⱼ) = √((x − μᵢⱼ)ᵀ Σᵢⱼ⁻¹ (x − μᵢⱼ)) at every position: how unusual is this patch for this place?"}
+          - {id: up, kind: score, title: "Upsample + smooth", text: "The patch-grid map is upsampled to image size and Gaussian-smoothed. Image score = maximum."}
+          - {id: thr, kind: decision, title: "Threshold", text: "Calibrated on normal validation images (e.g. a high percentile), not on test defects."}
+    links:
+      - {from: gauss, to: maha, label: "μ, Σ per position"}
+  example:
+    captions:
+      train: "1 · {n_train} normal training images (no defect)"
+      features: "2 · Each image is cut into a patch grid; every patch gets a feature vector"
+      mean: "3 · Learned mean μ per position (one feature channel)"
+      variance: "4 · Learned spread σ per position (another channel): positions differ"
+      test: "5 · Test image with a dark triangular defect (green)"
+      mahalanobis: "6 · Mahalanobis distance per patch"
+      mask: "7 · Mask: above the threshold calibrated on held-out normal images"
+      out_input: "Test image (green: true defect)"
+      out_map: "Anomaly map (upsampled, smoothed)"
+      out_mask: "Predicted mask (red)"
+    interpretation: |
+      PaDiM never saw a defect: it learned only how features vary **at each position** of normal images
+      (panels 3–4). The patches covering the triangle lie far from their position's Gaussian (max distance
+      {score:.1f} vs. threshold {threshold:.1f}, set on held-out normal images), so they light up. The mask
+      is blob-shaped and larger than the defect because the map has patch resolution — real PaDiM maps are
+      also coarse and smoothed.
+  strengths:
+    - "Needs only normal images; very simple 'training' (means and covariances)."
+    - "Gives both an image score and a localisation map."
+    - "Statistically principled score (Mahalanobis)."
+  limitations:
+    - "One Gaussian per position: objects must be aligned; rotated or shifted parts look anomalous."
+    - "Memory and time grow with the covariance size (channels²)."
+    - "A single Gaussian cannot model multi-modal normal appearance."
+  failures:
+    - "Parts placed at varying positions or orientations."
+    - "Normal variants not covered by the training set (another colour, another supplier)."
+  industry: "Fixed-position inspection of products with only good samples available: tablets, screws, textures on conveyor belts with a fixture."
+
+patchcore:
+  summary:
+    problem: "Detect and localise anomalies from normal images only, with state-of-the-art accuracy on industrial benchmarks."
+    idea: "Store representative patch features of normal images in a **memory bank**. A test patch is anomalous if even its nearest neighbour in memory is far away."
+    when: "Tens to hundreds of normal images, objects or textures, need for a heat-map; position does not have to be fixed."
+    limits: "Memory and nearest-neighbour search cost grow with the bank; a backbone pretrained on natural images may miss domain-specific details."
+    io: "image (256×256) → nearest-neighbour distance map, re-weighted image score"
+    training: "Tens to hundreds of normal images (no gradient training)"
+  diagram:
+    lanes:
+      - label: "Fitting (normal images only)"
+        nodes:
+          - {id: train, kind: train, title: "Normal images", text: "Defect-free training images of one category."}
+          - {id: feat, kind: feature, title: "Patch features", text: "Frozen WideResNet-50, layers 2 + 3, each position aggregated over its 3×3 neighbourhood (locally aware patch features)."}
+          - {id: coreset, kind: model, title: "Coreset (10 %)", text: "Greedy k-center sampling keeps a small subset that still covers the whole feature space — the memory bank."}
+      - label: "Test"
+        nodes:
+          - {id: test, kind: data, title: "Test image", text: "Resized to 256×256."}
+          - {id: tfeat, kind: feature, title: "Same patch features", text: "Same backbone and aggregation."}
+          - {id: nn, kind: score, title: "Nearest neighbour", text: "For every test patch: distance to its nearest neighbour in the memory bank."}
+          - {id: score, kind: score, title: "Map + image score", text: "Patch distances form the map (upsampled + Gaussian smoothing). Image score = maximum, re-weighted by how isolated that memory neighbour is."}
+          - {id: thr, kind: decision, title: "Threshold", text: "Calibrated on normal validation images."}
+    links:
+      - {from: coreset, to: nn, label: "search in memory"}
+  example:
+    captions:
+      train: "1 · Normal training images"
+      patches: "2 · Every image becomes a grid of patches → {bank} patch features in total"
+      memory: "3 · Feature space (2-D projection): all normal patches (grey), coreset memory (teal, {coreset} patches), test patches (×)"
+      test: "4 · Test image with a scratch (green)"
+      nn_distance: "5 · Distance of each test patch to its nearest memory patch"
+      smoothed: "6 · Upsampled and Gaussian-smoothed"
+      mask: "7 · Mask: above the threshold calibrated on held-out normal images"
+      out_input: "Test image (green: true defect)"
+      out_map: "Anomaly map"
+      out_mask: "Predicted mask (red)"
+    interpretation: |
+      Panel 3 is the heart of PatchCore: normal test patches (blue ×) fall **inside** the cloud of
+      remembered normal patches, so their nearest neighbour is close. The scratch patches (red ×) lie
+      **outside** the cloud: their nearest-neighbour distance is large (max {score:.1f} vs. threshold
+      {threshold:.2f}). Keeping only 10 % of the patches (coreset) barely changes the distances but makes
+      the search 10× cheaper.
+  strengths:
+    - "Top accuracy on MVTec AD-style benchmarks with only normal images."
+    - "No gradient training: fitting is feature extraction + subsampling."
+    - "Does not require aligned parts (no per-position model)."
+  limitations:
+    - "Memory bank size and search time grow with the number of training images."
+    - "Relies on ImageNet features: subtle domain-specific defects may be invisible to them."
+    - "Patch resolution limits the precision of the boundaries."
+  failures:
+    - "Normal appearance not covered by the training set → false positives."
+    - "Logical anomalies (wrong arrangement of normal parts) — each patch looks normal on its own."
+  industry: "General-purpose visual anomaly detection when only good parts are available: castings, electronics, pharmaceuticals, textures."
+
+efficientad:
+  summary:
+    problem: "Detect anomalies from normal images only, **fast** enough for production lines (milliseconds per image)."
+    idea: "A frozen **teacher** network describes each patch; a **student** is trained on normal images to imitate it. Where the student fails to imitate, the image is unusual."
+    when: "Real-time inspection, both structural defects and logical anomalies (via an extra autoencoder)."
+    limits: "Requires training (thousands of steps, GPU recommended) and normalisation of the maps on validation images."
+    io: "image (256×256) → combined local + global anomaly map, image score"
+    training: "Normal images (paper: 70 000 steps; IDD Lab default: 10 000) + ImageNet-like images for a penalty term"
+  diagram:
+    lanes:
+      - label: "Training (normal images only)"
+        nodes:
+          - {id: train, kind: train, title: "Normal images", text: "Defect-free training images."}
+          - {id: teacher, kind: model, title: "Teacher (frozen PDN)", text: "A small Patch Description Network distilled beforehand from a large pretrained network; it stays frozen."}
+          - {id: student, kind: model, title: "Student learns to imitate", text: "Same architecture; trained so its output matches the teacher's on normal images, focusing on the hardest patches (hard-feature loss), with an ImageNet penalty so it does not generalise to everything."}
+          - {id: ae, kind: model, title: "Autoencoder + 2nd head", text: "An autoencoder and a second student head capture global context, for logical anomalies."}
+      - label: "Test"
+        nodes:
+          - {id: test, kind: data, title: "Test image", text: "Resized to 256×256."}
+          - {id: both, kind: feature, title: "Teacher & student outputs", text: "Both networks describe every patch."}
+          - {id: local, kind: score, title: "Discrepancy map", text: "Local map = mean over channels of (teacher − student)²; global map = (autoencoder − student head)²."}
+          - {id: norm, kind: score, title: "Normalise + combine", text: "Each map is normalised with quantiles measured on normal validation images, then averaged."}
+          - {id: thr, kind: decision, title: "Threshold", text: "Calibrated on normal validation images."}
+    links:
+      - {from: student, to: both, label: "trained weights"}
+  example:
+    captions:
+      train: "1 · Normal training images"
+      test: "2 · Test image with a dark triangular defect (green)"
+      teacher: "3 · Teacher output (one channel): a fixed non-linear description of each patch"
+      student: "4 · Student's imitation of that channel (learned on normal images only)"
+      discrepancy: "5 · Discrepancy (teacher − student)² averaged over channels"
+      mask: "6 · Mask: above the threshold calibrated on held-out normal images"
+      out_input: "Test image (green: true defect)"
+      out_map: "Anomaly map (discrepancy)"
+      out_mask: "Predicted mask (red)"
+    interpretation: |
+      On normal texture the student has learned to reproduce the teacher, so panels 3 and 4 look alike
+      and the discrepancy is low. On the defect the student has never been trained, its imitation breaks
+      down and the discrepancy rises (max {score:.2f} vs. threshold {threshold:.3f}). In this toy, the
+      teacher is a set of fixed random filters with ReLU and the student a linear regression — the real
+      EfficientAD uses deep networks, plus an autoencoder branch for logical anomalies.
+  strengths:
+    - "Very fast inference (a few ms on GPU) — suitable for production lines."
+    - "Detects structural and logical anomalies (local + global branches)."
+    - "Strong benchmark accuracy."
+  limitations:
+    - "Needs training (GPU, thousands of steps) and a validation set of normal images for map normalisation."
+    - "More hyper-parameters and moving parts than memory-bank methods."
+    - "The student may also learn to imitate the teacher on some anomalies (over-generalisation)."
+  failures:
+    - "Too few or too homogeneous training images: the student over- or under-generalises."
+    - "Very small defects near the receptive-field size."
+  industry: "High-throughput lines where latency matters: packaging, food, electronics, logistics."
+
+winclip:
+  summary:
+    problem: "Detect anomalies **without any training images** of the product (zero-shot), or with very few (few-shot)."
+    idea: "Use CLIP, a model that matches images and text. Compare small image windows with prompts such as 'a photo of a flawless object' vs. 'a photo of a damaged object', at several window sizes, and aggregate."
+    when: "New products with no data yet, quick feasibility studies, many product types."
+    limits: "Coarse localisation; accuracy below methods trained on normal images; depends on the wording of the prompts and the class name."
+    io: "image (240×240) + class name → window-level anomaly map, image score"
+    training: "None (zero-shot); optionally k normal images"
+  diagram:
+    lanes:
+      - label: "Text side (no images needed)"
+        nodes:
+          - {id: prompts, kind: train, title: "Prompt ensemble", text: "Many sentences combining state words ('flawless', 'damaged', 'with a scratch'…) with templates and the class name."}
+          - {id: text, kind: model, title: "CLIP text encoder", text: "Averaged into one 'normal' and one 'anomalous' text embedding."}
+      - label: "Image side"
+        nodes:
+          - {id: test, kind: data, title: "Test image", text: "Resized to 240×240."}
+          - {id: win, kind: feature, title: "Windows (2×2, 3×3 patches)", text: "Sliding windows at several scales over the ViT patch grid; each window gets its own CLIP image embedding."}
+          - {id: sim, kind: score, title: "Window score", text: "softmax of the similarities with the two text embeddings → probability that the window is 'anomalous'."}
+          - {id: agg, kind: score, title: "Harmonic aggregation", text: "Every pixel takes the harmonic mean of the scores of all windows that cover it, over all scales."}
+          - {id: thr, kind: decision, title: "Threshold", text: "On the map or on the image score (maximum)."}
+    links:
+      - {from: text, to: sim, label: "compare with text"}
+  example:
+    captions:
+      test: "1 · Test image with a scratch (green)"
+      windows_small: "2 · Small windows (2×2 patches): one on normal texture (blue), one on the defect (orange)"
+      windows_mid: "3 · Medium windows (3×3 patches)"
+      scores_small: "4 · Score of each small window ('anomalous' probability)"
+      scores_mid: "5 · Score of each medium window"
+      harmonic: "6 · Harmonic mean over all windows covering each pixel"
+      mask: "7 · Mask: aggregated score > {threshold:.2f}"
+      out_input: "Test image (green: true defect)"
+      out_map: "Window-aggregated anomaly map"
+      out_mask: "Predicted mask (red)"
+    interpretation: |
+      No normal image was used: each window is judged on its own against a "normal" and an "anomalous"
+      description. Windows containing the scratch move towards "anomalous" (max {score:.2f}), the others
+      stay low. Several window sizes are combined and the **harmonic mean** is dominated by the low scores,
+      so a pixel only stays high if every window covering it agrees — this suppresses isolated false
+      alarms but makes the map coarse. In this toy a hand-crafted contrast descriptor stands in for CLIP
+      embeddings; the window-and-aggregate mechanism is WinCLIP's.
+  strengths:
+    - "Works with zero product images (only a class name)."
+    - "One model for many product types."
+    - "Few normal images can be added to improve results (few-shot)."
+  limitations:
+    - "Coarse, window-level localisation."
+    - "Lower accuracy than methods trained on normal images of the product."
+    - "Sensitive to prompt wording and to whether CLIP 'knows' the object."
+  failures:
+    - "Subtle or tiny defects that do not change the window's semantic description."
+    - "Industrial objects far from CLIP's training data."
+  industry: "Cold start of a new line, triage of many SKUs, screening before collecting a training set."
+
+anomalydino:
+  summary:
+    problem: "Detect anomalies with only **a few** normal reference images (1–16 shots)."
+    idea: "Describe every patch with DINOv2 self-supervised features; a test patch is anomalous if no patch of the reference images is similar to it (cosine nearest neighbour)."
+    when: "Few-shot settings: new products, few good samples, many product types."
+    limits: "Large backbone (GPU recommended); results depend on how representative the few references are."
+    io: "image (448×448) + k normal references → cosine-distance patch map, image score (mean of top 1 %)"
+    training: "None — 1 to 16 normal reference images"
+  diagram:
+    lanes:
+      - label: "Reference shots"
+        nodes:
+          - {id: ref, kind: train, title: "k normal images", text: "1 to 16 defect-free references."}
+          - {id: rfeat, kind: feature, title: "DINOv2 patch tokens", text: "A frozen self-supervised ViT (ViT-S/14) gives one feature vector per 14×14 patch."}
+          - {id: bank, kind: model, title: "Patch memory", text: "All reference patch tokens (optionally only the object, using zero-shot masking)."}
+      - label: "Test"
+        nodes:
+          - {id: test, kind: data, title: "Test image", text: "Resized (448×448 in IDD Lab)."}
+          - {id: tfeat, kind: feature, title: "DINOv2 patch tokens", text: "Same frozen backbone."}
+          - {id: cos, kind: score, title: "Cosine NN distance", text: "d(p) = 1 − max cosine similarity between the test patch and any reference patch."}
+          - {id: top, kind: score, title: "Mean of top 1 %", text: "Image score = mean of the 1 % largest patch distances (robust to a single noisy patch)."}
+          - {id: thr, kind: decision, title: "Threshold", text: "On the image score or on the map."}
+    links:
+      - {from: bank, to: cos, label: "nearest neighbour"}
+  example:
+    captions:
+      reference: "1 · ONE normal reference image, cut into patches (1-shot)"
+      test: "2 · Test image with a dark rectangular defect (green)"
+      cosine: "3 · Cosine distance of each test patch to its most similar reference patch"
+      top1: "4 · The top 1 % patches ({k_top}) whose mean is the image score ({score:.3f})"
+      mask: "5 · Mask: above the largest distance seen on held-out normal images"
+      out_input: "Test image (green: true defect)"
+      out_map: "Anomaly map"
+      out_mask: "Predicted mask (red)"
+    interpretation: |
+      With a single reference image, every normal test patch still finds a very similar patch in the
+      reference (distance ≈ 0), because the texture repeats. The defect patches have no look-alike, so
+      their distance stands out. The image score averages only the top 1 % of distances — robust to one
+      noisy patch, sensitive to a compact defect. In this toy, simple patch descriptors replace DINOv2
+      tokens; the real model's features are far richer and largely illumination-invariant.
+  strengths:
+    - "Works with very few normal images (even one)."
+    - "No training; strong self-supervised features."
+    - "Simple, transparent scoring (nearest neighbour)."
+  limitations:
+    - "Large backbone: slower than classical methods, GPU recommended."
+    - "Few references may not cover normal variation → false positives."
+    - "Patch resolution (14 px tokens) limits fine localisation."
+  failures:
+    - "Normal variants absent from the k references."
+    - "Background clutter, if masking is disabled."
+  industry: "Fast set-up on new products with few samples; many low-volume product variants."
+
+pc_deviation:
+  summary:
+    problem: "Find geometric defects (dents, bumps, missing material) on a 3D-scanned part."
+    idea: "Register the scanned point cloud onto a normal reference cloud, then measure how far each point is from the reference surface."
+    when: "Rigid parts with 3D scanners (laser, structured light), defects that change shape rather than colour."
+    limits: "Everything depends on registration: if alignment fails, the whole part looks defective. Deformable parts are not supported."
+    io: "test point cloud + normal reference cloud(s) → per-point deviation, object score (percentile)"
+    training: "1–4 normal reference point clouds"
+  diagram:
+    lanes:
+      - label: "Reference"
+        nodes:
+          - {id: ref, kind: train, title: "Normal reference cloud(s)", text: "One or more scans of good parts, merged; voxel down-sampled; normals estimated."}
+      - label: "Test"
+        nodes:
+          - {id: test, kind: data, title: "Test point cloud", text: "Scan of the part to inspect; voxel down-sampled (1/150 of the bounding-box diagonal)."}
+          - {id: coarse, kind: pre, title: "Coarse alignment", text: "Centroid pre-alignment, then FPFH geometric features + RANSAC matching to find a rough pose."}
+          - {id: icp, kind: pre, title: "Fine alignment (ICP)", text: "Iterative Closest Point refines the pose (point-to-point, then point-to-plane)."}
+          - {id: dev, kind: score, title: "Distance to surface", text: "For every test point: |n·(p − q)|, the distance to the tangent plane of the nearest reference point."}
+          - {id: score, kind: decision, title: "Score + threshold", text: "Object score = 99th percentile of the deviations; points above a tolerance form the defect."}
+    links:
+      - {from: ref, to: coarse, label: "register onto"}
+  example:
+    note: "Synthetic surfaces and a NumPy re-enactment of the pipeline (centroid + point-to-point ICP, point-to-surface distance) so it runs instantly without Open3D. The steps are the method's; the numbers are not those of the IDD Lab baseline."
+    captions:
+      reference: "1 · Normal reference surface (top view, colour = height)"
+      test: "2 · Test scan (orange) as captured: rotated and shifted w.r.t. the reference (grey)"
+      coarse: "3 · Coarse alignment (centroids matched): still rotated"
+      icp: "4 · After ICP: test and reference overlap"
+      deviation_before: "5 · Deviation if we skipped ICP: the whole part looks defective (p99 = {before:.2f})"
+      deviation: "6 · Deviation after ICP: only the dent stands out"
+      mask: "7 · Points deviating more than {threshold:.2f} units (red)"
+      out_gt: "True dent (green, known from the synthetic generator)"
+      out_map: "Per-point deviation after registration"
+      out_mask: "Predicted defect points (red)"
+    interpretation: |
+      Without fine registration (panel 5) the deviation is dominated by the pose error and is meaningless.
+      After ICP the normal points lie on the reference surface (RMS ≈ {rmse:.2f} units) and the dent emerges
+      (object score p99 = {score:.2f}). This toy uses centroid + point-to-point ICP in NumPy and
+      point-to-surface distances; the IDD Lab baseline adds FPFH + RANSAC and point-to-plane ICP (Open3D).
+  strengths:
+    - "Directly measures geometry, in physical units."
+    - "Needs only one or a few good reference scans."
+    - "Transparent: every number is a distance."
+  limitations:
+    - "Registration is the weak point: symmetric or featureless parts may align wrongly."
+    - "Rigid parts only; normal shape tolerance is not learned."
+    - "Scanner noise and occlusions create spurious deviations."
+  failures:
+    - "Large initial misplacement or symmetric shapes → ICP converges to a wrong pose."
+    - "Partial scans whose missing areas are compared with the full reference."
+  industry: "Dimensional inspection of castings, stamped and machined parts, CAD-to-scan comparison."
+
+multimodal_fusion:
+  summary:
+    problem: "Some defects are visible in colour, others only in 3D (or infrared). How to combine sensors into one decision?"
+    idea: "Run one detector per modality, put their scores on a common scale using normal samples, then fuse them (mean or max)."
+    when: "Inspection cells with several sensors (RGB, infrared, 3D) observing the same object."
+    limits: "Late fusion ignores cross-modal patterns; the normalisation needs held-out normal samples; mean and max fusion behave very differently."
+    io: "RGB + infrared + point cloud → per-modality standardised scores, fused score"
+    training: "Normal multimodal samples (fitting + held-out normalisation)"
+  diagram:
+    lanes:
+      - label: "Per-modality detectors (fitted on normal samples)"
+        nodes:
+          - {id: rgb, kind: data, title: "RGB image", text: "Colour camera view."}
+          - {id: rgbdet, kind: score, title: "Image detector", text: "e.g. PatchCore fitted on normal RGB images → raw score s_RGB."}
+      - label: " "
+        nodes:
+          - {id: pc, kind: data, title: "Point cloud", text: "3D scan of the same object."}
+          - {id: pcdet, kind: score, title: "3D deviation", text: "Registration + geometric deviation → raw score s_3D."}
+      - label: "Fusion"
+        nodes:
+          - {id: hold, kind: train, title: "Held-out normals", text: "Normal samples NOT used for fitting: mean μ_m and std σ_m of each modality's score."}
+          - {id: z, kind: pre, title: "Standardise", text: "z_m = (s_m − μ_m) / σ_m: scores of different detectors become comparable."}
+          - {id: fuse, kind: score, title: "Fuse", text: "Mean of the z (averages evidence) or max of the z (an OR over sensors)."}
+          - {id: thr, kind: decision, title: "Threshold", text: "One decision per object."}
+    links:
+      - {from: rgbdet, to: z, label: "s_RGB"}
+      - {from: pcdet, to: z, label: "s_3D"}
+  example:
+    note: "Synthetic RGB images and height maps. The RGB detector is IDD Lab's real morphology method; the 3D detector is a simple deviation from the nominal surface. The standardisation and fusion rules are the experiment's; the numbers are illustrative."
+    captions:
+      rgb_views: "1 · RGB views of 4 test objects: good · pits · good · pits"
+      depth_views: "2 · 3D views (height minus nominal shape): good · good · dent · dent"
+      normalise: "3 · Raw RGB scores of held-out NORMAL objects: their mean and spread define z = 0 and z = 1"
+      fusion: "4 · Standardised scores per modality and fused (dashed line: z = {threshold:.0f})"
+      out_fusion: "Per-modality z-scores and fused scores for the 4 test objects"
+    interpretation: |
+      Each defect is visible in **one** modality only: the pits in RGB, the dent in 3D. Standardising with
+      held-out normal objects puts both detectors on the same scale. **Max fusion** catches both
+      single-modality defects (it acts as an OR). **Mean fusion** dilutes them: averaged with a normal
+      score from the other sensor, the 3D-only dent falls just below the line. Max fusion, in exchange,
+      also inherits the false alarms of every sensor. Here the RGB detector is IDD Lab's real morphology
+      method and the 3D detector the deviation from the nominal surface; the real experiment uses PatchCore
+      on RGB and infrared plus the 3D baseline on MulSen-AD.
+  strengths:
+    - "Simple and modular: any detector can be plugged in per sensor."
+    - "Standardisation makes heterogeneous scores comparable."
+    - "Max fusion catches defects visible in a single modality."
+  limitations:
+    - "Late fusion cannot exploit cross-modal patterns (e.g. a colour change that is only a defect when the geometry also changes)."
+    - "Requires held-out normal samples for calibration."
+    - "Mean fusion dilutes single-modality defects; max fusion accumulates false alarms."
+  failures:
+    - "Poorly calibrated modality (too few held-out normals) dominates the fused score."
+    - "Mis-registered sensors: modalities disagree on where the defect is."
+  industry: "Multi-sensor inspection cells: RGB + 3D for surface and shape, infrared for thermal anomalies (welds, electronics)."

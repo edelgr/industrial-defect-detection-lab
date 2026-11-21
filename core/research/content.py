@@ -47,5 +47,16 @@ def algorithm_steps(method_id: str, lang: str | None = None) -> dict | None:
     return data.get(method_id)
 
 
+def method_visual(method_id: str, lang: str | None = None) -> dict | None:
+    """Didactic visual content for the Methods Library (summary, pipeline diagram, example captions,
+    strengths/limitations): education/<lang>/method_visuals.yaml, falling back to English."""
+    lang = lang or _lang()
+    for lg in dict.fromkeys((lang, "en")):
+        rec = (_yaml(paths.EDUCATION / lg / "method_visuals.yaml") or {}).get(method_id)
+        if rec:
+            return rec
+    return None
+
+
 def workshop(lang: str | None = None) -> dict:
     return yaml_content("workshop.yaml", lang) or {}

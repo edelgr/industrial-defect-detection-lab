@@ -12,11 +12,14 @@ _lang = "en"
 
 
 def _read(lang: str) -> dict[str, str]:
-    f = paths.EDUCATION / "i18n" / f"ui_{lang}.yaml"
-    if not f.exists():
-        return {}
-    with f.open(encoding="utf-8") as fh:
-        return yaml.safe_load(fh) or {}
+    """ui_<lang>.yaml plus any feature-specific ui_<lang>_<part>.yaml files (merged, sorted by name)."""
+    d = paths.EDUCATION / "i18n"
+    out: dict[str, str] = {}
+    for f in [d / f"ui_{lang}.yaml", *sorted(d.glob(f"ui_{lang}_*.yaml"))]:
+        if f.exists():
+            with f.open(encoding="utf-8") as fh:
+                out.update(yaml.safe_load(fh) or {})
+    return out
 
 
 def init(lang: str | None = None) -> None:

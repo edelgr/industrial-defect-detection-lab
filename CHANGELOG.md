@@ -27,6 +27,20 @@ earlier development took place in a private working copy and is summarised here,
   explanation instead of empty image panels; the Dataset Atlas gallery adapts its columns to the window
   width; the Model Manager table shows all five columns without horizontal scrolling; button and tab labels
   containing "&" are displayed correctly.
+- **Visual Methods Library**: a method tree and one tabbed panel (Overview · How it works · Step by step ·
+  Example · Strengths & limits · Technical sheet · References). Interactive pipeline diagrams (fitting and
+  test lanes, clickable stages) and worked examples on synthetic images generated at run time
+  (`core/visualization/method_examples.py`; no dataset, download or checkpoint). Classical methods use the
+  real IDD Lab implementation (a test checks the replayed stages against it); feature, foundation, 3D and
+  fusion methods are labelled *toy illustrations of the mechanism*. Curated EN/ES content for 13 methods
+  (`education/<lang>/method_visuals.yaml`); the others fall back to a catalog-generated summary and diagram.
+- **Reference comparison** in the Methods Laboratory (*Reference image difference*): reference, test, test
+  aligned by ECC, difference map and detected differences with synchronised zoom/pan, previous/next
+  reference, global score vs. local differences and a table of the references tried. The panels show the
+  algorithm's own intermediate arrays (no numerical change). Changing the reference discards dependent
+  results; `test_private` images get a prediction, never ground truth. The reference list is filled as soon
+  as a category is selected and keeps the user's choice.
+- UI strings may also live in feature files `education/i18n/ui_<lang>_<part>.yaml` (merged at start-up).
 
 ### Student Edition
 - Instructor / Student / Auto profiles from one codebase (`core/profile.py`).
@@ -46,6 +60,13 @@ earlier development took place in a private working copy and is summarised here,
 - README screenshots regenerated in the Student Edition profile from a clean copy (no datasets, no
   pretrained weights) at one size, grouped as Explore and Learn, Run and Compare, Understand Experimental
   Results, and 3D and Model Management, including the illumination experiment in Basic and Advanced mode.
+  The gallery now has 15 images: new Methods Library views (PatchCore pipeline diagram, worked morphology
+  example) and the Methods Laboratory reference comparison; the Canny view was re-taken for the new
+  Laboratory tabs; the other images are unchanged (renumbered). README sections on the visual library, the
+  interactive diagrams, synthetic examples, real versus simplified examples and the reference comparison.
+- Tests for the visual library and the reference comparison; `scripts/qt_reference_check.py` (real Qt check of
+  the reference comparison in English and Spanish at 1280×800; uses MVTec AD 2 if installed, otherwise the
+  synthetic data).
 - `scripts/readiness.py`, `scripts/check_docs.py`, `scripts/build_release.py`, Qt flow checks.
 - CI workflow `.github/workflows/ci.yml` (static checks, docs, catalog, CPU tests, Qt smoke; no GPU, no
   downloads, never publishes).

@@ -544,3 +544,75 @@ xp.matrix_detail: "<b>{scene} {sid}</b> ({kind}) · errores {e} · cambios de de
 kit.ax_score_short: "puntuación"
 kit.no_images: "imagen no instalada — puntuación almacenada"
 xp.res_stored_note: "**La comparación en vivo no está disponible en este ordenador.** Los mapas de calor de los dos modelos PatchCore necesitan MVTec AD 2 `sheet_metal` y checkpoints ajustados. La tabla de la izquierda muestra los resultados verificados almacenados; la explicación de abajo describe lo que muestra la comparación en vivo."
+# ---- Methods Laboratory: reference comparison (Reference image difference)
+lab.tab_results: "Resultados"
+lab.prediction: "Predicción"
+lab.not_gt: "no es verdad de terreno (etiquetas retenidas)"
+ref.tab: "Comparación con referencia"
+ref.prev: "Referencia normal anterior"
+ref.next: "Referencia normal siguiente"
+ref.compare: "Comparar"
+ref.compare_tip: "Ejecutar la comparación de la imagen de prueba con esta referencia"
+ref.reference: "Referencia"
+ref.test: "Prueba"
+ref.p_ref: "Imagen de referencia"
+ref.p_test: "Imagen de prueba"
+ref.p_aligned: "Prueba alineada con la referencia (ECC)"
+ref.p_diff: "Mapa de diferencias |prueba − referencia|"
+ref.p_mask: "Diferencias detectadas"
+ref.withheld: "etiqueta retenida"
+ref.align_off: "Alineamiento desactivado: la prueba se usa tal cual"
+ref.ecc_failed: "ECC no convergió: no se aplicó ninguna transformación"
+ref.scale: "escala"
+ref.regions: "regiones"
+ref.same: "La imagen de prueba ES la referencia: la diferencia es ~0 en todas partes; elija otra imagen de prueba."
+ref.private: "Etiquetas retenidas (test_private): cualquier OK/NOK es una predicción, no la verdad de terreno; no se calculan métricas."
+ref.stale: "La referencia ha cambiado: se descartó el resultado anterior. Pulse Comparar."
+ref.not_run: "Aún no comparado: pulse Comparar."
+ref.global: "Global (un número por imagen)"
+ref.score_is: "puntuación = percentil 99,9 del mapa"
+ref.local: "Local (dónde)"
+ref.col_ref: "Referencia"
+ref.col_score: "Puntuación"
+ref.col_dec: "Predicción"
+ref.log: "Referencias comparadas con esta imagen de prueba"
+ref.log_note: "misma imagen de prueba; máscara con el umbral de cada ejecución"
+ref.inv_result: "resultado"
+ref.inv_cal: "umbrales calibrados"
+ref.inv_eval: "evaluación"
+ref.inv_eval_html: "Esta evaluación usó otra referencia y se descartó. Pulse «Evaluar» de nuevo."
+ref.invalidated: "La referencia ha cambiado; se descartó"
+ref.press_run: "Pulse Ejecutar / Comparar."
+ref.discarded: "Resultado descartado: la referencia o la muestra cambiaron durante la ejecución. Pulse Ejecutar de nuevo."
+ref.discarded_cal: "Calibración descartada: la referencia cambió durante la ejecución."
+ref.discarded_eval: "Evaluación descartada: la referencia cambió durante la ejecución."
+ref.src_cal: "calibrado"
+ref.src_param: "parámetro del método"
+ref.src_mid: "mitad del rango"
+ref.src_manual: "deslizador"
+ref.explain: |
+  ### Cómo funciona la *diferencia con imagen de referencia*
+
+  1. **Elija una imagen normal** en `Referencia (normal)`: una imagen *train/good*, nunca una imagen de prueba.
+  2. **Niveles de gris.** Ambas imágenes se convierten a gris; si sus tamaños difieren, la referencia se redimensiona al tamaño de la prueba.
+  3. **Alineamiento (ECC).** La *imagen de prueba* se deforma sobre la referencia (traslación, rotación o afín) para que la misma parte del objeto caiga en los mismos píxeles. `none` omite este paso. Si ECC no converge, no se aplica ninguna transformación (el título lo indica).
+  4. **Desenfoque previo.** Ambas imágenes se suavizan (gaussiano, `blur` px) para atenuar el ruido y los desalineamientos subpíxel.
+  5. **Mapa de diferencias** = |prueba − referencia| en cada píxel, en niveles de gris (0–255).
+  6. **Umbral.** Los píxeles cuya diferencia alcanza el umbral de píxel se convierten en *diferencias detectadas* (la máscara).
+
+  **Puntuación global frente a diferencias locales.** La *puntuación de imagen* es **un solo número** para toda la imagen (el percentil 99,9 del mapa de diferencias); una decisión OK/NOK la compara con un umbral de imagen calibrado con otras imágenes normales. La *máscara* es **local**: indica *dónde* difieren las dos imágenes. Una diferencia pequeña e intensa puede dar una puntuación alta con muy pocos píxeles; una diferencia amplia y débil puede dar muchos píxeles y una puntuación moderada.
+
+  **Parámetros.** `align`: modelo de movimiento de ECC; `blur`: tamaño impar del núcleo (mayor: menos ruido, pero los defectos pequeños se difuminan); `threshold`: niveles de gris (por defecto 30). El deslizador del umbral de píxel re-umbraliza el mapa en caché sin volver a ejecutar.
+
+  **Limitaciones.** El método detecta *cualquier* diferencia, no solo defectos: la variación normal entre piezas, los cambios de iluminación, las sombras, los reflejos y el desalineamiento residual aparecen en el mapa. El resultado **depende de qué imagen normal sea la referencia**: recorra varias referencias con ◀ ▶, pulse *Comparar* y observe la tabla. Los desplazamientos grandes o los objetos deformables hacen fallar a ECC. Funciona mejor con escenas rígidas, repetibles y bien registradas.
+
+  **Etiquetas retenidas.** En las imágenes `test_private` la verdad de terreno la retiene el benchmark: un OK/NOK mostrado ahí es solo la *predicción* del método y no se calculan métricas con ellas.
+ref.aligned_note: "El algoritmo deforma la imagen de PRUEBA al sistema de la referencia; los mapas y las máscaras están en ese sistema."
+ref.scale_note: "escala de color fija 0 – 2 × umbral (niveles de gris), comparable entre referencias"
+ref.after_blur: "calculado tras el alineamiento y el desenfoque previo"
+ref.threshold: "Umbral de píxel"
+ref.t_ref: "Referencia"
+ref.t_test: "Prueba"
+ref.t_aligned: "Alineada (ECC)"
+ref.t_diff: "Diferencia"
+ref.t_mask: "Detectadas"

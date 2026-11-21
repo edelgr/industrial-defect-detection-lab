@@ -7,14 +7,15 @@ import json
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QComboBox, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QProgressBar,
-                               QPushButton, QScrollArea, QSlider, QSpinBox, QSplitter, QTextBrowser,
-                               QVBoxLayout, QWidget)
+                               QPushButton, QScrollArea, QSlider, QSpinBox, QSplitter, QTabWidget,
+                               QTextBrowser, QVBoxLayout, QWidget)
 
 from app.i18n import tr
 from app.widgets.common import (Badge, PageHeader, colorize, mask_overlay, markdown_browser, muted,
                                 overlay, synthetic_banner)
 from app.widgets.image_viewer import TitledImage
 from app.widgets.param_form import ParamForm
+from app.widgets.reference_compare import PANEL_METHODS, ReferenceComparePanel, explanation_md, labels_withheld
 from app.widgets.references import ReferencesPanel
 from app.widgets.sample_browser import SampleBrowser
 from app.workers.task import start
@@ -25,7 +26,7 @@ from core.datasets import registry as dreg
 from core.datasets.base import Sample
 from core.datasets.io import read_mask, read_rgb8
 from core.experiments.store import ExperimentStore
-from core.inference.session import LabSession
+from core.inference.session import Calibration, LabSession
 
 FMT = lambda v, d=4: "—" if v is None else (f"{v:.{d}f}" if isinstance(v, float) else str(v))
 
@@ -42,6 +43,11 @@ class LabPage(QWidget):
         self.gt: np.ndarray | None = None
         self.task = None
         self.store = ExperimentStore()
+        # reference each displayed result / calibration / evaluation was computed with (stale-result guard)
+        self.result_ref: str | None = None
+        self._cal_ref: str | None = None
+        self._eval_ref: str | None = None
+        self._thr_src = ""
 
         lay = QVBoxLayout(self)
         lay.setContentsMargins(0, 0, 0, 0)
@@ -158,7 +164,13 @@ class LabPage(QWidget):
         views = [v.view for v in (self.v_orig, self.v_gt, self.v_map, self.v_over, self.v_mask, self.v_native)]
         for a in views:
             a.viewChanged.connect(lambda src=a: [b.setTransform(src.transform()) for b in views if b is not src])
-        hs.addWidget(center)
+        self.center_tabs = QTabWidget()
+        self.center_tabs.addTab(center, tr("lab.tab_results", "Results"))
+        self.refview = ReferenceComparePanel()
+        self.refview.compareRequested.connect(self._run)
+        self.refview.stepRequested.connect(self._step_ref)
+        self.center_tabs.addTab(self.refview, tr("ref.tab", "Reference comparison"))
+        hs.addWidget(self.center_tabs)
 
         # ------------------------------------------------------------ right
         right = QScrollArea()
@@ -277,7 +289,10 @@ class LabPage(QWidget):
             self.session = LabSession(self.method_id, vals, seed=settings.get().seed)
             self.session.bind(idx)
             self.session_key = key
-            self._fill_refs()
+            self._cal_ref = None                 # a new session starts uncalibrated
+            ref = self._selected_ref()      # keep the user's choice (bind() defaults to the first normal)
+            if self.session.method.requires_reference and ref is not None:
+                self.session.set_reference(ref)
         else:
             self.session.method.params.update(vals)
         return self.session
@@ -312,12 +327,15 @@ class LabPage(QWidget):
         is_ref = bool(cls and cls.requires_reference)
         for w in (self.ref_combo, self.ref_label):
             w.setVisible(is_ref)
+        self.center_tabs.setTabVisible(1, self.method_id in PANEL_METHODS)
 
     # ----------------------------------------------------------- events
     def _on_index(self, idx):
         a = dreg.get(idx.dataset_id)
         self.banner.setVisible(bool(a and a.synthetic))
         self.session = None
+        self.result = None
+        self._fill_refs()
         self._refresh_ckpts()
         self._update_buttons()
 
@@ -407,22 +425,80 @@ class LabPage(QWidget):
         c = box.clickedButton()
         return "load" if load is not None and c is load else "train" if c is train else "cancel"
 
+    # ----------------------------------------------------------- reference (normal) image
     def _fill_refs(self):
+        """List the train/good images of the current category. Filled as soon as a category is selected
+        (not only at the first run), so what the combo shows is what the next comparison uses."""
+        prev = self.ref_combo.currentData()
         self.ref_combo.blockSignals(True)
         self.ref_combo.clear()
         if self.browser.index:
             for s in self.browser.index.train_normals()[:200]:
                 self.ref_combo.addItem(s.sample_id, s.sample_id)
-        if self.session and self.session.reference:
-            self.ref_combo.setCurrentIndex(max(0, self.ref_combo.findData(self.session.reference.sample_id)))
+        self.ref_combo.setCurrentIndex(max(0, self.ref_combo.findData(prev)) if prev is not None else 0)
         self.ref_combo.blockSignals(False)
+        self._on_ref()
+
+    def _selected_ref(self) -> Sample | None:
+        idx, sid = self.browser.index, self.ref_combo.currentData()
+        if idx is None or sid is None:
+            return None
+        return next((x for x in idx.train_normals() if x.sample_id == sid), None)
+
+    def current_ref_id(self) -> str | None:
+        s = self.session
+        if s is not None and s.method.requires_reference and s.reference is not None:
+            return s.reference.sample_id
+        return None
+
+    def _step_ref(self, d: int):
+        n = self.ref_combo.count()
+        if n:
+            self.ref_combo.setCurrentIndex((self.ref_combo.currentIndex() + d) % n)
 
     def _on_ref(self):
-        if self.session and self.browser.index:
-            sid = self.ref_combo.currentData()
-            s = next((x for x in self.browser.index.samples if x.sample_id == sid), None)
-            if s:
-                self.session.set_reference(s)
+        cls = areg.runtime_class(self.method_id)
+        ref = self._selected_ref()
+        if not (cls and cls.requires_reference) or ref is None:
+            return
+        s = self._session()
+        if s is None:
+            return
+        if s.reference is None or s.reference.sample_id != ref.sample_id:
+            s.set_reference(ref)
+        self._invalidate_ref_results(ref.sample_id)
+        rec = self.main.catalog.datasets.get(ref.dataset_id) or {}
+        name = rec.get("name") or ("Synthetic demo" if ref.dataset_id == "SYN" else ref.dataset_id)
+        self.refview.set_reference(ref, s._ref_img, f"{name} ({ref.dataset_id})" if name != ref.dataset_id else name)
+
+    def _invalidate_ref_results(self, ref_id: str):
+        """Everything computed against another reference is discarded (never shown as current)."""
+        msgs = []
+        if self.result is not None and self.result_ref is not None and self.result_ref != ref_id:
+            self.result, self.result_ref = None, None
+            for v in (self.v_map, self.v_over, self.v_mask, self.v_native):
+                v.set(None)
+            self.score_lbl.setText("—")
+            self.decision.setText("—")
+            self.thr_lbl.setText("")
+            self.perf.setText("")
+            msgs.append(tr("ref.inv_result", "result"))
+        s = self.session
+        if s is not None and self._cal_ref is not None and self._cal_ref != ref_id and not s.calibration.stored:
+            s.calibration = Calibration()           # thresholds came from differences to the old reference
+            self._cal_ref = None
+            self.img_thr_lbl.setText("")
+            msgs.append(tr("ref.inv_cal", "calibrated thresholds"))
+        if self._eval_ref is not None and self._eval_ref != ref_id:
+            self.metrics.setHtml("<p style='color:#e8590c'>⚠ " + tr("ref.inv_eval_html", "This evaluation used another "
+                                 "reference and was discarded. Press 'Evaluate' again.") + "</p>")
+            self._eval_ref = None
+            msgs.append(tr("ref.inv_eval", "evaluation"))
+        if self.refview.result is not None and self.refview.result_ref_id != ref_id:
+            self.refview.invalidate()
+        if msgs:
+            self.progress_msg.setText("⚠ " + tr("ref.invalidated", "Reference changed — discarded") + ": "
+                                      + ", ".join(msgs) + ". " + tr("ref.press_run", "Press Run / Compare."))
 
     def _on_method(self):
         cls = areg.runtime_class(self.method_id)
@@ -441,9 +517,17 @@ class LabPage(QWidget):
             md = (f"**{rec['name']}** — {rec['intuitive_explanation_es' if es else 'intuitive_explanation_en']}\n\n"
                   f"**{tr('lib.q4', 'Training data required')}:** {rec['training_data_requirements']}\n\n"
                   f"**{tr('lib.q8', 'Limitations')}:** " + "; ".join(rec["limitations"][:3]))
+            if self.method_id in PANEL_METHODS:
+                md += "\n\n" + explanation_md()
             self.bl.addWidget(markdown_browser(md), 3)
             self.bl.addWidget(ReferencesPanel(self.main.catalog, rec, "algorithm"), 2)
         self._update_buttons()
+        if hasattr(self, "refview"):
+            self.result_ref = None
+            self.refview.set_test(self.sample, self.image)
+            self._on_ref()
+            if self.method_id in PANEL_METHODS:
+                self.center_tabs.setCurrentIndex(1)
 
     def _on_param(self, name: str):
         spec = next((p for p in self.params.specs if p.name == name), None)
@@ -466,6 +550,8 @@ class LabPage(QWidget):
             v.set(None)
         self.score_lbl.setText("—")
         self.decision.setText("—")
+        self.result_ref = None
+        self.refview.set_test(s, self.image)
 
     # ----------------------------------------------------------- actions
     def _fit(self):
@@ -508,8 +594,16 @@ class LabPage(QWidget):
             return
         self._busy(True)
 
+        ref_id = self.current_ref_id()
+
         def done(cal):
             self._busy(False)
+            if ref_id != self.current_ref_id():
+                s.calibration = Calibration()
+                self.progress_msg.setText("⚠ " + tr("ref.discarded_cal", "Calibration discarded: the reference changed "
+                                                                       "during the run."))
+                return
+            self._cal_ref = ref_id
             self.progress_msg.setText(f"✓ thresholds from {cal.source}")
             self._show_result()
         self.task = start(s.calibrate, on_done=done, on_error=self._error, on_progress=self._progress)
@@ -521,6 +615,8 @@ class LabPage(QWidget):
             return
         self._busy(True)
         img = self.image
+        ref_id = self.current_ref_id()
+        sample_id = self.sample.sample_id if self.sample is not None else None
 
         def job(progress, cancel):
             progress(0.1, "running inference…")
@@ -529,10 +625,17 @@ class LabPage(QWidget):
         def done(res):
             self._busy(False)
             self.progress.setValue(1000)
+            cur = self.sample.sample_id if self.sample is not None else None
+            if s is not self.session or ref_id != self.current_ref_id() or sample_id != cur:
+                # the reference, sample or method changed while this ran: never show it as current
+                self.progress_msg.setText("⚠ " + tr("ref.discarded", "Result discarded: the reference or sample "
+                                                                   "changed during the run. Press Run again."))
+                return
             self.result = res
+            self.result_ref = ref_id
             self.progress_msg.setText("✓ " + tr("lab.done", "done"))
             self._init_threshold()
-            self._show_result()
+            self._show_result(log=True)
         self.task = start(job, on_done=done, on_error=self._error, on_progress=self._progress)
 
     def _evaluate(self):
@@ -541,8 +644,15 @@ class LabPage(QWidget):
             return
         self._busy(True)
 
+        ref_id = self.current_ref_id()
+
         def done(res):
             self._busy(False)
+            if ref_id != self.current_ref_id():
+                self.progress_msg.setText("⚠ " + tr("ref.discarded_eval", "Evaluation discarded: the reference changed "
+                                                                        "during the run."))
+                return
+            self._eval_ref = ref_id
             self._show_metrics(res)
         self.task = start(s.evaluate, max_images=self.n_eval.value(), store=self.store, localization=True,
                           on_done=done, on_error=self._error, on_progress=self._progress)
@@ -559,19 +669,27 @@ class LabPage(QWidget):
         self._range = (lo, hi if hi > lo else lo + 1)
         t = cal.pixel_threshold if cal and cal.pixel_threshold is not None else r.threshold
         t = t if t is not None else (lo + hi) / 2
+        self._thr_src = (tr("ref.src_cal", "calibrated") if cal and cal.pixel_threshold is not None
+                         else tr("ref.src_param", "method parameter") if r.threshold is not None
+                         else tr("ref.src_mid", "mid-range"))
         self.thr.blockSignals(True)
-        self.thr.setValue(int(1000 * (t - self._range[0]) / (self._range[1] - self._range[0])))
+        self.thr.setValue(int(round(1000 * (t - self._range[0]) / (self._range[1] - self._range[0]))))
         self.thr.blockSignals(False)
+        self._thr_exact = t        # the slider is quantised: until it is moved, use the exact threshold
 
     def _thr_value(self) -> float:
+        if getattr(self, "_thr_exact", None) is not None:
+            return self._thr_exact
         lo, hi = getattr(self, "_range", (0.0, 1.0))
         return lo + (hi - lo) * self.thr.value() / 1000
 
     def _rethreshold(self):
+        self._thr_exact = None
+        self._thr_src = tr("ref.src_manual", "slider")
         if self.result is not None:
             self._show_result()
 
-    def _show_result(self):
+    def _show_result(self, log: bool = False):
         r = self.result
         if r is None or self.image is None:
             return
@@ -592,10 +710,18 @@ class LabPage(QWidget):
         self.v_native.set(r.visual, tr("lab.v_native", "Method-native output") if r.visual is not None
                           else tr("lab.no_native", "Method-native output: none"))
         self.score_lbl.setText(FMT(r.score))
+        pred = None
         if cal and cal.image_threshold is not None and r.score is not None:
             nok = r.score >= cal.image_threshold
-            self.decision.setText("NOK (anomalous)" if nok else "OK (normal)")
-            self.decision.setObjectName("BadgeBad" if nok else "BadgeOk")
+            pred = "NOK" if nok else "OK"
+            if labels_withheld(self.sample):
+                # test_private: labels withheld → a prediction only, never presented as ground truth
+                self.decision.setText(f"{tr('lab.prediction', 'Prediction')}: {pred} — "
+                                      + tr("lab.not_gt", "not ground truth (labels withheld)"))
+                self.decision.setObjectName("BadgeWarn")
+            else:
+                self.decision.setText("NOK (anomalous)" if nok else "OK (normal)")
+                self.decision.setObjectName("BadgeBad" if nok else "BadgeOk")
             self.img_thr_lbl.setText(f"{tr('lab.img_thr', 'Image threshold')}: {cal.image_threshold:.4g} — {cal.source}")
         else:
             self.decision.setText(tr("lab.no_decision", "No OK/NOK decision: calibrate a threshold on normal images first"))
@@ -606,6 +732,12 @@ class LabPage(QWidget):
         gpu = f"{r.gpu_memory_mb:.0f} MB peak" if r.gpu_memory_mb is not None else "n/a"
         self.perf.setText(f"<b>Latency:</b> {r.latency_ms:.1f} ms · <b>Device:</b> {r.device} · <b>GPU mem:</b> {gpu}"
                           f"<br><b>Model:</b> {r.model_version}<br><i>{r.score_semantics}</i>")
+        if self.method_id in PANEL_METHODS and r.extras.get("stages") and self.result_ref is not None:
+            if log or self.refview.result is not r:
+                self.refview.set_result(r, self.result_ref, thr, self._thr_src, self.session.method.params,
+                                        decision=pred, log=log)
+            else:
+                self.refview.update_threshold(thr, self._thr_src)
 
     def _show_metrics(self, res: dict):
         rows = [("Result category", res["result_category"]), ("Test samples", f"{res['n_test']} ({res['n_anomalous']} anomalous)"),

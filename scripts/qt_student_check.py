@@ -129,7 +129,7 @@ def main(argv=None):
             w.navigate("library", method_id="patchcore")
             app.processEvents()
             lib = w.page("library")
-            lib.center.setCurrentIndex(1)
+            lib.center.setCurrentIndex(lib.TAB_STEPS)
             app.processEvents()
             check("3 Methods Library offline (PatchCore card + steps)", lib.isVisible())
             shot("03_library_offline")

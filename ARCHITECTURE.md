@@ -8,7 +8,10 @@ app/                 Qt GUI (PySide6) — no scientific logic
                      workshop, settings
   widgets/first_run  first-run assistant (Student Edition)
   widgets/           references panel, image viewer, point-cloud viewer, sample browser,
-                     parameter form, step-through widget
+                     parameter form, step-through widget; experiment_kit (reusable experiment cards,
+                     charts, enlarge dialog); method_visuals (summary card, interactive pipeline diagram,
+                     worked-example gallery, strengths & limits); reference_compare (Laboratory reference
+                     comparison: 5 synchronised stages, global vs local, references log)
   workers/task.py    QThreadPool tasks with progress/cancel → GUI never blocks
 core/                GUI-independent, unit-tested
   research/          catalog loader + JSON-schema validation, content loader (EN/ES fallback)
@@ -24,6 +27,8 @@ core/                GUI-independent, unit-tested
   evaluation/        metrics (AUROC, AP, pixel AUROC, AU-PRO, pixel F1, Dice/IoU, P/R/F1, FAR/FRR, latency);
                      scenes: scene grouping, cluster bootstrap, decision stability
   experiments/       SQLite experiment store with provenance categories
+  visualization/     method_examples: worked examples on synthetic images generated at run time (real
+                     implementation for classical methods, labelled toy re-enactments for the others)
   system/            diagnostics, offline readiness (instructor and student profiles)
   profile.py         Instructor / Student / Auto edition resolution
   model_manager.py   per-algorithm availability, weight licences, explicit preparation

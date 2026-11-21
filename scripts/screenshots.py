@@ -47,7 +47,7 @@ def main():
         a.tabs.setCurrentIndex(2); shot("04_atlas_compare")
         w.navigate("atlas", dataset_id="D05"); shot("05_atlas_mvtec_ad2")
         w.navigate("library", method_id="patchcore"); shot("06_library_patchcore")
-        lib = w.page("library"); lib.center.setCurrentIndex(1); lib.steps.go(3); shot("07_how_patchcore_works")
+        lib = w.page("library"); lib.center.setCurrentIndex(lib.TAB_STEPS); lib.steps.go(3); shot("07_how_patchcore_works")
         w.navigate("explorer", dataset_id="SYN")
         def first_bad(b):
             return next(i for i, s in enumerate(b.samples) if s.label == "bad" and s.defect_type == "scratch")

@@ -1,0 +1,6 @@
+# Methods Library — visual explanations (merged into ui_en.yaml by app/i18n.py).
+# Most English strings are the defaults in the code; only labels without a readable default live here.
+mv.chart.case_good: "good"
+mv.chart.case_rgb: "RGB only"
+mv.chart.case_geo: "3D only"
+mv.chart.case_both: "both"

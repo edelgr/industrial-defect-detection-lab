@@ -1,0 +1,668 @@
+# Biblioteca de métodos — contenido visual didáctico (español).
+#
+# Una entrada por id de método (research_catalog/algorithms). Lo usa app/pages/library.py:
+#   summary   — pestaña Resumen (problema · idea · cuándo · límites · e/s · entrenamiento)
+#   diagram   — pestaña "Cómo funciona": carriles de etapas dibujados por MethodDiagramWidget.
+#               kinds: data | train | pre | feature | model | score | decision
+#               links: flechas entre carriles (p. ej. memoria de entrenamiento → puntuación de prueba)
+#   example   — pestaña "Ejemplo": textos indexados por las claves de etapa que produce
+#               core/visualization/method_examples.py; los {marcadores} se rellenan con los números del ejemplo.
+#   strengths / limitations / failures / industry — pestaña "Fortalezas y límites".
+# Debe mantener los mismos ids, claves y claves de etapa que education/en/method_visuals.yaml.
+
+reference_difference:
+  summary:
+    problem: "Encontrar cualquier diferencia entre una pieza inspeccionada y una **imagen de referencia** conocida como buena de la misma pieza."
+    idea: "Colocar la imagen de prueba exactamente encima de la referencia (alineación), restarlas píxel a píxel y quedarse con las diferencias grandes."
+    when: "Piezas rígidas y repetibles fotografiadas en un montaje fijo: circuitos impresos, etiquetas, piezas estampadas o mecanizadas."
+    limits: "Toda diferencia cuenta: la desalineación, los cambios de iluminación y la variación normal entre piezas también aparecen. El resultado depende de la referencia elegida."
+    io: "imagen de prueba + una referencia normal → mapa de |diferencia|, máscara binaria"
+    training: "Ninguno: una imagen de referencia buena"
+  diagram:
+    lanes:
+      - label: "Referencia (una imagen normal)"
+        nodes:
+          - {id: ref, kind: train, title: "Imagen de referencia", text: "Una imagen sin defectos de la misma pieza, tomada con la misma cámara e iluminación."}
+      - label: "Imagen de prueba"
+        nodes:
+          - {id: test, kind: data, title: "Imagen de prueba", text: "La pieza que queremos inspeccionar. Se convierte a niveles de gris; si los tamaños difieren, la referencia se redimensiona al tamaño de la prueba."}
+          - {id: align, kind: pre, title: "Alinear (ECC)", text: "ECC estima una traslación / rotación / deformación afín que lleva la imagen de prueba sobre la referencia, de modo que el mismo punto de la pieza caiga en el mismo píxel."}
+          - {id: blur, kind: pre, title: "Desenfoque previo", text: "Desenfoque gaussiano de ambas imágenes (5 px por defecto) para atenuar el ruido y la desalineación subpíxel."}
+          - {id: diff, kind: score, title: "|prueba − referencia|", text: "Diferencia absoluta por píxel, en niveles de gris (0–255). Este es el mapa de anomalía. Puntuación de imagen = percentil 99,9 del mapa."}
+          - {id: thr, kind: decision, title: "Umbral", text: "Los píxeles cuya diferencia supera el umbral (30 niveles de gris por defecto) forman la máscara de defecto predicha."}
+    links:
+      - {from: ref, to: align, label: "alinear con"}
+  example:
+    captions:
+      reference: "1 · Imagen de referencia normal"
+      test: "2 · Imagen de prueba: la misma superficie, ligeramente desplazada y girada, con un rayón (verde = defecto real)"
+      diff_unaligned: "3 · Diferencia SIN alineación: la propia textura se ilumina ({unaligned_px:.1f} % de píxeles por encima del umbral)"
+      aligned: "4 · Imagen de prueba tras la alineación ECC sobre la referencia"
+      diff_aligned: "5 · Diferencia TRAS la alineación: solo queda el rayón (y el borde de la imagen)"
+      mask: "6 · Máscara: diferencia > {threshold:.0f} niveles de gris"
+      out_input: "Imagen de prueba (verde: defecto real)"
+      out_map: "Mapa de anomalía |prueba − referencia|"
+      out_mask: "Máscara de defecto predicha (rojo)"
+    interpretation: |
+      Sin alineación, un desplazamiento de solo 3 px hace que la textura fina no coincida en ningún sitio: el
+      mapa no sirve. Tras la alineación ECC la textura se cancela y el rayón destaca con claridad
+      (puntuación de imagen = {score:.0f} niveles de gris, {aligned_px:.2f} % de píxeles marcados). La franja fina
+      del borde superior procede de la deformación (píxeles sin correspondencia): los efectos de borde son un falso positivo típico.
+  strengths:
+    - "Extremadamente simple y transparente: el mapa es literalmente la diferencia que se vería a simple vista."
+    - "Sin datos de entrenamiento: basta con una imagen buena."
+    - "Detecta cualquier tipo de cambio: material ausente, sobrante o desplazado."
+  limitations:
+    - "Necesita una alineación muy precisa; la desalineación residual produce falsos positivos con forma de bordes."
+    - "Los cambios de iluminación, las sombras y los reflejos parecen defectos."
+    - "También se marca la variación normal entre piezas buenas; el resultado depende de la referencia elegida."
+  failures:
+    - "Pieza colocada con una gran rotación o deformación: ECC no converge."
+    - "Superficies brillantes cuyos reflejos se mueven con pequeños cambios de pose."
+  industry: "Inspección de circuitos impresos y etiquetas, control de presencia/ausencia, cualquier estación con utillaje fijo y piezas e iluminación muy repetibles."
+
+otsu:
+  summary:
+    problem: "Separar los píxeles de defecto del fondo cuando el defecto es claramente más oscuro (o más claro) que la superficie."
+    idea: "Observar el histograma de niveles de gris y elegir automáticamente el umbral que mejor lo divide en dos grupos (Otsu, 1979)."
+    when: "Defectos de alto contraste sobre un fondo uniforme e iluminado de forma homogénea: manchas, agujeros, inclusiones oscuras."
+    limits: "Supone dos poblaciones en el histograma. La iluminación irregular, las superficies con textura o los defectos muy pequeños lo hacen fallar."
+    io: "imagen en gris → máscara binaria (+ el valor del umbral)"
+    training: "Ninguno"
+  diagram:
+    lanes:
+      - nodes:
+          - {id: in, kind: data, title: "Imagen en gris", text: "La imagen a inspeccionar, convertida a niveles de gris."}
+          - {id: blur, kind: pre, title: "Desenfoque gaussiano", text: "Suaviza el ruido (5 px por defecto) para que los picos del histograma queden más limpios."}
+          - {id: hist, kind: feature, title: "Histograma", text: "Número de píxeles en cada nivel de gris 0–255."}
+          - {id: otsu, kind: score, title: "Umbral de Otsu t", text: "Prueba todos los t y se queda con el que maximiza la varianza entre clases de los dos grupos (fondo frente a píxeles oscuros/claros)."}
+          - {id: mask, kind: decision, title: "Máscara", text: "Los píxeles del lado 'defecto' de t (más oscuros si la polaridad = oscuro) forman la máscara. Puntuación = fracción de píxeles marcados."}
+  example:
+    captions:
+      input: "1 · Superficie con dos manchas oscuras (verde = defecto real)"
+      blurred: "2 · Tras el desenfoque gaussiano (5 px)"
+      histogram: "3 · Histograma: una moda oscura pequeña (manchas) y una moda clara grande (superficie). Otsu sitúa t = {otsu_t:.0f}"
+      mask: "4 · Píxeles más oscuros que t: {flagged_pct:.1f} % de la imagen"
+      out_input: "Entrada (verde: defecto real)"
+      out_map: "Mapa: nivel de gris invertido"
+      out_mask: "Máscara predicha (rojo)"
+    interpretation: |
+      El histograma es claramente **bimodal**: las manchas forman su propio pico, así que el umbral automático
+      (t = {otsu_t:.0f}) cae en el valle entre los picos y la máscara coincide con las manchas. Pruébalo en el
+      Laboratorio con una imagen texturada y un rayón pequeño: el histograma tiene un solo pico y Otsu divide
+      en dos la propia textura. El método no tiene noción de "normal", solo de "dos grupos".
+  strengths:
+    - "Umbral totalmente automático, sin parámetros que ajustar salvo el desenfoque y la polaridad."
+    - "Muy rápido y fácil de explicar."
+    - "Buena referencia básica para defectos de alto contraste."
+  limitations:
+    - "Siempre encuentra dos clases, incluso en una imagen sin defectos."
+    - "Sensible a la iluminación irregular (un umbral global para toda la imagen)."
+    - "Los defectos pequeños apenas modifican el histograma, así que no desplazan el umbral."
+  failures:
+    - "Gradiente de iluminación: se marca por completo un lado de la imagen."
+    - "Superficies con textura: se divide la textura, no el defecto."
+  industry: "Inspección por contraste con retroiluminación controlada o luz difusa: agujeros, contaminación, manchas sobre fondos uniformes."
+
+morphology:
+  summary:
+    problem: "Detectar puntos oscuros (o claros) pequeños y rayones finos en una superficie cuyo brillo varía lentamente."
+    idea: "Estimar el fondo 'borrando' las estructuras más pequeñas que un elemento estructurante y luego restar: lo que se ha borrado es el defecto (top-hat / black-hat)."
+    when: "Los defectos son más pequeños que un tamaño conocido y tienen una polaridad constante: picaduras, polvo, rayones finos, pequeñas inclusiones."
+    limits: "Hay que elegir el tamaño del elemento estructurante; las texturas con granos de tamaño similar responden con la misma fuerza que los defectos."
+    io: "imagen en gris → mapa de respuesta top-hat, máscara binaria"
+    training: "Ninguno"
+  diagram:
+    lanes:
+      - nodes:
+          - {id: in, kind: data, title: "Imagen en gris", text: "La imagen a inspeccionar, en niveles de gris."}
+          - {id: close, kind: pre, title: "Cierre (fondo)", text: "Dilatación seguida de erosión con un elemento estructurante elíptico (15 px por defecto): las estructuras oscuras más pequeñas que él se rellenan y queda una estimación del fondo."}
+          - {id: bh, kind: score, title: "Black-hat = cierre − imagen", text: "Lo que el cierre ha rellenado: estructuras oscuras pequeñas. (White-hat = imagen − apertura encuentra las claras pequeñas.) Este es el mapa de anomalía."}
+          - {id: thr, kind: decision, title: "Umbral", text: "Respuesta > 25 niveles de gris (por defecto) → píxeles candidatos a defecto."}
+          - {id: open, kind: decision, title: "Limpieza (apertura)", text: "Una apertura pequeña (3 px) elimina de la máscara los píxeles de ruido aislados. Puntuación = respuesta máxima."}
+  example:
+    captions:
+      input: "1 · Superficie pulida con tres picaduras y un rayón (verde = defecto real)"
+      closing: "2 · Cierre con una elipse de 15 px: picaduras y rayón rellenados → estimación del fondo"
+      blackhat: "3 · Black-hat (cierre − imagen): solo quedan las estructuras oscuras pequeñas"
+      threshold: "4 · Respuesta > 25 niveles de gris: {raw_px} píxeles"
+      cleaned: "5 · Tras una apertura de 3 px: {clean_px} píxeles"
+      out_input: "Entrada (verde: defecto real)"
+      out_map: "Respuesta black-hat"
+      out_mask: "Máscara predicha (rojo)"
+    interpretation: |
+      El cierre actúa como un "borrador de defectos": todo lo más oscuro y más pequeño que la elipse de 15 px desaparece,
+      así que al restarle la imagen se aíslan las picaduras y el rayón, mientras que el gradiente lento de
+      iluminación se cancela. El elemento estructurante define qué significa "pequeño": un defecto mayor que él
+      se trataría en parte como fondo. En texturas cepilladas gruesas responde el propio grano: pruébalo
+      en el Laboratorio y aumenta el umbral.
+  strengths:
+    - "Robusto frente a cambios lentos de iluminación (el fondo se estima localmente)."
+    - "El elemento estructurante codifica conocimiento previo sobre el tamaño y la forma del defecto."
+    - "Rápido, determinista, sin entrenamiento."
+  limitations:
+    - "Necesita conocer la polaridad del defecto (oscuro o claro) y su rango de tamaños."
+    - "Los granos de textura del mismo tamaño que los defectos responden igual."
+    - "Los defectos grandes quedan en parte absorbidos en la estimación del fondo."
+  failures:
+    - "Texturas gruesas y de alto contraste (metal cepillado, tejido) → muchos falsos positivos."
+    - "Un defecto más ancho que el elemento estructurante → solo se detecta su borde."
+  industry: "Picaduras y polvo en piezas pulidas, rayones en vidrio u obleas, recuento de partículas, preprocesado para OCR."
+
+canny:
+  summary:
+    problem: "Localizar transiciones bruscas de brillo: grietas, rayones, bordes rotos o sobrantes."
+    idea: "Suavizar, calcular el gradiente de intensidad, conservar solo la cresta fina de los gradientes más fuertes y conectarlos con dos umbrales (Canny, 1986)."
+    when: "Superficies lisas donde cualquier borde es sospechoso, o para medir formas y contornos."
+    limits: "Los bordes son indicios, no defectos: la textura, los contornos de la pieza y las sombras también producen bordes."
+    io: "imagen en gris → mapa de bordes; IDD Lab añade un mapa de densidad de bordes y una máscara"
+    training: "Ninguno"
+  diagram:
+    lanes:
+      - nodes:
+          - {id: in, kind: data, title: "Imagen en gris", text: "La imagen a inspeccionar."}
+          - {id: blur, kind: pre, title: "Suavizado gaussiano", text: "Elimina el ruido que crearía bordes espurios (5 px por defecto)."}
+          - {id: grad, kind: feature, title: "Gradiente (Sobel)", text: "Magnitud y dirección del cambio de brillo en cada píxel."}
+          - {id: nms, kind: feature, title: "Supresión de no máximos", text: "Conserva solo el máximo local a través del borde, de modo que los bordes tienen un píxel de grosor."}
+          - {id: hyst, kind: decision, title: "Histéresis (40 / 120)", text: "Los bordes fuertes (> alto) se conservan; los débiles (> bajo), solo si están conectados a uno fuerte."}
+          - {id: dens, kind: score, title: "Densidad de bordes", text: "Añadido de IDD Lab: fracción de píxeles de borde en una ventana de 15 px. Máscara = densidad > 0.15."}
+  example:
+    captions:
+      input: "1 · Superficie con un rayón y una marca triangular oscura (verde = defecto real)"
+      blurred: "2 · Suavizado gaussiano (5 px)"
+      gradient: "3 · Magnitud del gradiente: los bordes del defecto son fuertes; la textura es más débil, pero no nula"
+      edges: "4 · Bordes de Canny (rojo): contornos finos y conectados, {edge_pct:.1f} % de los píxeles"
+      density: "5 · Densidad de bordes en una ventana de 15 px"
+      mask: "6 · Máscara: densidad > 0.15"
+      out_input: "Entrada (verde: defecto real)"
+      out_map: "Mapa de densidad de bordes"
+      out_mask: "Máscara predicha (rojo)"
+    interpretation: |
+      Canny encuentra los **contornos** de los defectos (el triángulo aparece como su contorno), pero también algunos
+      bordes de la textura cepillada. El mapa de densidad convierte los bordes finos en regiones; donde se agrupan
+      bordes de textura, también superan el umbral. Los bordes son solo indicios: decide si un borde es un
+      defecto con conocimiento previo (dónde deberían estar los bordes) o con un segundo método.
+  strengths:
+    - "Contornos precisos, finos y bien localizados."
+    - "Clásico y bien conocido; excelente para medir geometría."
+    - "La histéresis conserva las grietas continuas y rechaza el ruido aislado."
+  limitations:
+    - "Responde a todos los bordes, incluidos la textura y los contornos legítimos de la pieza."
+    - "Los dos umbrales y el desenfoque deben ajustarse para cada superficie."
+    - "Encuentra los bordes de los defectos grandes, no su interior."
+  failures:
+    - "Los materiales con textura producen mapas de bordes densos en todas partes."
+    - "Las grietas de bajo contraste quedan por debajo del umbral bajo y se fragmentan."
+  industry: "Detección de grietas en superficies lisas, medición de dimensiones y contornos, presencia de bordes en los lugares esperados."
+
+gabor:
+  summary:
+    problem: "Detectar regiones donde cambia la **textura** (dirección, frecuencia o rugosidad) aunque el brillo medio no cambie."
+    idea: "Filtrar la imagen con un banco de filtros ondulatorios orientados a varias escalas; la textura normal da un patrón de energía típico y un defecto, uno inusual."
+    when: "Texturas regulares o direccionales: tejidos, metal cepillado o mecanizado, madera, textiles."
+    limits: "Supone que la mayor parte de la imagen es textura normal (las estadísticas se toman de la propia imagen); necesita escalas de filtro adecuadas a la textura."
+    io: "imagen en gris → mapa de desviación de textura (z-score robusto), máscara"
+    training: "Ninguno (estadísticas de la misma imagen)"
+  diagram:
+    lanes:
+      - nodes:
+          - {id: in, kind: data, title: "Imagen en gris", text: "La imagen a inspeccionar, escalada a 0–1."}
+          - {id: bank, kind: feature, title: "Banco de filtros Gabor", text: "Sinusoides orientadas bajo una ventana gaussiana: 6 orientaciones × 3 longitudes de onda (4, 8, 16 px) = 18 filtros."}
+          - {id: energy, kind: feature, title: "Energía local", text: "Cada respuesta se eleva al cuadrado y se promedia en una ventana de 15 px; después se aplica un logaritmo: 18 características de textura por píxel."}
+          - {id: stats, kind: model, title: "Estadísticas de imagen", text: "Mediana y MAD de cada característica sobre toda la imagen: el aspecto habitual de la textura."}
+          - {id: z, kind: score, title: "Z-score robusto", text: "|característica − mediana| / MAD por filtro; el mapa es el máximo sobre los 18 filtros."}
+          - {id: thr, kind: decision, title: "Umbral (z > 4)", text: "Los píxeles con una respuesta de textura inusual forman la máscara. Puntuación = percentil 99,5."}
+  example:
+    captions:
+      input: "1 · Superficie cepillada con una zona cuya dirección de cepillado está girada 90° (verde)"
+      bank: "2 · Seis orientaciones de los filtros con λ = 8 px (una de las 3 escalas del banco real)"
+      energy_0: "3 · Energía del filtro de 0°: alta donde las rayas son verticales, es decir, en el defecto"
+      energy_90: "4 · Energía del filtro de 90°: la textura normal; cae dentro del defecto"
+      zscore: "5 · Máximo z-score robusto sobre los {n_filters} filtros"
+      mask: "6 · Máscara: z > 4"
+      out_input: "Entrada (verde: defecto real)"
+      out_map: "Mapa de desviación de textura (z)"
+      out_mask: "Máscara predicha (rojo)"
+    interpretation: |
+      El defecto tiene el **mismo brillo** que el resto de la superficie: ni Otsu ni la morfología lo
+      verían. Lo que cambia es la orientación de la textura: el filtro de 0° se activa dentro de la zona mientras que el
+      filtro de 90° (alineado con el cepillado normal) se apaga. Medir cada píxel frente a la mediana/MAD de la
+      propia imagen convierte una "energía de filtro inusual" en un z-score; el defecto alcanza z ≈ {score:.0f}.
+  strengths:
+    - "Ve defectos de textura que no tienen contraste de brillo."
+    - "Interpretable: cada filtro corresponde a una orientación y una escala."
+    - "No necesita imágenes de entrenamiento."
+  limitations:
+    - "Estadísticas autorreferenciadas: un defecto que cubre gran parte de la imagen pasa a ser 'normal'."
+    - "Las escalas de filtro deben ajustarse a la textura; muchos filtros cuestan cómputo."
+    - "Localización gruesa (las ventanas de energía difuminan los bordes)."
+  failures:
+    - "Texturas no estacionarias (el patrón cambia a lo largo de la pieza) parecen anómalas."
+    - "Los defectos mucho más pequeños que la ventana de energía se diluyen."
+  industry: "Inspección de textiles y tejidos, clasificación de madera y cuero, marcas de mecanizado en superficies metálicas."
+
+adaptive_threshold:
+  summary:
+    problem: "Encontrar defectos oscuros (o claros) cuando la iluminación **no es uniforme** en la imagen."
+    idea: "Comparar cada píxel con la media de su propia vecindad en lugar de con un único umbral global."
+    when: "Iluminación irregular, viñeteado o piezas grandes y curvas donde un único umbral falla."
+    limits: "El tamaño de la vecindad debe ser mayor que los defectos; las texturas con contraste local superior a C se marcan."
+    io: "imagen en gris → desviación respecto a la media local, máscara"
+    training: "Ninguno"
+  diagram:
+    lanes:
+      - nodes:
+          - {id: in, kind: data, title: "Imagen en gris", text: "La imagen a inspeccionar."}
+          - {id: local, kind: model, title: "Media local", text: "Media ponderada gaussiana en una vecindad de 51 px (por defecto): el brillo esperado en cada lugar."}
+          - {id: dev, kind: score, title: "Media local − píxel", text: "Cuánto más oscuro es el píxel que su entorno (polaridad oscura). Este es el mapa de anomalía."}
+          - {id: thr, kind: decision, title: "Desplazamiento C", text: "Los píxeles más de C = 12 niveles de gris más oscuros que su vecindad forman la máscara."}
+  example:
+    captions:
+      input: "1 · Superficie muy iluminada desde la derecha, con tres picaduras y un rayón (verde)"
+      global_otsu: "2 · Otsu global como comparación: divide la imagen según la iluminación; {global_pct:.0f} % marcado"
+      local_mean: "3 · Media gaussiana local (51 px): se estima la iluminación; los defectos son demasiado pequeños para afectarla"
+      deviation: "4 · Media local − píxel: el gradiente de iluminación ha desaparecido"
+      mask: "5 · Máscara: más oscuro que la media local en más de C = 12 ({local_pct:.1f} % de los píxeles)"
+      out_input: "Entrada (verde: defecto real)"
+      out_map: "Desviación respecto a la media local"
+      out_mask: "Máscara predicha (rojo)"
+    interpretation: |
+      Un único umbral global (panel 2) solo "ve" la iluminación: toda la mitad oscura de la imagen queda
+      marcada. Comparar cada píxel con su propia vecindad elimina el gradiente, y las picaduras se
+      encuentran tanto en el lado oscuro como en el claro. Los pocos falsos positivos restantes son granos de textura
+      más oscuros que C: sube C o el tamaño de bloque en el Laboratorio para cambiar sensibilidad por especificidad.
+  strengths:
+    - "Gestiona de forma natural la iluminación irregular."
+    - "Simple: dos parámetros con un significado claro (tamaño de vecindad, desplazamiento C)."
+    - "Muy rápido."
+  limitations:
+    - "Los defectos mayores que la vecindad arrastran la media local y no se detectan."
+    - "La textura fina con contraste local superior a C crea falsos positivos."
+    - "Sigue sin tener noción de cómo es una pieza normal."
+  failures:
+    - "Manchas grandes o zonas ausentes."
+    - "Texturas fuertes o contornos nítidos de la pieza (la media local abarca dos regiones)."
+  industry: "Documentos y etiquetas con luz irregular, piezas curvas o grandes, presegmentación antes de medir."
+
+padim:
+  summary:
+    problem: "Detectar y localizar anomalías desconocidas cuando solo se dispone de imágenes **normales** de un producto."
+    idea: "Describir cada posición de la imagen con características de una CNN preentrenada y aprender, posición a posición, una gaussiana de lo que es normal allí. Un parche de prueba lejos de su gaussiana (distancia de Mahalanobis) es anómalo."
+    when: "Objetos o texturas bien alineados, de decenas a cientos de imágenes normales, necesidad de un mapa de calor."
+    limits: "Supone que el objeto está siempre en el mismo lugar (una gaussiana por posición); la memoria crece con la dimensión de las características."
+    io: "imagen (256×256) → mapa de anomalía de Mahalanobis, puntuación de imagen (máx.)"
+    training: "De decenas a cientos de imágenes normales (no se necesitan defectos)"
+  diagram:
+    lanes:
+      - label: "Ajuste (solo imágenes normales)"
+        nodes:
+          - {id: train, kind: train, title: "Imágenes normales", text: "Solo imágenes de entrenamiento sin defectos de una categoría."}
+          - {id: cnn, kind: feature, title: "Características CNN (capas 1–3)", text: "Una ResNet de ImageNet congelada; los mapas de características de las capas 1, 2 y 3 se redimensionan a una rejilla común y se concatenan: un vector por posición de parche."}
+          - {id: reduce, kind: feature, title: "Subconjunto aleatorio de canales", text: "Un subconjunto aleatorio fijo de canales (p. ej. 100) mantiene pequeña la covarianza."}
+          - {id: gauss, kind: model, title: "Gaussiana por posición", text: "Para cada posición de la rejilla (i, j): media μᵢⱼ y covarianza Σᵢⱼ sobre todas las imágenes de entrenamiento (+ εI para estabilidad)."}
+      - label: "Prueba"
+        nodes:
+          - {id: test, kind: data, title: "Imagen de prueba", text: "Redimensionada a 256×256, como las imágenes de entrenamiento."}
+          - {id: feat, kind: feature, title: "Mismas características", text: "La misma red troncal congelada y el mismo subconjunto de canales."}
+          - {id: maha, kind: score, title: "Distancia de Mahalanobis", text: "M(xᵢⱼ) = √((x − μᵢⱼ)ᵀ Σᵢⱼ⁻¹ (x − μᵢⱼ)) en cada posición: ¿qué tan inusual es este parche para este lugar?"}
+          - {id: up, kind: score, title: "Interpolar + suavizar", text: "El mapa de la rejilla de parches se interpola al tamaño de la imagen y se suaviza con una gaussiana. Puntuación de imagen = máximo."}
+          - {id: thr, kind: decision, title: "Umbral", text: "Calibrado con imágenes normales de validación (p. ej. un percentil alto), no con los defectos de prueba."}
+    links:
+      - {from: gauss, to: maha, label: "μ, Σ por posición"}
+  example:
+    captions:
+      train: "1 · {n_train} imágenes normales de entrenamiento (sin defecto)"
+      features: "2 · Cada imagen se divide en una rejilla de parches; cada parche recibe un vector de características"
+      mean: "3 · Media aprendida μ por posición (un canal de características)"
+      variance: "4 · Dispersión aprendida σ por posición (otro canal): las posiciones difieren"
+      test: "5 · Imagen de prueba con un defecto triangular oscuro (verde)"
+      mahalanobis: "6 · Distancia de Mahalanobis por parche"
+      mask: "7 · Máscara: por encima del umbral calibrado con imágenes normales reservadas"
+      out_input: "Imagen de prueba (verde: defecto real)"
+      out_map: "Mapa de anomalía (interpolado, suavizado)"
+      out_mask: "Máscara predicha (rojo)"
+    interpretation: |
+      PaDiM nunca vio un defecto: solo aprendió cómo varían las características **en cada posición** de las imágenes normales
+      (paneles 3–4). Los parches que cubren el triángulo quedan lejos de la gaussiana de su posición (distancia máx.
+      {score:.1f} frente a un umbral de {threshold:.1f}, fijado con imágenes normales reservadas), así que se iluminan. La máscara
+      tiene forma de mancha y es mayor que el defecto porque el mapa tiene resolución de parche: los mapas reales de PaDiM
+      también son gruesos y suavizados.
+  strengths:
+    - "Solo necesita imágenes normales; 'entrenamiento' muy sencillo (medias y covarianzas)."
+    - "Proporciona tanto una puntuación de imagen como un mapa de localización."
+    - "Puntuación con fundamento estadístico (Mahalanobis)."
+  limitations:
+    - "Una gaussiana por posición: los objetos deben estar alineados; las piezas giradas o desplazadas parecen anómalas."
+    - "La memoria y el tiempo crecen con el tamaño de la covarianza (canales²)."
+    - "Una sola gaussiana no puede modelar una apariencia normal multimodal."
+  failures:
+    - "Piezas colocadas en posiciones u orientaciones variables."
+    - "Variantes normales no cubiertas por el conjunto de entrenamiento (otro color, otro proveedor)."
+  industry: "Inspección en posición fija de productos con solo muestras buenas disponibles: comprimidos, tornillos, texturas en cintas transportadoras con utillaje."
+
+patchcore:
+  summary:
+    problem: "Detectar y localizar anomalías solo a partir de imágenes normales, con una precisión del estado del arte en bancos de pruebas industriales."
+    idea: "Guardar características de parches representativos de las imágenes normales en un **banco de memoria**. Un parche de prueba es anómalo si incluso su vecino más cercano en la memoria está lejos."
+    when: "De decenas a cientos de imágenes normales, objetos o texturas, necesidad de un mapa de calor; la posición no tiene que ser fija."
+    limits: "La memoria y el coste de la búsqueda del vecino más cercano crecen con el banco; una red troncal preentrenada en imágenes naturales puede pasar por alto detalles propios del dominio."
+    io: "imagen (256×256) → mapa de distancias al vecino más cercano, puntuación de imagen re-ponderada"
+    training: "De decenas a cientos de imágenes normales (sin entrenamiento por gradiente)"
+  diagram:
+    lanes:
+      - label: "Ajuste (solo imágenes normales)"
+        nodes:
+          - {id: train, kind: train, title: "Imágenes normales", text: "Imágenes de entrenamiento sin defectos de una categoría."}
+          - {id: feat, kind: feature, title: "Características de parche", text: "WideResNet-50 congelada, capas 2 + 3; cada posición se agrega sobre su vecindad 3×3 (características de parche con contexto local)."}
+          - {id: coreset, kind: model, title: "Coreset (10 %)", text: "El muestreo k-center voraz conserva un subconjunto pequeño que sigue cubriendo todo el espacio de características: el banco de memoria."}
+      - label: "Prueba"
+        nodes:
+          - {id: test, kind: data, title: "Imagen de prueba", text: "Redimensionada a 256×256."}
+          - {id: tfeat, kind: feature, title: "Mismas características", text: "La misma red troncal y la misma agregación."}
+          - {id: nn, kind: score, title: "Vecino más cercano", text: "Para cada parche de prueba: distancia a su vecino más cercano en el banco de memoria."}
+          - {id: score, kind: score, title: "Mapa + puntuación", text: "Las distancias de los parches forman el mapa (interpolado + suavizado gaussiano). Puntuación de imagen = máximo, re-ponderado según lo aislado que esté ese vecino de la memoria."}
+          - {id: thr, kind: decision, title: "Umbral", text: "Calibrado con imágenes normales de validación."}
+    links:
+      - {from: coreset, to: nn, label: "buscar en memoria"}
+  example:
+    captions:
+      train: "1 · Imágenes normales de entrenamiento"
+      patches: "2 · Cada imagen se convierte en una rejilla de parches → {bank} características de parche en total"
+      memory: "3 · Espacio de características (proyección 2-D): todos los parches normales (gris), memoria coreset (verde azulado, {coreset} parches), parches de prueba (×)"
+      test: "4 · Imagen de prueba con un rayón (verde)"
+      nn_distance: "5 · Distancia de cada parche de prueba a su parche de memoria más cercano"
+      smoothed: "6 · Interpolado y suavizado con una gaussiana"
+      mask: "7 · Máscara: por encima del umbral calibrado con imágenes normales reservadas"
+      out_input: "Imagen de prueba (verde: defecto real)"
+      out_map: "Mapa de anomalía"
+      out_mask: "Máscara predicha (rojo)"
+    interpretation: |
+      El panel 3 es el corazón de PatchCore: los parches de prueba normales (× azules) caen **dentro** de la nube de
+      parches normales memorizados, así que su vecino más cercano está cerca. Los parches del rayón (× rojas) quedan
+      **fuera** de la nube: su distancia al vecino más cercano es grande (máx. {score:.1f} frente a un umbral de
+      {threshold:.2f}). Conservar solo el 10 % de los parches (coreset) apenas cambia las distancias, pero hace
+      la búsqueda 10 veces más barata.
+  strengths:
+    - "Máxima precisión en bancos de pruebas tipo MVTec AD con solo imágenes normales."
+    - "Sin entrenamiento por gradiente: el ajuste es extracción de características + submuestreo."
+    - "No requiere piezas alineadas (no hay un modelo por posición)."
+  limitations:
+    - "El tamaño del banco de memoria y el tiempo de búsqueda crecen con el número de imágenes de entrenamiento."
+    - "Depende de características de ImageNet: los defectos sutiles propios del dominio pueden ser invisibles para ellas."
+    - "La resolución de parche limita la precisión de los contornos."
+  failures:
+    - "Apariencia normal no cubierta por el conjunto de entrenamiento → falsos positivos."
+    - "Anomalías lógicas (disposición incorrecta de partes normales): cada parche, por sí solo, parece normal."
+  industry: "Detección visual de anomalías de propósito general cuando solo hay piezas buenas: fundición, electrónica, farmacia, texturas."
+
+efficientad:
+  summary:
+    problem: "Detectar anomalías solo a partir de imágenes normales, lo bastante **rápido** para líneas de producción (milisegundos por imagen)."
+    idea: "Una red **profesor** congelada describe cada parche; un **alumno** se entrena con imágenes normales para imitarla. Donde el alumno no consigue imitarla, la imagen es inusual."
+    when: "Inspección en tiempo real, tanto defectos estructurales como anomalías lógicas (mediante un autocodificador adicional)."
+    limits: "Requiere entrenamiento (miles de pasos, se recomienda GPU) y normalizar los mapas con imágenes de validación."
+    io: "imagen (256×256) → mapa de anomalía combinado local + global, puntuación de imagen"
+    training: "Imágenes normales (artículo: 70 000 pasos; por defecto en IDD Lab: 10 000) + imágenes tipo ImageNet para un término de penalización"
+  diagram:
+    lanes:
+      - label: "Entrenamiento (solo imágenes normales)"
+        nodes:
+          - {id: train, kind: train, title: "Imágenes normales", text: "Imágenes de entrenamiento sin defectos."}
+          - {id: teacher, kind: model, title: "Profesor (PDN congelada)", text: "Una pequeña Patch Description Network destilada previamente a partir de una gran red preentrenada; permanece congelada."}
+          - {id: student, kind: model, title: "Alumno aprende a imitar", text: "Misma arquitectura; se entrena para que su salida coincida con la del profesor en imágenes normales, centrándose en los parches más difíciles (pérdida hard-feature), con una penalización ImageNet para que no generalice a todo."}
+          - {id: ae, kind: model, title: "Autocodificador + 2.ª cabeza", text: "Un autocodificador y una segunda cabeza del alumno capturan el contexto global, para las anomalías lógicas."}
+      - label: "Prueba"
+        nodes:
+          - {id: test, kind: data, title: "Imagen de prueba", text: "Redimensionada a 256×256."}
+          - {id: both, kind: feature, title: "Salidas profesor y alumno", text: "Ambas redes describen cada parche."}
+          - {id: local, kind: score, title: "Mapa de discrepancia", text: "Mapa local = media sobre los canales de (profesor − alumno)²; mapa global = (autocodificador − cabeza del alumno)²."}
+          - {id: norm, kind: score, title: "Normalizar + combinar", text: "Cada mapa se normaliza con cuantiles medidos en imágenes normales de validación y después se promedian."}
+          - {id: thr, kind: decision, title: "Umbral", text: "Calibrado con imágenes normales de validación."}
+    links:
+      - {from: student, to: both, label: "pesos entrenados"}
+  example:
+    captions:
+      train: "1 · Imágenes normales de entrenamiento"
+      test: "2 · Imagen de prueba con un defecto triangular oscuro (verde)"
+      teacher: "3 · Salida del profesor (un canal): una descripción no lineal fija de cada parche"
+      student: "4 · Imitación de ese canal por el alumno (aprendida solo con imágenes normales)"
+      discrepancy: "5 · Discrepancia (profesor − alumno)² promediada sobre los canales"
+      mask: "6 · Máscara: por encima del umbral calibrado con imágenes normales reservadas"
+      out_input: "Imagen de prueba (verde: defecto real)"
+      out_map: "Mapa de anomalía (discrepancia)"
+      out_mask: "Máscara predicha (rojo)"
+    interpretation: |
+      En la textura normal el alumno ha aprendido a reproducir al profesor, así que los paneles 3 y 4 se parecen
+      y la discrepancia es baja. En el defecto, con el que el alumno nunca se ha entrenado, su imitación se
+      rompe y la discrepancia aumenta (máx. {score:.2f} frente a un umbral de {threshold:.3f}). En este ejemplo de juguete, el
+      profesor es un conjunto de filtros aleatorios fijos con ReLU y el alumno una regresión lineal; el
+      EfficientAD real usa redes profundas, más una rama de autocodificador para las anomalías lógicas.
+  strengths:
+    - "Inferencia muy rápida (unos pocos ms en GPU): adecuada para líneas de producción."
+    - "Detecta anomalías estructurales y lógicas (ramas local + global)."
+    - "Gran precisión en los bancos de pruebas."
+  limitations:
+    - "Necesita entrenamiento (GPU, miles de pasos) y un conjunto de validación de imágenes normales para normalizar los mapas."
+    - "Más hiperparámetros y piezas móviles que los métodos de banco de memoria."
+    - "El alumno también puede aprender a imitar al profesor en algunas anomalías (sobregeneralización)."
+  failures:
+    - "Imágenes de entrenamiento demasiado pocas o demasiado homogéneas: el alumno sobregeneraliza o infrageneraliza."
+    - "Defectos muy pequeños, cercanos al tamaño del campo receptivo."
+  industry: "Líneas de alta cadencia donde importa la latencia: envasado, alimentación, electrónica, logística."
+
+winclip:
+  summary:
+    problem: "Detectar anomalías **sin ninguna imagen de entrenamiento** del producto (zero-shot), o con muy pocas (few-shot)."
+    idea: "Usar CLIP, un modelo que relaciona imágenes y texto. Comparar pequeñas ventanas de la imagen con frases como 'una foto de un objeto impecable' frente a 'una foto de un objeto dañado', con varios tamaños de ventana, y agregar."
+    when: "Productos nuevos todavía sin datos, estudios rápidos de viabilidad, muchos tipos de producto."
+    limits: "Localización gruesa; precisión inferior a la de los métodos entrenados con imágenes normales; depende de la redacción de las frases y del nombre de la clase."
+    io: "imagen (240×240) + nombre de clase → mapa de anomalía a nivel de ventana, puntuación de imagen"
+    training: "Ninguno (zero-shot); opcionalmente k imágenes normales"
+  diagram:
+    lanes:
+      - label: "Lado del texto (sin imágenes)"
+        nodes:
+          - {id: prompts, kind: train, title: "Conjunto de frases", text: "Muchas frases que combinan palabras de estado ('impecable', 'dañado', 'con un rayón'…) con plantillas y el nombre de la clase."}
+          - {id: text, kind: model, title: "Codificador de texto CLIP", text: "Se promedian en un embedding de texto 'normal' y otro 'anómalo'."}
+      - label: "Lado de la imagen"
+        nodes:
+          - {id: test, kind: data, title: "Imagen de prueba", text: "Redimensionada a 240×240."}
+          - {id: win, kind: feature, title: "Ventanas (2×2, 3×3)", text: "Ventanas deslizantes a varias escalas sobre la rejilla de parches del ViT; cada ventana obtiene su propio embedding de imagen CLIP."}
+          - {id: sim, kind: score, title: "Puntuación de ventana", text: "softmax de las similitudes con los dos embeddings de texto → probabilidad de que la ventana sea 'anómala'."}
+          - {id: agg, kind: score, title: "Agregación armónica", text: "Cada píxel toma la media armónica de las puntuaciones de todas las ventanas que lo cubren, en todas las escalas."}
+          - {id: thr, kind: decision, title: "Umbral", text: "Sobre el mapa o sobre la puntuación de imagen (máximo)."}
+    links:
+      - {from: text, to: sim, label: "comparar con texto"}
+  example:
+    captions:
+      test: "1 · Imagen de prueba con un rayón (verde)"
+      windows_small: "2 · Ventanas pequeñas (2×2 parches): una sobre textura normal (azul) y otra sobre el defecto (naranja)"
+      windows_mid: "3 · Ventanas medianas (3×3 parches)"
+      scores_small: "4 · Puntuación de cada ventana pequeña (probabilidad de 'anómala')"
+      scores_mid: "5 · Puntuación de cada ventana mediana"
+      harmonic: "6 · Media armónica sobre todas las ventanas que cubren cada píxel"
+      mask: "7 · Máscara: puntuación agregada > {threshold:.2f}"
+      out_input: "Imagen de prueba (verde: defecto real)"
+      out_map: "Mapa de anomalía agregado por ventanas"
+      out_mask: "Máscara predicha (rojo)"
+    interpretation: |
+      No se ha usado ninguna imagen normal: cada ventana se juzga por sí sola frente a una descripción "normal" y otra
+      "anómala". Las ventanas que contienen el rayón se desplazan hacia "anómala" (máx. {score:.2f}); las demás
+      se mantienen bajas. Se combinan varios tamaños de ventana y la **media armónica** está dominada por las puntuaciones bajas,
+      así que un píxel solo sigue alto si todas las ventanas que lo cubren coinciden: esto suprime las falsas
+      alarmas aisladas, pero hace el mapa grueso. En este ejemplo de juguete, un descriptor de contraste hecho a mano sustituye a los
+      embeddings de CLIP; el mecanismo de ventanas y agregación es el de WinCLIP.
+  strengths:
+    - "Funciona sin ninguna imagen del producto (solo un nombre de clase)."
+    - "Un único modelo para muchos tipos de producto."
+    - "Se pueden añadir unas pocas imágenes normales para mejorar los resultados (few-shot)."
+  limitations:
+    - "Localización gruesa, a nivel de ventana."
+    - "Precisión inferior a la de los métodos entrenados con imágenes normales del producto."
+    - "Sensible a la redacción de las frases y a si CLIP 'conoce' el objeto."
+  failures:
+    - "Defectos sutiles o diminutos que no cambian la descripción semántica de la ventana."
+    - "Objetos industriales muy alejados de los datos de entrenamiento de CLIP."
+  industry: "Arranque en frío de una línea nueva, cribado de muchas referencias (SKU), filtrado antes de reunir un conjunto de entrenamiento."
+
+anomalydino:
+  summary:
+    problem: "Detectar anomalías con solo **unas pocas** imágenes normales de referencia (1–16 shots)."
+    idea: "Describir cada parche con características autosupervisadas de DINOv2; un parche de prueba es anómalo si ningún parche de las imágenes de referencia se le parece (vecino más cercano por coseno)."
+    when: "Escenarios few-shot: productos nuevos, pocas muestras buenas, muchos tipos de producto."
+    limits: "Red troncal grande (se recomienda GPU); los resultados dependen de lo representativas que sean las pocas referencias."
+    io: "imagen (448×448) + k referencias normales → mapa de distancias coseno por parche, puntuación de imagen (media del 1 % superior)"
+    training: "Ninguno: de 1 a 16 imágenes normales de referencia"
+  diagram:
+    lanes:
+      - label: "Imágenes de referencia"
+        nodes:
+          - {id: ref, kind: train, title: "k imágenes normales", text: "De 1 a 16 referencias sin defectos."}
+          - {id: rfeat, kind: feature, title: "Tokens de parche DINOv2", text: "Un ViT autosupervisado congelado (ViT-S/14) da un vector de características por parche de 14×14."}
+          - {id: bank, kind: model, title: "Memoria de parches", text: "Todos los tokens de parche de referencia (opcionalmente solo el objeto, con enmascarado zero-shot)."}
+      - label: "Prueba"
+        nodes:
+          - {id: test, kind: data, title: "Imagen de prueba", text: "Redimensionada (448×448 en IDD Lab)."}
+          - {id: tfeat, kind: feature, title: "Tokens de parche DINOv2", text: "La misma red troncal congelada."}
+          - {id: cos, kind: score, title: "Distancia coseno NN", text: "d(p) = 1 − máxima similitud coseno entre el parche de prueba y cualquier parche de referencia."}
+          - {id: top, kind: score, title: "Media del 1 % superior", text: "Puntuación de imagen = media del 1 % de las mayores distancias de parche (robusta frente a un único parche ruidoso)."}
+          - {id: thr, kind: decision, title: "Umbral", text: "Sobre la puntuación de imagen o sobre el mapa."}
+    links:
+      - {from: bank, to: cos, label: "vecino más cercano"}
+  example:
+    captions:
+      reference: "1 · UNA imagen normal de referencia, dividida en parches (1-shot)"
+      test: "2 · Imagen de prueba con un defecto rectangular oscuro (verde)"
+      cosine: "3 · Distancia coseno de cada parche de prueba a su parche de referencia más parecido"
+      top1: "4 · El 1 % superior de parches ({k_top}), cuya media es la puntuación de imagen ({score:.3f})"
+      mask: "5 · Máscara: por encima de la mayor distancia observada en imágenes normales reservadas"
+      out_input: "Imagen de prueba (verde: defecto real)"
+      out_map: "Mapa de anomalía"
+      out_mask: "Máscara predicha (rojo)"
+    interpretation: |
+      Con una sola imagen de referencia, cada parche de prueba normal sigue encontrando un parche muy parecido en la
+      referencia (distancia ≈ 0), porque la textura se repite. Los parches del defecto no tienen ningún parecido, así que
+      su distancia destaca. La puntuación de imagen promedia solo el 1 % superior de las distancias: robusta frente a un
+      parche ruidoso, sensible a un defecto compacto. En este ejemplo de juguete, descriptores de parche sencillos sustituyen a los tokens
+      de DINOv2; las características del modelo real son mucho más ricas y, en gran medida, invariantes a la iluminación.
+  strengths:
+    - "Funciona con muy pocas imágenes normales (incluso una)."
+    - "Sin entrenamiento; características autosupervisadas potentes."
+    - "Puntuación simple y transparente (vecino más cercano)."
+  limitations:
+    - "Red troncal grande: más lenta que los métodos clásicos, se recomienda GPU."
+    - "Pocas referencias pueden no cubrir la variación normal → falsos positivos."
+    - "La resolución de parche (tokens de 14 px) limita la localización fina."
+  failures:
+    - "Variantes normales ausentes de las k referencias."
+    - "Fondo recargado, si el enmascarado está desactivado."
+  industry: "Puesta en marcha rápida con productos nuevos y pocas muestras; muchas variantes de producto de bajo volumen."
+
+pc_deviation:
+  summary:
+    problem: "Encontrar defectos geométricos (abolladuras, protuberancias, falta de material) en una pieza escaneada en 3D."
+    idea: "Registrar la nube de puntos escaneada sobre una nube de referencia normal y medir a qué distancia está cada punto de la superficie de referencia."
+    when: "Piezas rígidas con escáneres 3D (láser, luz estructurada), defectos que cambian la forma más que el color."
+    limits: "Todo depende del registro: si la alineación falla, toda la pieza parece defectuosa. No admite piezas deformables."
+    io: "nube de puntos de prueba + nube(s) de referencia normal(es) → desviación por punto, puntuación de objeto (percentil)"
+    training: "De 1 a 4 nubes de puntos de referencia normales"
+  diagram:
+    lanes:
+      - label: "Referencia"
+        nodes:
+          - {id: ref, kind: train, title: "Nube(s) de referencia", text: "Uno o varios escaneos de piezas buenas, fusionados; submuestreo por vóxeles; normales estimadas."}
+      - label: "Prueba"
+        nodes:
+          - {id: test, kind: data, title: "Nube de prueba", text: "Escaneo de la pieza a inspeccionar; submuestreo por vóxeles (1/150 de la diagonal de la caja envolvente)."}
+          - {id: coarse, kind: pre, title: "Alineación gruesa", text: "Prealineación de centroides y después características geométricas FPFH + emparejamiento RANSAC para encontrar una pose aproximada."}
+          - {id: icp, kind: pre, title: "Alineación fina (ICP)", text: "Iterative Closest Point refina la pose (punto a punto y después punto a plano)."}
+          - {id: dev, kind: score, title: "Distancia a superficie", text: "Para cada punto de prueba: |n·(p − q)|, la distancia al plano tangente del punto de referencia más cercano."}
+          - {id: score, kind: decision, title: "Puntuación + umbral", text: "Puntuación de objeto = percentil 99 de las desviaciones; los puntos por encima de una tolerancia forman el defecto."}
+    links:
+      - {from: ref, to: coarse, label: "registrar sobre"}
+  example:
+    note: "Superficies sintéticas y una reproducción en NumPy del proceso (centroides + ICP punto a punto, distancia punto a superficie) para que se ejecute al instante sin Open3D. Los pasos son los del método; los números no son los de la referencia básica de IDD Lab."
+    captions:
+      reference: "1 · Superficie de referencia normal (vista superior, color = altura)"
+      test: "2 · Escaneo de prueba (naranja) tal como se captura: girado y desplazado respecto a la referencia (gris)"
+      coarse: "3 · Alineación gruesa (centroides emparejados): sigue girado"
+      icp: "4 · Tras ICP: prueba y referencia se superponen"
+      deviation_before: "5 · Desviación si omitiéramos ICP: toda la pieza parece defectuosa (p99 = {before:.2f})"
+      deviation: "6 · Desviación tras ICP: solo destaca la abolladura"
+      mask: "7 · Puntos con una desviación mayor de {threshold:.2f} unidades (rojo)"
+      out_gt: "Abolladura real (verde, conocida por el generador sintético)"
+      out_map: "Desviación por punto tras el registro"
+      out_mask: "Puntos de defecto predichos (rojo)"
+    interpretation: |
+      Sin registro fino (panel 5), la desviación está dominada por el error de pose y no tiene sentido.
+      Tras ICP, los puntos normales quedan sobre la superficie de referencia (RMS ≈ {rmse:.2f} unidades) y aparece la abolladura
+      (puntuación de objeto p99 = {score:.2f}). Este ejemplo de juguete usa centroides + ICP punto a punto en NumPy y
+      distancias punto a superficie; la referencia básica de IDD Lab añade FPFH + RANSAC e ICP punto a plano (Open3D).
+  strengths:
+    - "Mide directamente la geometría, en unidades físicas."
+    - "Solo necesita uno o unos pocos escaneos de referencia buenos."
+    - "Transparente: cada número es una distancia."
+  limitations:
+    - "El registro es el punto débil: las piezas simétricas o sin rasgos distintivos pueden alinearse mal."
+    - "Solo piezas rígidas; no se aprende la tolerancia normal de forma."
+    - "El ruido del escáner y las oclusiones crean desviaciones espurias."
+  failures:
+    - "Gran desplazamiento inicial o formas simétricas → ICP converge a una pose incorrecta."
+    - "Escaneos parciales cuyas zonas ausentes se comparan con la referencia completa."
+  industry: "Inspección dimensional de piezas de fundición, estampadas y mecanizadas, comparación CAD–escaneo."
+
+multimodal_fusion:
+  summary:
+    problem: "Algunos defectos son visibles en color y otros solo en 3D (o en infrarrojo). ¿Cómo combinar los sensores en una única decisión?"
+    idea: "Ejecutar un detector por modalidad, llevar sus puntuaciones a una escala común usando muestras normales y después fusionarlas (media o máximo)."
+    when: "Celdas de inspección con varios sensores (RGB, infrarrojo, 3D) que observan el mismo objeto."
+    limits: "La fusión tardía ignora los patrones entre modalidades; la normalización necesita muestras normales reservadas; la fusión por media y por máximo se comportan de forma muy distinta."
+    io: "RGB + infrarrojo + nube de puntos → puntuaciones estandarizadas por modalidad, puntuación fusionada"
+    training: "Muestras multimodales normales (ajuste + normalización con muestras reservadas)"
+  diagram:
+    lanes:
+      - label: "Detectores por modalidad (ajustados con muestras normales)"
+        nodes:
+          - {id: rgb, kind: data, title: "Imagen RGB", text: "Vista de la cámara en color."}
+          - {id: rgbdet, kind: score, title: "Detector de imagen", text: "p. ej. PatchCore ajustado con imágenes RGB normales → puntuación bruta s_RGB."}
+      - label: " "
+        nodes:
+          - {id: pc, kind: data, title: "Nube de puntos", text: "Escaneo 3D del mismo objeto."}
+          - {id: pcdet, kind: score, title: "Desviación 3D", text: "Registro + desviación geométrica → puntuación bruta s_3D."}
+      - label: "Fusión"
+        nodes:
+          - {id: hold, kind: train, title: "Normales reservadas", text: "Muestras normales NO usadas en el ajuste: media μ_m y desviación típica σ_m de la puntuación de cada modalidad."}
+          - {id: z, kind: pre, title: "Estandarizar", text: "z_m = (s_m − μ_m) / σ_m: las puntuaciones de detectores distintos pasan a ser comparables."}
+          - {id: fuse, kind: score, title: "Fusionar", text: "Media de los z (promedia los indicios) o máximo de los z (un O lógico entre sensores)."}
+          - {id: thr, kind: decision, title: "Umbral", text: "Una decisión por objeto."}
+    links:
+      - {from: rgbdet, to: z, label: "s_RGB"}
+      - {from: pcdet, to: z, label: "s_3D"}
+  example:
+    note: "Imágenes RGB y mapas de altura sintéticos. El detector RGB es el método real de morfología de IDD Lab; el detector 3D es una simple desviación respecto a la superficie nominal. Las reglas de estandarización y fusión son las del experimento; los números son ilustrativos."
+    captions:
+      rgb_views: "1 · Vistas RGB de 4 objetos de prueba: bueno · picaduras · bueno · picaduras"
+      depth_views: "2 · Vistas 3D (altura menos forma nominal): bueno · bueno · abolladura · abolladura"
+      normalise: "3 · Puntuaciones RGB brutas de objetos NORMALES reservados: su media y su dispersión definen z = 0 y z = 1"
+      fusion: "4 · Puntuaciones estandarizadas por modalidad y fusionadas (línea discontinua: z = {threshold:.0f})"
+      out_fusion: "Z-scores por modalidad y puntuaciones fusionadas de los 4 objetos de prueba"
+    interpretation: |
+      Cada defecto es visible en **una sola** modalidad: las picaduras en RGB y la abolladura en 3D. Estandarizar con
+      objetos normales reservados pone ambos detectores en la misma escala. La **fusión por máximo** detecta los dos
+      defectos de una sola modalidad (actúa como un O lógico). La **fusión por media** los diluye: promediada con una
+      puntuación normal del otro sensor, la abolladura visible solo en 3D queda justo por debajo de la línea. A cambio, la fusión por máximo
+      también hereda las falsas alarmas de todos los sensores. Aquí el detector RGB es el método real de morfología de IDD Lab
+      y el detector 3D, la desviación respecto a la superficie nominal; el experimento real usa PatchCore
+      en RGB e infrarrojo más la referencia básica 3D en MulSen-AD.
+  strengths:
+    - "Simple y modular: se puede conectar cualquier detector para cada sensor."
+    - "La estandarización hace comparables puntuaciones heterogéneas."
+    - "La fusión por máximo detecta defectos visibles en una sola modalidad."
+  limitations:
+    - "La fusión tardía no puede aprovechar patrones entre modalidades (p. ej. un cambio de color que solo es defecto cuando la geometría también cambia)."
+    - "Requiere muestras normales reservadas para la calibración."
+    - "La fusión por media diluye los defectos de una sola modalidad; la fusión por máximo acumula falsas alarmas."
+  failures:
+    - "Una modalidad mal calibrada (muy pocas normales reservadas) domina la puntuación fusionada."
+    - "Sensores mal registrados entre sí: las modalidades no coinciden en dónde está el defecto."
+  industry: "Celdas de inspección multisensor: RGB + 3D para superficie y forma, infrarrojo para anomalías térmicas (soldaduras, electrónica)."

@@ -11,7 +11,7 @@ Users obtain those from the original source, under the original terms, with an e
 | `app/`, `core/`, `scripts/`, `tests/`, `*.ps1`, `pyproject.toml`, `requirements*/` | after the owner has chosen the project licence (see LICENSE_AUDIT §1) |
 | `education/` (texts, YAML, generated SVG diagrams), `docs/` (guides, exercises, audits) | idem; `docs/` files with local paths are redacted in the staged copy |
 | `research_catalog/`, `CITATIONS.bib`, `RESEARCH_REFERENCES.md` | bibliographic metadata; links point to the original sources |
-| `docs/screenshots/` | synthetic data, catalog content and stored metric plots (no dataset images) |
+| `docs/screenshots/` | synthetic data, catalog content and stored results (metric tables and charts; no dataset images) |
 | `configs/workshop_verified.json`, `docs/LOCAL_RESULTS*.md` | **conditional**: derived evaluation results; attribution to the datasets; owner decision for MulSen-AD-derived entries |
 | `data/README.md`, `checkpoints/README.md`, `experiments/README.md` | placeholders only |
 

@@ -34,8 +34,12 @@ class ModelsPage(QWidget):
         self.table.setHorizontalHeaderLabels([tr("mm.h_alg", "Algorithm"), tr("mm.h_avail", "Availability"),
                                               tr("mm.h_status", "Status on this computer"), tr("mm.h_cpu", "CPU"),
                                               tr("mm.h_gpu", "GPU memory (measured)")])
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setStretchLastSection(True)
+        h = self.table.horizontalHeader()
+        h.setSectionResizeMode(QHeaderView.ResizeToContents)
+        for col in (1, 2, 3, 4):                    # long texts share the width and wrap: all five columns
+            h.setSectionResizeMode(col, QHeaderView.Stretch)   # stay visible without horizontal scrolling
+        self.table.setWordWrap(True)
+        self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.verticalHeader().setVisible(False)

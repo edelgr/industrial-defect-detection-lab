@@ -23,6 +23,11 @@ earlier development took place in a private working copy and is summarised here,
   scores. Layout fits 1280×800 screens; images can be enlarged with synchronised zoom.
 - 3D inspection support for point-cloud / multimodal data (full profile).
 
+- Without a dataset (stored results), experiment B shows compact condition cards and experiment A shows its
+  explanation instead of empty image panels; the Dataset Atlas gallery adapts its columns to the window
+  width; the Model Manager table shows all five columns without horizontal scrolling; button and tab labels
+  containing "&" are displayed correctly.
+
 ### Student Edition
 - Instructor / Student / Auto profiles from one codebase (`core/profile.py`).
 - `setup_student.ps1` with *core* and *full* profiles, pinned locks in `requirements/`, CPU or CUDA
@@ -38,6 +43,9 @@ earlier development took place in a private working copy and is summarised here,
   instructor guides, exercise index, scientific references; slides to be added from the original file.
 
 ### Tooling and documentation
+- README screenshots regenerated in the Student Edition profile from a clean copy (no datasets, no
+  pretrained weights) at one size, grouped as Explore and Learn, Run and Compare, Understand Experimental
+  Results, and 3D and Model Management, including the illumination experiment in Basic and Advanced mode.
 - `scripts/readiness.py`, `scripts/check_docs.py`, `scripts/build_release.py`, Qt flow checks.
 - CI workflow `.github/workflows/ci.yml` (static checks, docs, catalog, CPU tests, Qt smoke; no GPU, no
   downloads, never publishes).

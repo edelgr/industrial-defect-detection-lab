@@ -354,8 +354,12 @@ class ResolutionTab(QWidget):
             lab = tr("xp.anomalous", "anomalous") if s.label == "bad" else tr("xp.normal", "normal")
             self.sample.addItem(f"{lab} · {tr('xp.scene', 'scene')} {s.meta.get('scene_id')} · "
                                 f"{s.meta.get('lighting_condition')}", s.sample_id)
-        ll.addWidget(QLabel(tr("xp.sample", "Test image (test_public)")))
+        sample_label = QLabel(tr("xp.sample", "Test image (test_public)"))
+        ll.addWidget(sample_label)
         ll.addWidget(shrinkable(self.sample))
+        if self.idx is None:                       # dataset not installed: no test images to choose
+            sample_label.hide()
+            self.sample.hide()
         self.run = QPushButton("▶  " + tr("xp.run_both", "Run both PatchCore models on this image"))
         self.run.setObjectName("Primary")
         self.run.clicked.connect(self._run)
@@ -377,6 +381,7 @@ class ResolutionTab(QWidget):
         self.live = table([], [tr("xp.this_image", "This image"), "256×256", "1024×256"])
         self.live.setMinimumHeight(100)
         ll.addWidget(self.live, 1)
+        self.live.setVisible(self.live_ok)         # per-image live results only exist with live inference
         sp.addWidget(left_tabs)
 
         right = QWidget()
@@ -402,7 +407,19 @@ class ResolutionTab(QWidget):
             self.grid.setColumnStretch(c, 1)
         self.grid.addWidget(muted(tr("xp.legend", "Heat-map scale: map ÷ calibrated pixel threshold, 0–2 (1 = threshold). "
                                                  "Mask colours: green = correct defect pixels, red = false alarms, blue = missed defect pixels.")), 3, 0, 1, 4)
-        sp.addWidget(_scroll(right))
+        # Without live inference (Student Edition without the dataset) the heat-map grid would stay empty:
+        # show the experiment's explanation instead, with what the live comparison needs.
+        self.right_stack = QStackedWidget()
+        self.right_stack.addWidget(_scroll(right))
+        self.stored_view = ExplanationBox(
+            "> " + tr("xp.res_stored_note", "**Live comparison not available on this computer.** The heat-maps of both "
+                                            "PatchCore models need MVTec AD 2 `sheet_metal` and fitted checkpoints. The "
+                                            "table on the left shows the stored verified results; the explanation below "
+                                            "describes what the live comparison shows.") + "\n\n"
+            + (content.markdown("experiments", "resolution") or ""))
+        self.right_stack.addWidget(self.stored_view)
+        self.right_stack.setCurrentIndex(0 if self.live_ok else 1)
+        sp.addWidget(self.right_stack)
         sp.setSizes([460, 1060])
         lay.addWidget(sp, 1)
 
@@ -734,9 +751,19 @@ class IlluminationTab(QWidget):
         adv = self.level == "advanced"
         self.stack.setCurrentIndex(1 if adv else 0)
         (self.adv_btn if adv else self.basic_btn).setChecked(True)
-        h = max(400, self.vsplit.height())
-        self.vsplit.setSizes([int(h * (0.40 if adv else 0.56)), int(h * (0.60 if adv else 0.44))])
+        self._fit_split()
         self._draw_charts()
+
+    def _fit_split(self):
+        """Share the height between the condition cards and the lower panels. Without installed images the
+        cards are compact, so the charts and explanations get the space instead of empty image boxes."""
+        h = max(400, self.vsplit.height())
+        adv = self.level == "advanced"
+        if getattr(self, "has_images", True):
+            top = int(h * (0.40 if adv else 0.56))
+        else:
+            top = min(int(h * 0.45), self.vsplit.widget(0).sizeHint().height() + 8)
+        self.vsplit.setSizes([top, h - top])
 
     def select_scene(self, key):
         i = self.scenes.findData(key)
@@ -865,10 +892,13 @@ class IlluminationTab(QWidget):
         pad = 0.15 * (max(sc) - min(sc) or 1)
         lo, hi = min(sc) - pad, max(sc) + pad
         self.tiles, self.maptiles = [], []
+        had = getattr(self, "has_images", None)
+        self.has_images = any(self._thumb(s["sample_id"]) is not None for s in items)
         for card, s in zip(cards, items):
             card.set_result(s["lighting_condition"], s["score"], self.thr, s["label"] == "bad", lo, hi)
             th = self._thumb(s["sample_id"])
             card.set_aspect(th[2] if th is not None else 2.0)
+            card.set_has_images(th is not None)
             if th is None:
                 card.image.set(None, tr("xp.no_image", "(image not installed on this computer)"))
             else:
@@ -880,6 +910,8 @@ class IlluminationTab(QWidget):
             self.tiles.append(card.image)
             self.maptiles.append(card.map)
         self._apply_maps()
+        if had is not self.has_images and had is not None:
+            self._fit_split()
         self.grid.select(self.cond_idx)
         self.scene_title.setText(tr("xp.scene_title", "Scene {sid} ({kind}) — score range {rng:.2f}, closest distance to "
                                                       "threshold {mg:.2f}, {cons}, {n} error(s)").format(

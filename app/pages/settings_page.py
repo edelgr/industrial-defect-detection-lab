@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox, QFileDialog, QFormLayo
                                QTabWidget, QTextBrowser, QVBoxLayout, QWidget)
 
 from app.i18n import tr
-from app.widgets.common import PageHeader, muted
+from app.widgets.common import PageHeader, amp, muted
 from app.workers.task import start
 from core import settings
 from core.datasets import manager, registry as dreg
@@ -271,9 +271,9 @@ class DiagnosticsTab(QWidget):
         self.main = main
         lay = QVBoxLayout(self)
         row = QHBoxLayout()
-        b1 = QPushButton(tr("diag.hw", "Hardware & software report"))
+        b1 = QPushButton(amp(tr("diag.hw", "Hardware & software report")))
         b2 = QPushButton(tr("diag.ready", "Offline readiness check (workshop)"))
-        b3 = QPushButton(tr("diag.catalog", "Research catalog & link audit"))
+        b3 = QPushButton(amp(tr("diag.catalog", "Research catalog & link audit")))
         for b in (b1, b2, b3):
             row.addWidget(b)
         row.addStretch(1)
@@ -372,7 +372,7 @@ class SettingsPage(QWidget):
         self.dm = DatasetsTab(main)
         self.tabs.addTab(self.dm, tr("set.tab_datasets", "Dataset Manager"))
         self.diag = DiagnosticsTab(main)
-        self.tabs.addTab(self.diag, tr("set.tab_diag", "Diagnostics & readiness"))
+        self.tabs.addTab(self.diag, amp(tr("set.tab_diag", "Diagnostics & readiness")))
         self.tabs.addTab(ExperimentsTab(main), tr("set.tab_exp", "Experiment log"))
         lay.addWidget(self.tabs, 1)
 

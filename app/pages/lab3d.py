@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (QComboBox, QFrame, QGroupBox, QHBoxLayout, QLabel
                                QWidget)
 
 from app.i18n import tr
-from app.widgets.common import PageHeader, markdown_browser, mask_overlay, muted, synthetic_banner
+from app.widgets.common import PageHeader, amp, markdown_browser, mask_overlay, muted, synthetic_banner
 from app.widgets.image_viewer import TitledImage
 from app.widgets.param_form import ParamForm
 from app.widgets.pointcloud_view import PointCloudView
@@ -77,7 +77,7 @@ class PointCloudTab(QWidget):
         self.n_ref.setValue(1)
         r.addWidget(self.n_ref)
         gl.addLayout(r)
-        self.run = QPushButton("▶  " + tr("pc.run", "Align & compute deviation"))
+        self.run = QPushButton("▶  " + amp(tr("pc.run", "Align & compute deviation")))
         self.run.setObjectName("Primary")
         gl.addWidget(self.run)
         self.prog = QProgressBar()

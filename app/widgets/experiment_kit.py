@@ -314,6 +314,11 @@ class ConditionCard(QFrame):
             z.caption.setObjectName("Muted")
             z.clicked.connect(self.clicked)
         self.lay.addLayout(self.pics, 1)
+        self.no_images = QLabel(tr("kit.no_images", "image not installed — stored score"))
+        self.no_images.setObjectName("Muted")
+        self.no_images.hide()
+        self.lay.addWidget(self.no_images)
+        self.has_images = True
         row = QHBoxLayout()
         row.setSpacing(6)
         self.gauge = ThresholdGauge()
@@ -349,6 +354,14 @@ class ConditionCard(QFrame):
     def resizeEvent(self, e):
         super().resizeEvent(e)
         self._auto()
+
+    def set_has_images(self, on: bool):
+        """Without the dataset (Student Edition, stored results) the card is compact: no empty image boxes."""
+        self.has_images = on
+        for w in (self.image, self.map, self.zoom_btn):
+            w.setVisible(on)
+        self.no_images.setVisible(not on)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding if on else QSizePolicy.Maximum)
 
     def set_orientation(self, stacked: bool):
         """Image and map side by side or stacked."""

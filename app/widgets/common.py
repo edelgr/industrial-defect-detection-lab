@@ -88,6 +88,12 @@ def title_label(text: str, obj="CardTitle") -> QLabel:
     return lab
 
 
+def amp(text: str) -> str:
+    """Text for buttons and tabs: Qt reads a single '&' as a keyboard-shortcut marker (it would show
+    'Align _compute'); '&&' displays a literal ampersand."""
+    return text.replace("&", "&&")
+
+
 def muted(text: str) -> QLabel:
     lab = QLabel(text)
     lab.setObjectName("Muted")

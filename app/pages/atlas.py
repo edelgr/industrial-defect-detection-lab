@@ -5,15 +5,15 @@ Works fully offline and without any dataset installed.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QRectF, Qt, Signal
+from PySide6.QtCore import QEvent, QRectF, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import (QComboBox, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
-                               QLineEdit, QPushButton, QScrollArea, QSplitter, QStackedWidget,
+                               QLineEdit, QPushButton, QScrollArea, QSizePolicy, QSplitter, QStackedWidget,
                                QTableWidget, QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget)
 
 from app.i18n import tr
 from app.ui import theme
-from app.widgets.common import (Badge, Card, PageHeader, clear_layout, markdown_browser, muted,
+from app.widgets.common import (Badge, Card, PageHeader, amp, clear_layout, markdown_browser, muted,
                                 np_to_pixmap, title_label)
 from app.widgets.references import ReferencesPanel
 from core import settings
@@ -39,7 +39,9 @@ class DatasetCard(Card):
         super().__init__(parent)
         self.rid = rec["id"]
         self.setCursor(Qt.PointingHandCursor)
-        self.setMinimumWidth(300)
+        self.setMinimumWidth(280)
+        # the card takes the column width (its text wraps) instead of widening the gallery
+        self.setSizePolicy(QSizePolicy.Ignored, self.sizePolicy().verticalPolicy())
         top = QHBoxLayout()
         top.addWidget(title_label(f"{rec['acronym']}"))
         top.addStretch(1)
@@ -293,7 +295,7 @@ class AtlasPage(QWidget):
         self.tabs.addTab(tlw, tr("atlas.tab_timeline", "Timeline"))
         self.tabs.addTab(self._table_tab(), tr("atlas.tab_compare", "Compare datasets"))
         self.tabs.addTab(markdown_browser(content.markdown("atlas", "modalities") or ""),
-                         tr("atlas.tab_modalities", "Modalities & anomaly types"))
+                         amp(tr("atlas.tab_modalities", "Modalities & anomaly types")))
         self.tabs.addTab(markdown_browser(content.markdown("atlas", "benchmarks") or ""),
                          tr("atlas.tab_benchmarks", "What is a benchmark?"))
         self.stack.addWidget(self.tabs)
@@ -325,6 +327,10 @@ class AtlasPage(QWidget):
         lay.addLayout(bar)
         sc = QScrollArea()
         sc.setWidgetResizable(True)
+        sc.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        sc.viewport().installEventFilter(self)          # re-flow the columns when the width changes
+        self.gallery_scroll = sc
+        self._cols = 3
         self.grid_host = QWidget()
         self.grid = QGridLayout(self.grid_host)
         self.grid.setSpacing(12)
@@ -347,16 +353,32 @@ class AtlasPage(QWidget):
         return ((y is None or r.get("year_first_release") == y) and (m is None or m in r["modalities"])
                 and (a is None or a in r["anomaly_types"]))
 
+    GALLERY_CARD_W = 340
+
+    def eventFilter(self, obj, e):
+        if (e.type() == QEvent.Resize and hasattr(self, "gallery_scroll")
+                and obj is self.gallery_scroll.viewport()):
+            cols = max(1, min(3, obj.width() // self.GALLERY_CARD_W))
+            if cols != self._cols:
+                self._cols = cols
+                self._refresh_gallery()
+        return super().eventFilter(obj, e)
+
     def _refresh_gallery(self):
         clear_layout(self.grid)
+        cols = getattr(self, "_cols", 3)
         recs = [r for r in self.records if self._match(r)]
         for i, r in enumerate(recs):
             c = DatasetCard(r)
             c.clicked.connect(self.open_detail)
-            self.grid.addWidget(c, i // 3, i % 3)
+            self.grid.addWidget(c, i // cols, i % cols)
+        for k in range(self.grid.columnCount()):
+            self.grid.setColumnStretch(k, 1 if k < cols else 0)
         if not recs:
             self.grid.addWidget(muted(tr("atlas.no_match", "No dataset matches the filters.")), 0, 0)
-        self.grid.setRowStretch(len(recs) // 3 + 1, 1)
+        last = (len(recs) + cols - 1) // cols
+        for r in range(self.grid.rowCount()):            # rows left from a wider layout get no space
+            self.grid.setRowStretch(r, 1 if r == last else 0)
 
     # ------------------------------------------------------------------ table
     def _table_tab(self) -> QWidget:

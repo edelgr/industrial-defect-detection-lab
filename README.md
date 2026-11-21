@@ -12,7 +12,13 @@ to its original paper, code and licence.
 > educational initiative; it is not an official product of, or endorsed by, any institution, company,
 > dataset provider or conference.
 
-![IDD Lab — Methods Laboratory running Canny edge detection on the Synthetic Educational Data](docs/screenshots/06_lab_canny_synthetic.png)
+<table>
+<tr>
+<td width="33%" valign="top"><a href="docs/screenshots/09_experiment_b_basic.png"><img src="docs/screenshots/09_experiment_b_basic.png" alt="Educational Experiments, illumination experiment in Basic mode: one scene under six lighting conditions with stored scores, threshold and TP/FN outcomes, a score chart and a plain-language explanation" width="100%"></a><br><sub><b>Educational Experiments</b> — illumination, Basic mode (stored results)</sub></td>
+<td width="33%" valign="top"><a href="docs/screenshots/06_lab_canny_synthetic.png"><img src="docs/screenshots/06_lab_canny_synthetic.png" alt="Methods Laboratory running Canny edge detection on a synthetic brushed-metal scratch, with anomaly map, heat-map overlay and predicted mask" width="100%"></a><br><sub><b>Methods Laboratory</b> — Canny on Synthetic Educational Data</sub></td>
+<td width="33%" valign="top"><a href="docs/screenshots/03_atlas_gallery.png"><img src="docs/screenshots/03_atlas_gallery.png" alt="Dataset Research Atlas gallery with eight industrial anomaly-detection datasets, their modalities and access conditions" width="100%"></a><br><sub><b>Dataset Research Atlas</b> — eight benchmarks</sub></td>
+</tr>
+</table>
 
 ## Contents
 1. [Project Overview](#1-project-overview)
@@ -216,20 +222,72 @@ Continue with [Exercise 1 — Classical Defect Detection](docs/exercises/EXERCIS
 
 ## 7. Application Screenshots
 
-All screenshots show the real application with catalog content, the **Synthetic Educational Data**
-or stored metric plots — no images from third-party datasets.
+All screenshots show the real application in the **Student Edition** profile, in English, without any
+third-party dataset or pretrained weights installed: catalog content, the **Synthetic Educational Data**
+and **stored verified results** — no images from third-party datasets. Click an image to enlarge it.
 
-| | |
-|---|---|
-| ![Dashboard](docs/screenshots/01_dashboard.png) **Dashboard** | ![Start Learning](docs/screenshots/02_start_learning.png) **Start Learning** |
-| ![Dataset Research Atlas — gallery](docs/screenshots/03_atlas_gallery.png) **Dataset Research Atlas** | ![Dataset profile with research sources](docs/screenshots/04_atlas_mvtec_ad2.png) **Dataset profile and research sources** |
-| ![Methods Library — How PatchCore works](docs/screenshots/05_library_patchcore_steps.png) **Methods Library — How This Algorithm Works** | ![Methods Laboratory — Canny on synthetic data](docs/screenshots/06_lab_canny_synthetic.png) **Methods Laboratory** |
-| ![Compare Methods on synthetic data](docs/screenshots/07_compare_synthetic.png) **Compare Methods** | ![Educational Experiments — metrics](docs/screenshots/08_experiments_metrics.png) **Educational Experiments — metrics** ¹ |
-| ![3D Lab — synthetic point cloud deviation](docs/screenshots/09_lab3d_synthetic.png) **3D & Multimodal Lab** (synthetic surface patch) | ![Model Manager](docs/screenshots/10_model_manager.png) **Model Manager** |
+### 7.1 Explore and Learn
 
-¹ Stored score histograms and ROC curve of a PaDiM model evaluated locally on MVTec AD 2 `fruit_jelly`
-(dataset: MVTec Software GmbH, CC BY-NC-SA 4.0). Local educational result, not an official benchmark
-number. Screenshots were taken on the development computer; the status bar shows its GPU.
+<table>
+<tr>
+<td width="50%" valign="top"><a href="docs/screenshots/01_dashboard.png"><img src="docs/screenshots/01_dashboard.png" alt="Dashboard with catalogue counts, welcome text and quick-start buttons" width="100%"></a><br><sub><b>Dashboard</b></sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/02_start_learning.png"><img src="docs/screenshots/02_start_learning.png" alt="Start Learning page with nine guided topics; topic 1 open with its explanation, demo buttons and recommended papers" width="100%"></a><br><sub><b>Start Learning</b> — nine guided topics</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><a href="docs/screenshots/03_atlas_gallery.png"><img src="docs/screenshots/03_atlas_gallery.png" alt="Dataset Research Atlas gallery of eight datasets with year, modalities, installation status and access conditions" width="100%"></a><br><sub><b>Dataset Research Atlas</b> — gallery</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/04_atlas_mvtec_ad2.png"><img src="docs/screenshots/04_atlas_mvtec_ad2.png" alt="MVTec AD 2 dataset profile with scientific purpose, protocol and verified links to paper, DOI, PDF, dataset page and licence" width="100%"></a><br><sub><b>Dataset profile</b> — research sources and licence</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><a href="docs/screenshots/05_library_patchcore_steps.png"><img src="docs/screenshots/05_library_patchcore_steps.png" alt="Methods Library: step 4 of How This Algorithm Works for PatchCore (memory bank of normal features) next to its references" width="100%"></a><br><sub><b>Methods Library</b> — How This Algorithm Works</sub></td>
+</tr>
+</table>
+
+### 7.2 Run and Compare
+
+<table>
+<tr>
+<td width="50%" valign="top"><a href="docs/screenshots/06_lab_canny_synthetic.png"><img src="docs/screenshots/06_lab_canny_synthetic.png" alt="Methods Laboratory running Canny edge detection on a synthetic scratch: original, ground truth, edges, anomaly map, heat-map and predicted mask" width="100%"></a><br><sub><b>Methods Laboratory</b> — every intermediate output</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/07_compare_synthetic.png"><img src="docs/screenshots/07_compare_synthetic.png" alt="Compare Methods: four classical methods on the same synthetic image, each map scaled by its own calibrated threshold, with a results table" width="100%"></a><br><sub><b>Compare Methods</b> — scores divided by each method's calibrated threshold</sub></td>
+</tr>
+</table>
+
+### 7.3 Understand Experimental Results
+
+The three Educational Experiments use real MVTec AD 2 results that were computed and verified on the
+author's computer and are shipped as **stored results** (blue **STORED RESULTS** label). Without the
+dataset and the instructor's checkpoints nothing is computed on your computer, and each page says what
+**LIVE** inference would need (grey label). In the illumination experiment, **Basic** mode explains one
+scene — its score under each lighting condition, the calibrated threshold, the OK/NOK decision and whether
+it is a TP, TN, FP or FN — and **Advanced** mode shows all scenes: an interactive chart (select a scene, the
+others are dimmed, errors and threshold crossings are marked), the scenes × lighting decision table, AUROC
+per lighting with cluster-bootstrap confidence intervals, statistical limitations and references.
+
+<table>
+<tr>
+<td width="50%" valign="top"><a href="docs/screenshots/08_experiment_a_resolution.png"><img src="docs/screenshots/08_experiment_a_resolution.png" alt="Experiment A, why image resolution matters: stored verified metrics of PatchCore at 256x256 and 1024x256 next to the explanation of the experiment" width="100%"></a><br><sub><b>A · Resolution</b> — stored verified metrics ²</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/09_experiment_b_basic.png"><img src="docs/screenshots/09_experiment_b_basic.png" alt="Experiment B in Basic mode: six lighting conditions of one anomalous scene with stored scores against the threshold, TP and FN outcomes, a score chart with OK and NOK zones and a plain-language explanation" width="100%"></a><br><sub><b>B · Illumination — Basic mode</b> ²</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><a href="docs/screenshots/10_experiment_b_advanced.png"><img src="docs/screenshots/10_experiment_b_advanced.png" alt="Experiment B in Advanced mode: all scenes as lines with the selected scene highlighted, its errors and threshold crossing marked, and the scenes by lighting decision table" width="100%"></a><br><sub><b>B · Illumination — Advanced mode</b> ²</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/11_experiment_c_metrics.png"><img src="docs/screenshots/11_experiment_c_metrics.png" alt="Experiment C, Understanding Evaluation Metrics: stored score histograms and ROC curve of PaDiM on fruit_jelly with the decision table at the validation threshold" width="100%"></a><br><sub><b>C · Understanding Evaluation Metrics</b> — ranking versus decision ²</sub></td>
+</tr>
+</table>
+
+### 7.4 3D and Model Management
+
+<table>
+<tr>
+<td width="50%" valign="top"><a href="docs/screenshots/12_lab3d_synthetic.png"><img src="docs/screenshots/12_lab3d_synthetic.png" alt="3D and Multimodal Lab: a synthetic surface patch aligned to a normal reference and coloured by geometric deviation; the bump stands out" width="100%"></a><br><sub><b>3D &amp; Multimodal Lab</b> — synthetic surface patch (Student Full profile) ¹</sub></td>
+<td width="50%" valign="top"><a href="docs/screenshots/13_model_manager.png"><img src="docs/screenshots/13_model_manager.png" alt="Model Manager listing every algorithm with availability, status on this computer, CPU support and GPU memory; PatchCore selected, showing that its pretrained weights still need to be downloaded" width="100%"></a><br><sub><b>Model Manager</b> — fresh Student Full installation, no weights downloaded yet</sub></td>
+</tr>
+</table>
+
+¹ The 3D deviation is recomputed on each run; RANSAC alignment is randomised, so the score varies slightly.<br>
+² Stored scores and metrics of models evaluated locally on MVTec AD 2 `sheet_metal` and `fruit_jelly`
+(dataset: MVTec Software GmbH, CC BY-NC-SA 4.0). Local educational results on `test_public`, not official
+MVTec AD 2 benchmark numbers; no dataset image is shown. The instructor's checkpoints are **not** included
+in this repository.<br>
+Screenshots were taken on the development computer; the status bar shows its GPU.
 
 ## 8. Detection Methods
 
@@ -340,9 +398,11 @@ A **checkpoint** is a file that stores a model's learned state. IDD Lab uses two
 
 The **Workshop Verified** models of the instructor (fitted on MVTec AD 2 and MulSen-AD) are **not**
 distributed. Their verified results are included as JSON, so the Student Edition can show them:
-- **STORED RESULTS** (blue banner) — computed and verified on the instructor's computer; nothing is
+- **STORED RESULTS** (blue label) — computed and verified on the instructor's computer; nothing is
   computed on yours.
-- **LIVE** (green banner) — inference actually running on your computer, with your data and models.
+- **LIVE** (green label) — inference actually running on your computer, with your data and models. In the
+  illumination experiment, live inference adds the anomaly maps and checks the live scores against the
+  stored ones; scores, decisions and statistics always come from the stored results.
 
 The Model Manager shows, for every algorithm, whether it is included, downloadable, instructor-only or
 unavailable, and why.

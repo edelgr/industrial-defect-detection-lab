@@ -277,3 +277,60 @@ def test_confidence_interval_warnings_are_kept(ill):
         assert "Exploratory only" in rep and "not independent" in rep, pid
         assert ("is not wider than the naive one" in rep) == narrower, pid
         assert ("wider than the naive one" in rep and not narrower) or narrower, pid
+
+
+def test_stored_mode_shows_no_empty_image_panels(ill, monkeypatch):
+    """Without installed images (Student Edition) the condition cards are compact and A shows its
+    explanation instead of an empty heat-map grid."""
+    monkeypatch.setattr(ill, "_thumb", lambda sid: None)
+    ill._scene(ill.scenes.currentIndex())
+    cards = [c for c in ill.grid.cards if not c.isHidden()]
+    assert cards and all(not c.has_images and c.image.isHidden() and c.map.isHidden() and not c.no_images.isHidden()
+                         for c in cards)
+    assert not ill.has_images
+    res = ill.page.res
+    if res.ready:
+        assert res.right_stack.currentIndex() == (0 if res.live_ok else 1)
+        assert res.live.isHidden() == (not res.live_ok)
+        if not res.live_ok:
+            assert "Live comparison not available" in res.stored_view.toPlainText()
+
+
+def test_button_and_tab_labels_show_ampersands(qtbot):
+    from app.widgets.common import amp
+    assert amp("Align & compute") == "Align && compute" and amp("no ampersand") == "no ampersand"
+    from app import i18n
+    from core import settings
+    settings.load()
+    i18n.init("en")
+    from PySide6.QtWidgets import QPushButton
+    from app.ui.main_window import MainWindow
+    w = MainWindow()
+    qtbot.addWidget(w)
+    texts = [b.text() for b in w.page("dashboard").findChildren(QPushButton)]
+    assert any("3D && Multimodal Lab" in x for x in texts)          # rendered as "3D & Multimodal Lab"
+    atlas = w.page("atlas")
+    from PySide6.QtWidgets import QTabWidget
+    tabs = atlas.findChild(QTabWidget)
+    assert any("&&" in tabs.tabText(i) for i in range(tabs.count()))
+    w.close()
+
+
+def test_atlas_gallery_columns_follow_the_width(qtbot):
+    from app import i18n
+    from core import settings
+    settings.load()
+    i18n.init("en")
+    from app.ui.main_window import MainWindow
+    w = MainWindow()
+    qtbot.addWidget(w)
+    w.resize(1600, 960)
+    w.show()
+    w.navigate("atlas")
+    a = w.page("atlas")
+    vp = a.gallery_scroll.viewport()
+    for width, cols in ((1100, 3), (700, 2), (400, 1)):
+        vp.resize(width, 500)
+        qtbot.waitUntil(lambda c=cols: a._cols == c, timeout=3000)
+    assert a.gallery_scroll.horizontalScrollBarPolicy() == a.gallery_scroll.horizontalScrollBarPolicy().ScrollBarAlwaysOff
+    w.close()

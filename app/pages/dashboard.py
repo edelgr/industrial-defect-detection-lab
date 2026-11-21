@@ -5,7 +5,7 @@ from __future__ import annotations
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from app.i18n import tr
-from app.widgets.common import Card, PageHeader, markdown_browser, muted, title_label
+from app.widgets.common import Card, PageHeader, amp, markdown_browser, muted, title_label
 from core.algorithms import registry as areg
 from core.datasets import registry as dreg
 from core.research import content
@@ -63,7 +63,7 @@ class DashboardPage(QWidget):
                            (tr("nav.lab3d", "3D & Multimodal Lab"), "lab3d"),
                            (tr("nav.workshop", "Guided Workshop"), "workshop"),
                            (tr("dash.readiness", "Offline readiness check"), "settings")):
-            b = QPushButton("→  " + label)
+            b = QPushButton("→  " + amp(label))
             b.clicked.connect(lambda _=False, k=key: main.navigate(k))
             quick.lay.addWidget(b)
         quick.lay.addStretch(1)

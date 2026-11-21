@@ -1,0 +1,68 @@
+id: D02
+name: MVTec Logical Constraints Anomaly Detection Dataset
+acronym: MVTec LOCO AD
+adapter: core.datasets.mvtec:MVTecLOCOAdapter
+description_en: >-
+  Extends industrial anomaly detection beyond dents and scratches: besides structural defects,
+  images may violate logical constraints — missing components, wrong quantities, wrong
+  arrangement or combinations — that are invisible to purely local texture models.
+description_es: >-
+  Extiende la detección de anomalías industriales más allá de abolladuras y rayones: además de
+  defectos estructurales, las imágenes pueden violar restricciones lógicas — componentes
+  faltantes, cantidades o disposiciones incorrectas — invisibles para modelos puramente locales.
+scientific_purpose: >-
+  Evaluate whether methods capture global, semantic regularities (counts, positions,
+  combinations) and not only local appearance.
+year_first_release: 2022
+publication_year: 2022
+authors: [Paul Bergmann, Kilian Batzner, Michael Fauser, David Sattlegger, Carsten Steger]
+institutions: [MVTec Software GmbH]
+publication_title: "Beyond Dents and Scratches: Logical Constraints in Unsupervised Anomaly Detection and Localization"
+publication_venue: "International Journal of Computer Vision 130(4), 2022"
+doi: 10.1007/s11263-022-01578-9
+paper_url: https://link.springer.com/article/10.1007/s11263-022-01578-9
+paper_pdf_url: https://link.springer.com/content/pdf/10.1007/s11263-022-01578-9.pdf
+official_website: https://www.mvtec.com/research-teaching/datasets/mvtec-loco-ad
+official_repository_url: null
+implementation_repository_url: null
+download_url: https://www.mvtec.com/research-teaching/datasets/mvtec-loco-ad/downloads
+access_method: "Free for non-commercial use; download form on the MVTec website. Archives per category (0.6-1.6 GB) or full (~5.7 GB)."
+license: CC BY-NC-SA 4.0
+license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+redistribution_allowed: "Non-commercial, share-alike with attribution; IDD Lab never redistributes it."
+modalities: [rgb]
+categories: [breakfast_box, juice_bottle, pushpins, screw_bag, splicing_connectors]
+sample_count: 3644
+anomaly_types: [structural, logical, missing_part, wrong_quantity, wrong_arrangement]
+annotation_types: [image-level label, "per-region masks (one PNG per defect region)", defects_config.json]
+data_formats: [PNG, JSON]
+image_resolution: "800×1600 to 1700×1000 depending on category"
+train_split: "1772 defect-free images"
+validation_split: "304 defect-free images"
+test_split: "1568 images: 575 good, 432 structural, 561 logical anomalies"
+ground_truth_availability: "Public; ground_truth/<type>/<image_id>/<k>.png with one mask per region."
+benchmark_protocol: >-
+  Train on good images; evaluate image AUROC separately for structural and logical anomalies
+  and the saturated Per-Region Overlap (sPRO) metric with the official evaluation code.
+principal_challenges:
+  - Logical anomalies require global context and counting
+  - Logical defects may have no well-defined pixel extent
+  - Strong intra-class variability of normal arrangements
+scientific_contribution: >-
+  Introduced logical anomalies and the sPRO localisation metric, exposing limits of
+  patch-based methods such as PatchCore.
+limitations:
+  - Only five categories
+  - Localising "missing" objects is ambiguous by nature
+recommended_educational_exercises:
+  - Run PatchCore on structural vs. logical anomalies and discuss the difference
+  - Ask students to design a rule that would detect a wrong quantity
+size_notes: "Full ~5.71 GB; categories 0.63-1.61 GB."
+installation_status: not_installed
+source_verification_date: "2026-11-20"
+source_verification_status: verified_automated
+source_notes: "Springer HTML returned 503 during verification; PDF and Crossref confirmed. Evaluation code (sPRO) is distributed by MVTec on mydrive.ch."
+publication_ids: [bergmann2022loco]
+resource_guide: >-
+  Paper: Springer IJCV (open access). Dataset and official sPRO evaluation code: MVTec
+  website / downloads page. No GitHub repository and no model weights.

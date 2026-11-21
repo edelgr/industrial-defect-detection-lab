@@ -1,0 +1,237 @@
+# Dataset publications. Verified 2026-11-20 against Crossref / arXiv API / CVF / NeurIPS / Springer
+# (see docs/SOURCE_AUDIT.md). BibTeX copied from official sources where available.
+
+- id: bergmann2019mvtecad
+  title: "MVTec AD -- A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection"
+  authors: [Paul Bergmann, Michael Fauser, David Sattlegger, Carsten Steger]
+  year: 2019
+  venue: "CVPR 2019, pp. 9584-9592"
+  doi: 10.1109/CVPR.2019.00982
+  arxiv_id: null
+  paper_url: https://openaccess.thecvf.com/content_CVPR_2019/html/Bergmann_MVTec_AD_--_A_Comprehensive_Real-World_Dataset_for_Unsupervised_Anomaly_CVPR_2019_paper.html
+  pdf_url: https://openaccess.thecvf.com/content_CVPR_2019/papers/Bergmann_MVTec_AD_--_A_Comprehensive_Real-World_Dataset_for_Unsupervised_Anomaly_CVPR_2019_paper.pdf
+  code_url: null
+  code_is_official: null
+  datasets: [D01]
+  algorithms: []
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF page (CVF returns 403 to some bots)."}
+  bibtex: |
+    @InProceedings{Bergmann_2019_CVPR,
+      author = {Bergmann, Paul and Fauser, Michael and Sattlegger, David and Steger, Carsten},
+      title = {MVTec AD -- A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection},
+      booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+      month = {June},
+      year = {2019}
+    }
+
+- id: bergmann2021mvtecad_ijcv
+  title: "The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection"
+  authors: [Paul Bergmann, Kilian Batzner, Michael Fauser, David Sattlegger, Carsten Steger]
+  year: 2021
+  venue: "International Journal of Computer Vision 129(4):1038-1059"
+  doi: 10.1007/s11263-020-01400-4
+  arxiv_id: null
+  paper_url: https://doi.org/10.1007/s11263-020-01400-4
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: [D01]
+  algorithms: []
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref."}
+  bibtex: |
+    @article{Bergmann_2021,
+      title = {The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection},
+      volume = {129}, number = {4}, pages = {1038--1059},
+      journal = {International Journal of Computer Vision},
+      author = {Bergmann, Paul and Batzner, Kilian and Fauser, Michael and Sattlegger, David and Steger, Carsten},
+      year = {2021}, doi = {10.1007/s11263-020-01400-4}
+    }
+
+- id: bergmann2022loco
+  title: "Beyond Dents and Scratches: Logical Constraints in Unsupervised Anomaly Detection and Localization"
+  authors: [Paul Bergmann, Kilian Batzner, Michael Fauser, David Sattlegger, Carsten Steger]
+  year: 2022
+  venue: "International Journal of Computer Vision 130(4):947-969"
+  doi: 10.1007/s11263-022-01578-9
+  arxiv_id: null
+  paper_url: https://link.springer.com/article/10.1007/s11263-022-01578-9
+  pdf_url: https://link.springer.com/content/pdf/10.1007/s11263-022-01578-9.pdf
+  code_url: null
+  code_is_official: null
+  datasets: [D02]
+  algorithms: []
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref; open access CC BY 4.0 article."}
+  bibtex: |
+    @article{Bergmann_2022,
+      title = {Beyond Dents and Scratches: Logical Constraints in Unsupervised Anomaly Detection and Localization},
+      volume = {130}, number = {4}, pages = {947--969},
+      journal = {International Journal of Computer Vision},
+      publisher = {Springer Science and Business Media LLC},
+      author = {Bergmann, Paul and Batzner, Kilian and Fauser, Michael and Sattlegger, David and Steger, Carsten},
+      year = {2022}, doi = {10.1007/s11263-022-01578-9}
+    }
+
+- id: zou2022visa
+  title: "SPot-the-Difference Self-Supervised Pre-training for Anomaly Detection and Segmentation"
+  authors: [Yang Zou, Jongheon Jeong, Latha Pemula, Dongqing Zhang, Onkar Dabeer]
+  year: 2022
+  venue: "ECCV 2022, LNCS pp. 392-408"
+  doi: 10.1007/978-3-031-20056-4_23
+  arxiv_id: "2207.14315"
+  paper_url: https://arxiv.org/abs/2207.14315
+  pdf_url: https://arxiv.org/pdf/2207.14315
+  code_url: https://github.com/amazon-science/spot-diff
+  code_is_official: true
+  datasets: [D03]
+  algorithms: []
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + arXiv API. amazon-research/spot-diff redirects to amazon-science/spot-diff."}
+  bibtex: |
+    @inproceedings{zou2022spot,
+      title = {SPot-the-Difference Self-Supervised Pre-training for Anomaly Detection and Segmentation},
+      author = {Zou, Yang and Jeong, Jongheon and Pemula, Latha and Zhang, Dongqing and Dabeer, Onkar},
+      booktitle = {Computer Vision -- ECCV 2022},
+      pages = {392--408}, year = {2022}, publisher = {Springer Nature Switzerland},
+      doi = {10.1007/978-3-031-20056-4_23}
+    }
+
+- id: liu2023real3dad
+  title: "Real3D-AD: A Dataset of Point Cloud Anomaly Detection"
+  authors: [Jiaqi Liu, Guoyang Xie, Ruitao Chen, Xinpeng Li, Jinbao Wang, Yong Liu, Chengjie Wang, Feng Zheng]
+  year: 2023
+  venue: "NeurIPS 2023 Datasets and Benchmarks Track, pp. 30402-30415"
+  doi: 10.52202/075280-1324
+  arxiv_id: "2309.13226"
+  paper_url: https://proceedings.neurips.cc/paper_files/paper/2023/hash/611b896d447df43c898062358df4c114-Abstract-Datasets_and_Benchmarks.html
+  pdf_url: https://proceedings.neurips.cc/paper_files/paper/2023/file/611b896d447df43c898062358df4c114-Paper-Datasets_and_Benchmarks.pdf
+  code_url: https://github.com/M-3LAB/Real3D-AD
+  code_is_official: true
+  datasets: [D04]
+  algorithms: []
+  verification: {status: verified_automated, date: "2026-11-20", notes: "NeurIPS proceedings + arXiv API. Repository has no code licence file."}
+  bibtex: |
+    @inproceedings{NEURIPS2023_611b896d,
+      author = {Liu, Jiaqi and Xie, Guoyang and Chen, Ruitao and Li, Xinpeng and Wang, Jinbao and Liu, Yong and Wang, Chengjie and Zheng, Feng},
+      booktitle = {Advances in Neural Information Processing Systems},
+      doi = {10.52202/075280-1324},
+      editor = {A. Oh and T. Naumann and A. Globerson and K. Saenko and M. Hardt and S. Levine},
+      pages = {30402--30415},
+      publisher = {Curran Associates, Inc.},
+      title = {Real3D-AD: A Dataset of Point Cloud Anomaly Detection},
+      volume = {36},
+      year = {2023}
+    }
+
+- id: hecklerkram2026mvtecad2
+  title: "The MVTec AD 2 Dataset: Advanced Scenarios for Unsupervised Anomaly Detection"
+  authors: [Lars Heckler-Kram, Jan-Hendrik Neudeck, Ulla Scheler, Rebecca König, Carsten Steger]
+  year: 2026
+  venue: "International Journal of Computer Vision 134(4), article 175"
+  doi: 10.1007/s11263-026-02743-0
+  arxiv_id: "2503.21622"
+  paper_url: https://doi.org/10.1007/s11263-026-02743-0
+  pdf_url: https://link.springer.com/content/pdf/10.1007/s11263-026-02743-0.pdf
+  code_url: null
+  code_is_official: null
+  datasets: [D05]
+  algorithms: []
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref (online 9 Mar 2026, CC BY-NC-ND 4.0 article) + arXiv 2503.21622 (first released for VAND 3.0 @ CVPR 2025)."}
+  bibtex: |
+    @article{Heckler_Kram_2026,
+      title = {The MVTec AD 2 Dataset: Advanced Scenarios for Unsupervised Anomaly Detection},
+      volume = {134}, number = {4}, note = {Article 175},
+      journal = {International Journal of Computer Vision},
+      publisher = {Springer Science and Business Media LLC},
+      author = {Heckler-Kram, Lars and Neudeck, Jan-Hendrik and Scheler, Ulla and K{\"o}nig, Rebecca and Steger, Carsten},
+      year = {2026}, doi = {10.1007/s11263-026-02743-0}
+    }
+
+- id: li2025mulsenad
+  title: "Multi-Sensor Object Anomaly Detection: Unifying Appearance, Geometry, and Internal Properties"
+  authors: [Wenqiao Li, Bozhong Zheng, Xiaohao Xu, Jinye Gan, Fading Lu, Xiang Li, Na Ni, Zheng Tian, Xiaonan Huang, Shenghua Gao, Yingna Wu]
+  year: 2025
+  venue: "CVPR 2025, pp. 9984-9993"
+  doi: 10.1109/CVPR52734.2025.00933
+  arxiv_id: "2412.14592"
+  paper_url: https://openaccess.thecvf.com/content/CVPR2025/html/Li_Multi-Sensor_Object_Anomaly_Detection_Unifying_Appearance_Geometry_and_Internal_Properties_CVPR_2025_paper.html
+  pdf_url: https://openaccess.thecvf.com/content/CVPR2025/papers/Li_Multi-Sensor_Object_Anomaly_Detection_Unifying_Appearance_Geometry_and_Internal_Properties_CVPR_2025_paper.pdf
+  code_url: https://github.com/MapleBoat/MulSen-AD
+  code_is_official: true
+  datasets: [D06]
+  algorithms: []
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF. github.com/ZZZBBBZZZ/MulSen-AD redirects to MapleBoat/MulSen-AD (MIT code licence)."}
+  bibtex: |
+    @InProceedings{Li_2025_CVPR,
+      author = {Li, Wenqiao and Zheng, Bozhong and Xu, Xiaohao and Gan, Jinye and Lu, Fading and Li, Xiang and Ni, Na and Tian, Zheng and Huang, Xiaonan and Gao, Shenghua and Wu, Yingna},
+      title = {Multi-Sensor Object Anomaly Detection: Unifying Appearance, Geometry, and Internal Properties},
+      booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+      month = {June}, year = {2025}, pages = {9984-9993}
+    }
+
+- id: zhu2025realiadd3
+  title: "Real-IAD D3: A Real-World 2D/Pseudo-3D/3D Dataset for Industrial Anomaly Detection"
+  authors: [Wenbing Zhu, Lidong Wang, Ziqing Zhou, Chengjie Wang, Yurui Pan, Ruoyi Zhang, Zhuhao Chen, Linjie Cheng, Bin-Bin Gao, Jiangning Zhang, Zhenye Gan, Yuxie Wang, Yulong Chen, Shuguang Qian, Mingmin Chi, Bo Peng, Lizhuang Ma]
+  year: 2025
+  venue: "CVPR 2025, pp. 15214-15223"
+  doi: 10.1109/CVPR52734.2025.01417
+  arxiv_id: "2504.14221"
+  paper_url: https://openaccess.thecvf.com/content/CVPR2025/html/Zhu_Real-IAD_D3_A_Real-World_2DPseudo-3D3D_Dataset_for_Industrial_Anomaly_Detection_CVPR_2025_paper.html
+  pdf_url: https://openaccess.thecvf.com/content/CVPR2025/papers/Zhu_Real-IAD_D3_A_Real-World_2DPseudo-3D3D_Dataset_for_Industrial_Anomaly_Detection_CVPR_2025_paper.pdf
+  code_url: null
+  code_is_official: null
+  datasets: [D07]
+  algorithms: []
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF. No reference implementation (D3M) found; github.com/realiad4ad/Real-IAD_D3 only hosts the project website."}
+  bibtex: |
+    @InProceedings{Zhu_2025_CVPR,
+      author = {Zhu, Wenbing and Wang, Lidong and Zhou, Ziqing and Wang, Chengjie and Pan, Yurui and Zhang, Ruoyi and Chen, Zhuhao and Cheng, Linjie and Gao, Bin-Bin and Zhang, Jiangning and Gan, Zhenye and Wang, Yuxie and Chen, Yulong and Qian, Shuguang and Chi, Mingmin and Peng, Bo and Ma, Lizhuang},
+      title = {Real-IAD D3: A Real-World 2D/Pseudo-3D/3D Dataset for Industrial Anomaly Detection},
+      booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+      month = {June}, year = {2025}, pages = {15214-15223}
+    }
+
+- id: mchard2026adam3d
+  title: "3D-ADAM: A Dataset for 3D Anomaly Detection in Additive Manufacturing"
+  authors: [Paul McHard, Florent P. Audonnet, Oliver Summerell, Sebastian Andraos, Paul Henderson, Gerardo Aragon-Camarasa]
+  year: 2026
+  venue: "IEEE ICRA 2026, Vienna, pp. 8651-8658"
+  doi: 10.1109/ICRA57385.2026.11697283
+  arxiv_id: "2507.07838"
+  paper_url: https://ieeexplore.ieee.org/abstract/document/11697283
+  pdf_url: https://arxiv.org/pdf/2507.07838
+  code_url: null
+  code_is_official: null
+  datasets: [D08]
+  algorithms: []
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + arXiv API (preprint v1 Jul 2025). IEEE Xplore blocks bots."}
+  bibtex: |
+    @inproceedings{McHard_2026,
+      title = {3D-ADAM: A Dataset for 3D Anomaly Detection in Additive Manufacturing},
+      booktitle = {2026 IEEE International Conference on Robotics and Automation (ICRA)},
+      publisher = {IEEE},
+      author = {McHard, Paul and Audonnet, Florent P. and Summerell, Oliver and Andraos, Sebastian and Henderson, Paul and Aragon-Camarasa, Gerardo},
+      year = {2026}, pages = {8651--8658}, doi = {10.1109/ICRA57385.2026.11697283}
+    }
+
+- id: vo2026beyondbenchmark
+  title: "Beyond Benchmark Scores: An Analysis of Resolution, Spatial Structure, Illumination, and Seed Sensitivity in Training-Free Industrial Anomaly Localization on MVTec AD 2"
+  authors: [Vinh Phong Vo, Lenh Phan Cong Pham, Thai Duy Pham, Phat Ngoc Nguyen]
+  year: 2026
+  venue: "IEEE Access 14, pp. 145972-145991 (published 21 September 2026)"
+  doi: 10.1109/ACCESS.2026.3735579
+  arxiv_id: null
+  paper_url: https://ieeexplore.ieee.org/document/11701006
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: [D05]
+  algorithms: []
+  verification: {status: verified, date: "2026-11-21", notes: "Data supplied by the maintainer; confirmed via the Crossref API (title, authors, IEEE Access 14, pp. 145972-145991, 2026, CC BY 4.0). doi.org -> 302 to IEEE Xplore 11701006; IEEE Xplore blocks automated clients (HTTP 418), full text may not be retrievable automatically. Complementary analysis, not the dataset paper."}
+  bibtex: |
+    @article{Vo_2026_BeyondBenchmarkScores,
+      title = {Beyond Benchmark Scores: An Analysis of Resolution, Spatial Structure, Illumination, and Seed Sensitivity in Training-Free Industrial Anomaly Localization on {MVTec AD} 2},
+      author = {Vo, Vinh Phong and Pham, Lenh Phan Cong and Pham, Thai Duy and Nguyen, Phat Ngoc},
+      journal = {IEEE Access},
+      volume = {14}, pages = {145972--145991},
+      year = {2026}, month = sep,
+      doi = {10.1109/ACCESS.2026.3735579}
+    }

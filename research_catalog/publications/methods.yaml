@@ -1,0 +1,717 @@
+# Method publications. 'verified_automated' = checked 2026-11-20 against Crossref / arXiv API /
+# CVF / PMLR / GitHub API. 'unverified' entries are re-checked by scripts/verify_research_links.py.
+
+# ------------------------------------------------------------------ Group A: classical
+- id: otsu1979
+  title: "A Threshold Selection Method from Gray-Level Histograms"
+  authors: [Nobuyuki Otsu]
+  year: 1979
+  venue: "IEEE Transactions on Systems, Man, and Cybernetics 9(1):62-66"
+  doi: 10.1109/TSMC.1979.4310076
+  arxiv_id: null
+  paper_url: https://doi.org/10.1109/TSMC.1979.4310076
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [otsu]
+  verification: {status: verified_automated, date: "2026-11-20", notes: Crossref}
+  bibtex: |
+    @article{otsu1979threshold,
+      author = {Otsu, Nobuyuki}, title = {A Threshold Selection Method from Gray-Level Histograms},
+      journal = {IEEE Transactions on Systems, Man, and Cybernetics}, volume = {9}, number = {1}, pages = {62--66},
+      year = {1979}, doi = {10.1109/TSMC.1979.4310076}
+    }
+
+- id: sauvola2000
+  title: "Adaptive document image binarization"
+  authors: [J. Sauvola, M. Pietikäinen]
+  year: 2000
+  venue: "Pattern Recognition 33(2):225-236"
+  doi: 10.1016/S0031-3203(99)00055-2
+  arxiv_id: null
+  paper_url: https://doi.org/10.1016/S0031-3203(99)00055-2
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [adaptive_threshold]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref. Related/foundational: OpenCV's adaptiveThreshold (local mean − C) is not Sauvola's formula."}
+  bibtex: |
+    @article{sauvola2000adaptive,
+      author = {Sauvola, J. and Pietik{\"a}inen, M.}, title = {Adaptive document image binarization},
+      journal = {Pattern Recognition}, volume = {33}, number = {2}, pages = {225--236}, year = {2000},
+      doi = {10.1016/S0031-3203(99)00055-2}
+    }
+
+- id: bradley2007
+  title: "Adaptive Thresholding using the Integral Image"
+  authors: [Derek Bradley, Gerhard Roth]
+  year: 2007
+  venue: "Journal of Graphics Tools 12(2):13-21"
+  doi: 10.1080/2151237X.2007.10129236
+  arxiv_id: null
+  paper_url: https://doi.org/10.1080/2151237X.2007.10129236
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [adaptive_threshold]
+  verification: {status: verified_automated, date: "2026-11-20", notes: Crossref}
+  bibtex: |
+    @article{bradley2007adaptive,
+      author = {Bradley, Derek and Roth, Gerhard}, title = {Adaptive Thresholding using the Integral Image},
+      journal = {Journal of Graphics Tools}, volume = {12}, number = {2}, pages = {13--21}, year = {2007},
+      doi = {10.1080/2151237X.2007.10129236}
+    }
+
+- id: canny1986
+  title: "A Computational Approach to Edge Detection"
+  authors: [John Canny]
+  year: 1986
+  venue: "IEEE TPAMI PAMI-8(6):679-698"
+  doi: 10.1109/TPAMI.1986.4767851
+  arxiv_id: null
+  paper_url: https://doi.org/10.1109/TPAMI.1986.4767851
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [canny]
+  verification: {status: verified_automated, date: "2026-11-20", notes: Crossref}
+  bibtex: |
+    @article{canny1986computational,
+      author = {Canny, John}, title = {A Computational Approach to Edge Detection},
+      journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence}, volume = {PAMI-8}, number = {6},
+      pages = {679--698}, year = {1986}, doi = {10.1109/TPAMI.1986.4767851}
+    }
+
+- id: daugman1985
+  title: "Uncertainty relation for resolution in space, spatial frequency, and orientation optimized by two-dimensional visual cortical filters"
+  authors: [John G. Daugman]
+  year: 1985
+  venue: "Journal of the Optical Society of America A 2(7):1160"
+  doi: 10.1364/JOSAA.2.001160
+  arxiv_id: null
+  paper_url: https://doi.org/10.1364/JOSAA.2.001160
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [gabor]
+  verification: {status: verified_automated, date: "2026-11-20", notes: Crossref}
+  bibtex: |
+    @article{daugman1985uncertainty,
+      author = {Daugman, John G.},
+      title = {Uncertainty relation for resolution in space, spatial frequency, and orientation optimized by two-dimensional visual cortical filters},
+      journal = {Journal of the Optical Society of America A}, volume = {2}, number = {7}, pages = {1160}, year = {1985},
+      doi = {10.1364/JOSAA.2.001160}
+    }
+
+- id: jain1991
+  title: "Unsupervised texture segmentation using Gabor filters"
+  authors: [Anil K. Jain, Farshid Farrokhnia]
+  year: 1991
+  venue: "Pattern Recognition 24(12):1167-1186"
+  doi: 10.1016/0031-3203(91)90143-S
+  arxiv_id: null
+  paper_url: https://doi.org/10.1016/0031-3203(91)90143-S
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [gabor]
+  verification: {status: verified_automated, date: "2026-11-20", notes: Crossref}
+  bibtex: |
+    @article{jain1991unsupervised,
+      author = {Jain, Anil K. and Farrokhnia, Farshid}, title = {Unsupervised texture segmentation using Gabor filters},
+      journal = {Pattern Recognition}, volume = {24}, number = {12}, pages = {1167--1186}, year = {1991},
+      doi = {10.1016/0031-3203(91)90143-S}
+    }
+
+- id: serra1982
+  title: "Image Analysis and Mathematical Morphology"
+  authors: [Jean Serra]
+  year: 1982
+  venue: "Academic Press, London (book; ISBN 0-12-637240-3)"
+  doi: null
+  arxiv_id: null
+  paper_url: https://openlibrary.org/search?q=image+analysis+and+mathematical+morphology+serra
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [morphology]
+  verification: {status: partially_verified, date: "2026-11-20", notes: "Open Library + library records; one catalogue ties the ISBN to a 1989 printing."}
+  bibtex: |
+    @book{serra1982image,
+      author = {Serra, Jean}, title = {Image Analysis and Mathematical Morphology},
+      publisher = {Academic Press}, address = {London}, year = {1982}, isbn = {0-12-637240-3}
+    }
+
+- id: haralick1987
+  title: "Image Analysis Using Mathematical Morphology"
+  authors: [Robert M. Haralick, Stanley R. Sternberg, Xinhua Zhuang]
+  year: 1987
+  venue: "IEEE TPAMI PAMI-9(4):532-550"
+  doi: 10.1109/TPAMI.1987.4767941
+  arxiv_id: null
+  paper_url: https://doi.org/10.1109/TPAMI.1987.4767941
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [morphology]
+  verification: {status: verified_automated, date: "2026-11-20", notes: Crossref}
+  bibtex: |
+    @article{haralick1987image,
+      author = {Haralick, Robert M. and Sternberg, Stanley R. and Zhuang, Xinhua},
+      title = {Image Analysis Using Mathematical Morphology},
+      journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence}, volume = {PAMI-9}, number = {4},
+      pages = {532--550}, year = {1987}, doi = {10.1109/TPAMI.1987.4767941}
+    }
+
+- id: wang2004ssim
+  title: "Image quality assessment: from error visibility to structural similarity"
+  authors: [Zhou Wang, Alan C. Bovik, Hamid R. Sheikh, Eero P. Simoncelli]
+  year: 2004
+  venue: "IEEE Transactions on Image Processing 13(4):600-612"
+  doi: 10.1109/TIP.2003.819861
+  arxiv_id: null
+  paper_url: https://www.ece.uwaterloo.ca/~z70wang/publications/ssim.html
+  pdf_url: https://www.ece.uwaterloo.ca/~z70wang/publications/ssim.pdf
+  code_url: https://www.ece.uwaterloo.ca/~z70wang/research/ssim/
+  code_is_official: true
+  datasets: []
+  algorithms: [ssim]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref; project page and PDF return 200. Code page URL not separately verified."}
+  bibtex: |
+    @article{wang2004image,
+      author = {Wang, Zhou and Bovik, Alan C. and Sheikh, Hamid R. and Simoncelli, Eero P.},
+      title = {Image quality assessment: from error visibility to structural similarity},
+      journal = {IEEE Transactions on Image Processing}, volume = {13}, number = {4}, pages = {600--612}, year = {2004},
+      doi = {10.1109/TIP.2003.819861}
+    }
+
+- id: evangelidis2008ecc
+  title: "Parametric Image Alignment Using Enhanced Correlation Coefficient Maximization"
+  authors: [Georgios D. Evangelidis, Emmanouil Z. Psarakis]
+  year: 2008
+  venue: "IEEE TPAMI 30(10):1858-1865"
+  doi: 10.1109/TPAMI.2008.113
+  arxiv_id: null
+  paper_url: https://doi.org/10.1109/TPAMI.2008.113
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [reference_difference, ssim]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Used for ECC image alignment (cv2.findTransformECC). Confirmed by scripts/verify_research_links (Crossref/arXiv title match)."}
+  bibtex: |
+    @article{evangelidis2008parametric,
+      author = {Evangelidis, Georgios D. and Psarakis, Emmanouil Z.},
+      title = {Parametric Image Alignment Using Enhanced Correlation Coefficient Maximization},
+      journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence}, volume = {30}, number = {10},
+      pages = {1858--1865}, year = {2008}, doi = {10.1109/TPAMI.2008.113}
+    }
+
+# ------------------------------------------------------------------ Group B: supervised
+- id: he2016resnet
+  title: "Deep Residual Learning for Image Recognition"
+  authors: [Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun]
+  year: 2016
+  venue: "CVPR 2016, pp. 770-778"
+  doi: 10.1109/CVPR.2016.90
+  arxiv_id: "1512.03385"
+  paper_url: https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html
+  pdf_url: https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf
+  code_url: https://github.com/KaimingHe/deep-residual-networks
+  code_is_official: true
+  datasets: []
+  algorithms: [cnn_classification, padim, patchcore]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF; repo MIT."}
+  bibtex: |
+    @InProceedings{He_2016_CVPR,
+      author = {He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+      title = {Deep Residual Learning for Image Recognition},
+      booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+      month = {June}, year = {2016}
+    }
+
+- id: redmon2016yolo
+  title: "You Only Look Once: Unified, Real-Time Object Detection"
+  authors: [Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi]
+  year: 2016
+  venue: "CVPR 2016, pp. 779-788"
+  doi: 10.1109/CVPR.2016.91
+  arxiv_id: "1506.02640"
+  paper_url: https://openaccess.thecvf.com/content_cvpr_2016/html/Redmon_You_Only_Look_CVPR_2016_paper.html
+  pdf_url: https://openaccess.thecvf.com/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf
+  code_url: https://github.com/pjreddie/darknet
+  code_is_official: true
+  datasets: []
+  algorithms: [yolo]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF; Darknet 'YOLO LICENSE v2' (public domain)."}
+  bibtex: |
+    @InProceedings{Redmon_2016_CVPR,
+      author = {Redmon, Joseph and Divvala, Santosh and Girshick, Ross and Farhadi, Ali},
+      title = {You Only Look Once: Unified, Real-Time Object Detection},
+      booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+      month = {June}, year = {2016}
+    }
+
+- id: ronneberger2015unet
+  title: "U-Net: Convolutional Networks for Biomedical Image Segmentation"
+  authors: [Olaf Ronneberger, Philipp Fischer, Thomas Brox]
+  year: 2015
+  venue: "MICCAI 2015, LNCS pp. 234-241"
+  doi: 10.1007/978-3-319-24574-4_28
+  arxiv_id: "1505.04597"
+  paper_url: https://arxiv.org/abs/1505.04597
+  pdf_url: https://arxiv.org/pdf/1505.04597
+  code_url: https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/
+  code_is_official: true
+  datasets: []
+  algorithms: [unet]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + arXiv. Authors' Caffe release page live; its licence unverified."}
+  bibtex: |
+    @inproceedings{ronneberger2015unet,
+      author = {Ronneberger, Olaf and Fischer, Philipp and Brox, Thomas},
+      title = {U-Net: Convolutional Networks for Biomedical Image Segmentation},
+      booktitle = {Medical Image Computing and Computer-Assisted Intervention -- MICCAI 2015},
+      pages = {234--241}, year = {2015}, doi = {10.1007/978-3-319-24574-4_28}
+    }
+
+# ------------------------------------------------------------------ Group C: reconstruction
+- id: hinton2006
+  title: "Reducing the Dimensionality of Data with Neural Networks"
+  authors: [Geoffrey E. Hinton, Ruslan R. Salakhutdinov]
+  year: 2006
+  venue: "Science 313(5786):504-507"
+  doi: 10.1126/science.1127647
+  arxiv_id: null
+  paper_url: https://doi.org/10.1126/science.1127647
+  pdf_url: https://www.cs.toronto.edu/~hinton/absps/science.pdf
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [conv_autoencoder]
+  verification: {status: verified_automated, date: "2026-11-20", notes: Crossref}
+  bibtex: |
+    @article{hinton2006reducing,
+      author = {Hinton, Geoffrey E. and Salakhutdinov, Ruslan R.},
+      title = {Reducing the Dimensionality of Data with Neural Networks},
+      journal = {Science}, volume = {313}, number = {5786}, pages = {504--507}, year = {2006}, doi = {10.1126/science.1127647}
+    }
+
+- id: masci2011
+  title: "Stacked Convolutional Auto-Encoders for Hierarchical Feature Extraction"
+  authors: [Jonathan Masci, Ueli Meier, Dan Cireşan, Jürgen Schmidhuber]
+  year: 2011
+  venue: "ICANN 2011, LNCS pp. 52-59"
+  doi: 10.1007/978-3-642-21735-7_7
+  arxiv_id: null
+  paper_url: https://doi.org/10.1007/978-3-642-21735-7_7
+  pdf_url: https://people.idsia.ch/~ciresan/data/icann2011.pdf
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [conv_autoencoder]
+  verification: {status: verified_automated, date: "2026-11-20", notes: Crossref}
+  bibtex: |
+    @inproceedings{masci2011stacked,
+      author = {Masci, Jonathan and Meier, Ueli and Cire{\c{s}}an, Dan and Schmidhuber, J{\"u}rgen},
+      title = {Stacked Convolutional Auto-Encoders for Hierarchical Feature Extraction},
+      booktitle = {Artificial Neural Networks and Machine Learning -- ICANN 2011}, pages = {52--59}, year = {2011},
+      doi = {10.1007/978-3-642-21735-7_7}
+    }
+
+- id: bergmann2019ssimae
+  title: "Improving Unsupervised Defect Segmentation by Applying Structural Similarity to Autoencoders"
+  authors: [Paul Bergmann, Sindy Löwe, Michael Fauser, David Sattlegger, Carsten Steger]
+  year: 2019
+  venue: "VISAPP 2019, pp. 372-380"
+  doi: 10.5220/0007364503720380
+  arxiv_id: "1807.02011"
+  paper_url: https://arxiv.org/abs/1807.02011
+  pdf_url: https://www.scitepress.org/Papers/2019/73645/73645.pdf
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [conv_autoencoder, ssim]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + arXiv; no official code found."}
+  bibtex: |
+    @inproceedings{bergmann2019improving,
+      author = {Bergmann, Paul and L{\"o}we, Sindy and Fauser, Michael and Sattlegger, David and Steger, Carsten},
+      title = {Improving Unsupervised Defect Segmentation by Applying Structural Similarity to Autoencoders},
+      booktitle = {Proceedings of the 14th International Joint Conference on Computer Vision, Imaging and Computer Graphics Theory and Applications (VISAPP)},
+      pages = {372--380}, year = {2019}, doi = {10.5220/0007364503720380}
+    }
+
+- id: zavrtanik2021draem
+  title: "DRAEM - A Discriminatively Trained Reconstruction Embedding for Surface Anomaly Detection"
+  authors: [Vitjan Zavrtanik, Matej Kristan, Danijel Skočaj]
+  year: 2021
+  venue: "ICCV 2021"
+  doi: 10.1109/ICCV48922.2021.00822
+  arxiv_id: "2108.07610"
+  paper_url: https://openaccess.thecvf.com/content/ICCV2021/html/Zavrtanik_DRAEM_-_A_Discriminatively_Trained_Reconstruction_Embedding_for_Surface_Anomaly_ICCV_2021_paper.html
+  pdf_url: https://openaccess.thecvf.com/content/ICCV2021/papers/Zavrtanik_DRAEM_-_A_Discriminatively_Trained_Reconstruction_Embedding_for_Surface_Anomaly_ICCV_2021_paper.pdf
+  code_url: https://github.com/VitjanZ/DRAEM
+  code_is_official: true
+  datasets: []
+  algorithms: [draem]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF; repo MIT. CVF pages 8330-8339 vs IEEE 8310-8319."}
+  bibtex: |
+    @InProceedings{Zavrtanik_2021_ICCV,
+      author = {Zavrtanik, Vitjan and Kristan, Matej and Sko\v{c}aj, Danijel},
+      title = {DRAEM - A Discriminatively Trained Reconstruction Embedding for Surface Anomaly Detection},
+      booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+      month = {October}, year = {2021}, pages = {8330-8339}
+    }
+
+# ------------------------------------------------------------------ Group D: distributions & memory
+- id: mahalanobis1936
+  title: "On the generalised distance in statistics"
+  authors: [Prasanta Chandra Mahalanobis]
+  year: 1936
+  venue: "Proceedings of the National Institute of Sciences of India 2(1):49-55"
+  doi: null
+  arxiv_id: null
+  paper_url: https://dspace.isical.ac.in/items/dabb573e-3ce2-4bef-add0-04efa29d0317/full
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [padim]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "ISI repository record. Reprint: Sankhya A 80 (2018), doi 10.1007/s13171-019-00164-5."}
+  bibtex: |
+    @article{mahalanobis1936generalized,
+      author = {Mahalanobis, Prasanta Chandra}, title = {On the generalised distance in statistics},
+      journal = {Proceedings of the National Institute of Sciences of India}, volume = {2}, number = {1}, pages = {49--55}, year = {1936}
+    }
+
+- id: defard2021padim
+  title: "PaDiM: A Patch Distribution Modeling Framework for Anomaly Detection and Localization"
+  authors: [Thomas Defard, Aleksandr Setkov, Angelique Loesch, Romaric Audigier]
+  year: 2021
+  venue: "ICPR 2020 International Workshops and Challenges (Springer LNCS), pp. 475-489"
+  doi: 10.1007/978-3-030-68799-1_35
+  arxiv_id: "2011.08785"
+  paper_url: https://arxiv.org/abs/2011.08785
+  pdf_url: https://arxiv.org/pdf/2011.08785
+  code_url: https://github.com/taikiinoue45/PaDiM
+  code_is_official: false
+  datasets: []
+  algorithms: [padim]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + arXiv. No official authors' repository found; taikiinoue45/PaDiM is a third-party re-implementation (MIT)."}
+  bibtex: |
+    @inproceedings{defard2021padim,
+      author = {Defard, Thomas and Setkov, Aleksandr and Loesch, Angelique and Audigier, Romaric},
+      title = {PaDiM: A Patch Distribution Modeling Framework for Anomaly Detection and Localization},
+      booktitle = {Pattern Recognition. ICPR International Workshops and Challenges},
+      pages = {475--489}, year = {2021}, publisher = {Springer}, doi = {10.1007/978-3-030-68799-1_35}
+    }
+
+- id: roth2022patchcore
+  title: "Towards Total Recall in Industrial Anomaly Detection"
+  authors: [Karsten Roth, Latha Pemula, Joaquin Zepeda, Bernhard Schölkopf, Thomas Brox, Peter Gehler]
+  year: 2022
+  venue: "CVPR 2022"
+  doi: 10.1109/CVPR52688.2022.01392
+  arxiv_id: "2106.08265"
+  paper_url: https://openaccess.thecvf.com/content/CVPR2022/html/Roth_Towards_Total_Recall_in_Industrial_Anomaly_Detection_CVPR_2022_paper.html
+  pdf_url: https://openaccess.thecvf.com/content/CVPR2022/papers/Roth_Towards_Total_Recall_in_Industrial_Anomaly_Detection_CVPR_2022_paper.pdf
+  code_url: https://github.com/amazon-science/patchcore-inspection
+  code_is_official: true
+  datasets: []
+  algorithms: [patchcore]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF; official repo Apache-2.0 (amazon-research URL redirects). CVF pages 14318-14328 vs IEEE 14298-14308."}
+  bibtex: |
+    @InProceedings{Roth_2022_CVPR,
+      author = {Roth, Karsten and Pemula, Latha and Zepeda, Joaquin and Sch\"olkopf, Bernhard and Brox, Thomas and Gehler, Peter},
+      title = {Towards Total Recall in Industrial Anomaly Detection},
+      booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+      month = {June}, year = {2022}, pages = {14318-14328}
+    }
+
+- id: akcay2022anomalib
+  title: "Anomalib: A Deep Learning Library for Anomaly Detection"
+  authors: [Samet Akcay, Dick Ameln, Ashwin Vaidya, Barath Lakshmanan, Nilesh Ahuja, Utku Genc]
+  year: 2022
+  venue: "IEEE ICIP 2022"
+  doi: null
+  arxiv_id: "2202.08341"
+  paper_url: https://arxiv.org/abs/2202.08341
+  pdf_url: https://arxiv.org/pdf/2202.08341
+  code_url: https://github.com/open-edge-platform/anomalib
+  code_is_official: true
+  datasets: []
+  algorithms: [padim, patchcore, efficientad, winclip, anomalydino, dinomaly]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Library citation requested by Anomalib. Confirmed by scripts/verify_research_links (Crossref/arXiv title match)."}
+  bibtex: |
+    @inproceedings{akcay2022anomalib,
+      title = {Anomalib: A Deep Learning Library for Anomaly Detection},
+      author = {Akcay, Samet and Ameln, Dick and Vaidya, Ashwin and Lakshmanan, Barath and Ahuja, Nilesh and Genc, Utku},
+      booktitle = {2022 IEEE International Conference on Image Processing (ICIP)}, year = {2022}
+    }
+
+# ------------------------------------------------------------------ Group E: teacher-student
+- id: batzner2024efficientad
+  title: "EfficientAD: Accurate Visual Anomaly Detection at Millisecond-Level Latencies"
+  authors: [Kilian Batzner, Lars Heckler, Rebecca König]
+  year: 2024
+  venue: "WACV 2024, pp. 128-138"
+  doi: 10.1109/WACV57701.2024.00020
+  arxiv_id: "2303.14535"
+  paper_url: https://openaccess.thecvf.com/content/WACV2024/html/Batzner_EfficientAD_Accurate_Visual_Anomaly_Detection_at_Millisecond-Level_Latencies_WACV_2024_paper.html
+  pdf_url: https://openaccess.thecvf.com/content/WACV2024/papers/Batzner_EfficientAD_Accurate_Visual_Anomaly_Detection_at_Millisecond-Level_Latencies_WACV_2024_paper.pdf
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [efficientad]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF. No official code; nelson1425/EfficientAD is an unofficial implementation (Apache-2.0)."}
+  bibtex: |
+    @InProceedings{Batzner_2024_WACV,
+      author = {Batzner, Kilian and Heckler, Lars and K\"onig, Rebecca},
+      title = {EfficientAD: Accurate Visual Anomaly Detection at Millisecond-Level Latencies},
+      booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
+      month = {January}, year = {2024}, pages = {128-138}
+    }
+
+# ------------------------------------------------------------------ Group F: foundation models
+- id: radford2021clip
+  title: "Learning Transferable Visual Models From Natural Language Supervision"
+  authors: [Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, Gretchen Krueger, Ilya Sutskever]
+  year: 2021
+  venue: "ICML 2021, PMLR 139:8748-8763"
+  doi: null
+  arxiv_id: "2103.00020"
+  paper_url: https://proceedings.mlr.press/v139/radford21a.html
+  pdf_url: https://proceedings.mlr.press/v139/radford21a/radford21a.pdf
+  code_url: https://github.com/openai/CLIP
+  code_is_official: true
+  datasets: []
+  algorithms: [winclip]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "PMLR + arXiv; repo MIT."}
+  bibtex: |
+    @InProceedings{pmlr-v139-radford21a,
+      title = {Learning Transferable Visual Models From Natural Language Supervision},
+      author = {Radford, Alec and Kim, Jong Wook and Hallacy, Chris and Ramesh, Aditya and Goh, Gabriel and Agarwal, Sandhini and Sastry, Girish and Askell, Amanda and Mishkin, Pamela and Clark, Jack and Krueger, Gretchen and Sutskever, Ilya},
+      booktitle = {Proceedings of the 38th International Conference on Machine Learning},
+      pages = {8748--8763}, year = {2021}, volume = {139}, series = {Proceedings of Machine Learning Research}, publisher = {PMLR}
+    }
+
+- id: jeong2023winclip
+  title: "WinCLIP: Zero-/Few-Shot Anomaly Classification and Segmentation"
+  authors: [Jongheon Jeong, Yang Zou, Taewan Kim, Dongqing Zhang, Avinash Ravichandran, Onkar Dabeer]
+  year: 2023
+  venue: "CVPR 2023, pp. 19606-19616"
+  doi: 10.1109/CVPR52729.2023.01878
+  arxiv_id: "2303.14814"
+  paper_url: https://openaccess.thecvf.com/content/CVPR2023/html/Jeong_WinCLIP_Zero-Few-Shot_Anomaly_Classification_and_Segmentation_CVPR_2023_paper.html
+  pdf_url: https://openaccess.thecvf.com/content/CVPR2023/papers/Jeong_WinCLIP_Zero-Few-Shot_Anomaly_Classification_and_Segmentation_CVPR_2023_paper.pdf
+  code_url: https://github.com/mala-lab/WinCLIP
+  code_is_official: false
+  datasets: []
+  algorithms: [winclip]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF. No official authors' code; mala-lab/WinCLIP is 'Unofficial Implementation' (GPL-3.0)."}
+  bibtex: |
+    @InProceedings{Jeong_2023_CVPR,
+      author = {Jeong, Jongheon and Zou, Yang and Kim, Taewan and Zhang, Dongqing and Ravichandran, Avinash and Dabeer, Onkar},
+      title = {WinCLIP: Zero-/Few-Shot Anomaly Classification and Segmentation},
+      booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+      month = {June}, year = {2023}, pages = {19606-19616}
+    }
+
+- id: oquab2023dinov2
+  title: "DINOv2: Learning Robust Visual Features without Supervision"
+  authors: [Maxime Oquab, Timothée Darcet, Théo Moutakanni, Huy Vo, Marc Szafraniec, Vasil Khalidov, Pierre Fernandez, Daniel Haziza, Francisco Massa, Alaaeldin El-Nouby, Mahmoud Assran, Nicolas Ballas, Wojciech Galuba, Russell Howes, Po-Yao Huang, Shang-Wen Li, Ishan Misra, Michael Rabbat, Vasu Sharma, Gabriel Synnaeve, Hu Xu, Hervé Jegou, Julien Mairal, Patrick Labatut, Armand Joulin, Piotr Bojanowski]
+  year: 2023
+  venue: "Transactions on Machine Learning Research (TMLR)"
+  doi: null
+  arxiv_id: "2304.07193"
+  paper_url: https://openreview.net/forum?id=a68SUt6zFt
+  pdf_url: https://arxiv.org/pdf/2304.07193
+  code_url: https://github.com/facebookresearch/dinov2
+  code_is_official: true
+  datasets: []
+  algorithms: [anomalydino, dinomaly, dino_features]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "OpenReview (accepted by TMLR) + arXiv; code and weights Apache-2.0."}
+  bibtex: |
+    @article{oquab2023dinov2,
+      title = {{DINOv2}: Learning Robust Visual Features without Supervision},
+      author = {Oquab, Maxime and Darcet, Timoth{\'e}e and Moutakanni, Th{\'e}o and Vo, Huy and Szafraniec, Marc and Khalidov, Vasil and Fernandez, Pierre and Haziza, Daniel and Massa, Francisco and El-Nouby, Alaaeldin and Assran, Mahmoud and Ballas, Nicolas and Galuba, Wojciech and Howes, Russell and Huang, Po-Yao and Li, Shang-Wen and Misra, Ishan and Rabbat, Michael and Sharma, Vasu and Synnaeve, Gabriel and Xu, Hu and Jegou, Herv{\'e} and Mairal, Julien and Labatut, Patrick and Joulin, Armand and Bojanowski, Piotr},
+      journal = {Transactions on Machine Learning Research}, year = {2024}, note = {arXiv:2304.07193}
+    }
+
+- id: simeoni2025dinov3
+  title: "DINOv3"
+  authors: [Oriane Siméoni, et al.]
+  year: 2025
+  venue: "arXiv preprint 2508.10104"
+  doi: null
+  arxiv_id: "2508.10104"
+  paper_url: https://arxiv.org/abs/2508.10104
+  pdf_url: https://arxiv.org/pdf/2508.10104
+  code_url: https://github.com/facebookresearch/dinov3
+  code_is_official: true
+  datasets: []
+  algorithms: [dino_features]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "arXiv API (26 authors; abbreviated here). Code+weights under the custom 'DINOv3 License'; weights gated."}
+  bibtex: |
+    @misc{simeoni2025dinov3,
+      title = {{DINOv3}}, author = {Sim{\'e}oni, Oriane and others}, year = {2025},
+      eprint = {2508.10104}, archivePrefix = {arXiv}, primaryClass = {cs.CV}, url = {https://arxiv.org/abs/2508.10104}
+    }
+
+- id: damm2025anomalydino
+  title: "AnomalyDINO: Boosting Patch-Based Few-Shot Anomaly Detection with DINOv2"
+  authors: [Simon Damm, Mike Laszkiewicz, Johannes Lederer, Asja Fischer]
+  year: 2025
+  venue: "WACV 2025, pp. 1319-1329"
+  doi: 10.1109/WACV61041.2025.00136
+  arxiv_id: "2405.14529"
+  paper_url: https://openaccess.thecvf.com/content/WACV2025/html/Damm_AnomalyDINO_Boosting_Patch-Based_Few-Shot_Anomaly_Detection_with_DINOv2_WACV_2025_paper.html
+  pdf_url: https://openaccess.thecvf.com/content/WACV2025/papers/Damm_AnomalyDINO_Boosting_Patch-Based_Few-Shot_Anomaly_Detection_with_DINOv2_WACV_2025_paper.pdf
+  code_url: https://github.com/dammsi/AnomalyDINO
+  code_is_official: true
+  datasets: []
+  algorithms: [anomalydino]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF; official repo Apache-2.0."}
+  bibtex: |
+    @InProceedings{Damm_2025_WACV,
+      author = {Damm, Simon and Laszkiewicz, Mike and Lederer, Johannes and Fischer, Asja},
+      title = {AnomalyDINO: Boosting Patch-Based Few-Shot Anomaly Detection with DINOv2},
+      booktitle = {Proceedings of the Winter Conference on Applications of Computer Vision (WACV)},
+      month = {February}, year = {2025}, pages = {1319-1329}
+    }
+
+- id: guo2025dinomaly
+  title: "Dinomaly: The Less Is More Philosophy in Multi-Class Unsupervised Anomaly Detection"
+  authors: [Jia Guo, Shuai Lu, Weihang Zhang, Fang Chen, Huiqi Li, Hongen Liao]
+  year: 2025
+  venue: "CVPR 2025, pp. 20405-20415"
+  doi: 10.1109/CVPR52734.2025.01900
+  arxiv_id: "2405.14325"
+  paper_url: https://openaccess.thecvf.com/content/CVPR2025/html/Guo_Dinomaly_The_Less_Is_More_Philosophy_in_Multi-Class_Unsupervised_Anomaly_CVPR_2025_paper.html
+  pdf_url: https://openaccess.thecvf.com/content/CVPR2025/papers/Guo_Dinomaly_The_Less_Is_More_Philosophy_in_Multi-Class_Unsupervised_Anomaly_CVPR_2025_paper.pdf
+  code_url: https://github.com/guojiajeremy/Dinomaly
+  code_is_official: true
+  datasets: []
+  algorithms: [dinomaly]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF; official repo Apache-2.0."}
+  bibtex: |
+    @InProceedings{Guo_2025_CVPR,
+      author = {Guo, Jia and Lu, Shuai and Zhang, Weihang and Chen, Fang and Li, Huiqi and Liao, Hongen},
+      title = {Dinomaly: The Less Is More Philosophy in Multi-Class Unsupervised Anomaly Detection},
+      booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+      month = {June}, year = {2025}, pages = {20405-20415}
+    }
+
+# ------------------------------------------------------------------ Group G: 3D
+- id: besl1992icp
+  title: "A method for registration of 3-D shapes"
+  authors: [Paul J. Besl, Neil D. McKay]
+  year: 1992
+  venue: "IEEE TPAMI 14(2):239-256"
+  doi: 10.1109/34.121791
+  arxiv_id: null
+  paper_url: https://doi.org/10.1109/34.121791
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [pc_deviation]
+  verification: {status: verified_automated, date: "2026-11-20", notes: Crossref}
+  bibtex: |
+    @article{besl1992method,
+      author = {Besl, Paul J. and McKay, Neil D.}, title = {A method for registration of 3-D shapes},
+      journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence}, volume = {14}, number = {2},
+      pages = {239--256}, year = {1992}, doi = {10.1109/34.121791}
+    }
+
+- id: chen1992pointplane
+  title: "Object modelling by registration of multiple range images"
+  authors: [Yang Chen, Gérard Medioni]
+  year: 1992
+  venue: "Image and Vision Computing 10(3):145-155"
+  doi: 10.1016/0262-8856(92)90066-C
+  arxiv_id: null
+  paper_url: https://doi.org/10.1016/0262-8856(92)90066-C
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [pc_deviation]
+  verification: {status: verified_automated, date: "2026-11-20", notes: Crossref}
+  bibtex: |
+    @article{chen1992object,
+      author = {Chen, Yang and Medioni, G{\'e}rard}, title = {Object modelling by registration of multiple range images},
+      journal = {Image and Vision Computing}, volume = {10}, number = {3}, pages = {145--155}, year = {1992},
+      doi = {10.1016/0262-8856(92)90066-C}
+    }
+
+- id: rusu2009fpfh
+  title: "Fast Point Feature Histograms (FPFH) for 3D registration"
+  authors: [Radu Bogdan Rusu, Nico Blodow, Michael Beetz]
+  year: 2009
+  venue: "IEEE ICRA 2009"
+  doi: 10.1109/ROBOT.2009.5152473
+  arxiv_id: null
+  paper_url: https://doi.org/10.1109/ROBOT.2009.5152473
+  pdf_url: null
+  code_url: null
+  code_is_official: null
+  datasets: []
+  algorithms: [pc_deviation]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Used for coarse registration (Open3D FPFH + RANSAC). Confirmed by scripts/verify_research_links (Crossref/arXiv title match)."}
+  bibtex: |
+    @inproceedings{rusu2009fast,
+      author = {Rusu, Radu Bogdan and Blodow, Nico and Beetz, Michael},
+      title = {Fast Point Feature Histograms (FPFH) for 3D registration},
+      booktitle = {2009 IEEE International Conference on Robotics and Automation}, year = {2009},
+      doi = {10.1109/ROBOT.2009.5152473}
+    }
+
+- id: zhou2018open3d
+  title: "Open3D: A Modern Library for 3D Data Processing"
+  authors: [Qian-Yi Zhou, Jaesik Park, Vladlen Koltun]
+  year: 2018
+  venue: "arXiv preprint 1801.09847"
+  doi: null
+  arxiv_id: "1801.09847"
+  paper_url: https://arxiv.org/abs/1801.09847
+  pdf_url: https://arxiv.org/pdf/1801.09847
+  code_url: https://github.com/isl-org/Open3D
+  code_is_official: true
+  datasets: []
+  algorithms: [pc_deviation]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "arXiv; repo MIT."}
+  bibtex: |
+    @article{Zhou2018,
+      author = {Zhou, Qian-Yi and Park, Jaesik and Koltun, Vladlen}, title = {{Open3D}: {A} Modern Library for {3D} Data Processing},
+      journal = {arXiv:1801.09847}, year = {2018}
+    }
+
+- id: wang2023m3dm
+  title: "Multimodal Industrial Anomaly Detection via Hybrid Fusion"
+  authors: [Yue Wang, Jinlong Peng, Jiangning Zhang, Ran Yi, Yabiao Wang, Chengjie Wang]
+  year: 2023
+  venue: "CVPR 2023, pp. 8032-8041"
+  doi: 10.1109/CVPR52729.2023.00776
+  arxiv_id: "2303.00601"
+  paper_url: https://openaccess.thecvf.com/content/CVPR2023/html/Wang_Multimodal_Industrial_Anomaly_Detection_via_Hybrid_Fusion_CVPR_2023_paper.html
+  pdf_url: https://openaccess.thecvf.com/content/CVPR2023/papers/Wang_Multimodal_Industrial_Anomaly_Detection_via_Hybrid_Fusion_CVPR_2023_paper.pdf
+  code_url: https://github.com/nomewang/M3DM
+  code_is_official: true
+  datasets: []
+  algorithms: [m3dm, multimodal_fusion]
+  verification: {status: verified_automated, date: "2026-11-20", notes: "Crossref + CVF; repo MIT."}
+  bibtex: |
+    @InProceedings{Wang_2023_CVPR,
+      author = {Wang, Yue and Peng, Jinlong and Zhang, Jiangning and Yi, Ran and Wang, Yabiao and Wang, Chengjie},
+      title = {Multimodal Industrial Anomaly Detection via Hybrid Fusion},
+      booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+      month = {June}, year = {2023}, pages = {8032-8041}
+    }

@@ -1,0 +1,228 @@
+# "Cómo funciona este algoritmo" — explicaciones paso a paso (español).
+# Los diagramas son CONCEPTUALES (generados por scripts/make_diagrams.py).
+
+patchcore:
+  steps:
+    - short: Imagen
+      title: Imagen original
+      text: >-
+        PatchCore recibe una imagen RGB. Durante el *ajuste* solo ve imágenes **normales** de
+        entrenamiento; en *prueba* recibe la imagen a inspeccionar. En IDD Lab las imágenes se
+        redimensionan a 256×256 (sin recorte central, para que el mapa quede alineado con la máscara).
+      implementation: "`core/algorithms/memory_based/anomalib_models.py` → `to_tensor()` (normalización ImageNet)."
+      diagram: patchcore_1.svg
+    - short: Parches
+      title: Parches de la imagen
+      text: >-
+        La imagen no se juzga como un todo: se describe con una cuadrícula de **parches** pequeños y
+        solapados. Basta con que un defecto cambie unos pocos parches para ser detectado.
+      diagram: patchcore_2.svg
+    - short: Características
+      title: Extracción de características neuronales
+      text: >-
+        Una CNN pre-entrenada en ImageNet (Wide-ResNet-50-2) calcula características intermedias de
+        **layer2** y **layer3**: suficientemente genéricas para describir texturas y partes. Un
+        promediado 3×3 hace que cada parche 'conozca' su vecindad.
+      math: "φ_ij = concat(pool₃ₓ₃(layer2)_ij, upsample(pool₃ₓ₃(layer3))_ij) ∈ ℝ^1536"
+      implementation: "Anomalib `PatchcoreModel.generate_embedding()`; pesos de timm (`wide_resnet50_2.racm_in1k`)."
+      diagram: patchcore_3.svg
+    - short: Banco de memoria
+      title: Banco de memoria de características normales
+      text: >-
+        Se reúnen las características de todos los parches normales — fácilmente millones de
+        vectores. El **submuestreo coreset** (k-center voraz) conserva un subconjunto pequeño (p. ej.
+        10 %) que sigue *cubriendo* todo el conjunto.
+      math: "M_C = argmin_{M_C ⊂ M} max_{m∈M} min_{n∈M_C} ||m − n||₂   (aproximación voraz)"
+      diagram: patchcore_4.svg
+    - short: Vecino más cercano
+      title: Comparación con el vecino más cercano
+      text: >-
+        Para cada parche de prueba se busca el parche más parecido del banco. Un parche normal tiene
+        un vecino muy cercano; un rayón produce una característica **lejana de todo** lo visto.
+      math: "s(p) = min_{m ∈ M_C} ||φ(p) − m||₂"
+      diagram: patchcore_5.svg
+    - short: Puntuaciones
+      title: Puntuaciones de anomalía
+      text: >-
+        Las distancias forman una rejilla de puntuaciones. La **puntuación de imagen** es la distancia
+        máxima, re-ponderada según lo aislado que esté el vecino. Son **distancias brutas**, no probabilidades.
+      math: "s* = max_p s(p);  s = (1 − e^{||p*−m*||} / Σ_{m∈N_b(m*)} e^{||p*−m||}) · s*"
+      diagram: patchcore_6.svg
+    - short: Mapa de calor
+      title: Mapa de calor
+      text: "La rejilla se interpola al tamaño de la imagen y se suaviza con una gaussiana (σ = 4)."
+      diagram: patchcore_7.svg
+    - short: Umbral
+      title: Umbral de decisión
+      text: >-
+        Un umbral convierte puntuaciones en decisiones (OK / NOK, máscara). Debe elegirse **sin
+        etiquetas de prueba**: IDD Lab lo calibra como un percentil alto en imágenes normales no usadas
+        para el ajuste. Elegirlo con el conjunto de prueba daría resultados optimistas y sesgados.
+      implementation: "`core/inference/session.py` → `LabSession.calibrate()`."
+      diagram: patchcore_8.svg
+
+padim:
+  steps:
+    - short: Imágenes normales
+      title: Imágenes normales de entrenamiento
+      text: "PaDiM aprende solo de imágenes sin defectos y supone piezas **aproximadamente alineadas**."
+      diagram: padim_1.svg
+    - short: Características
+      title: Extracción de características
+      text: "Una ResNet-18 pre-entrenada aporta características de layer1–layer3; se elige al azar un subconjunto de canales."
+      diagram: padim_2.svg
+    - short: Por posición
+      title: Distribuciones espaciales
+      text: "Para cada posición (i, j) hay N vectores (uno por imagen): describen lo que es *normal en esa posición*."
+      diagram: padim_3.svg
+    - short: Media y cov.
+      title: Media y covarianza
+      text: "Cada posición se modela con una gaussiana multivariante de media μ_ij y covarianza Σ_ij (+ εI)."
+      math: "μ_ij = (1/N) Σ_k x_ij^k ;  Σ_ij = (1/(N−1)) Σ_k (x_ij^k − μ_ij)(x_ij^k − μ_ij)ᵀ + εI"
+      diagram: padim_4.svg
+    - short: Mahalanobis
+      title: Distancia de Mahalanobis
+      text: >-
+        Un parche de prueba se compara con la gaussiana de su posición usando la **distancia de
+        Mahalanobis**, que tiene en cuenta las correlaciones entre características.
+      math: "M(x_ij) = sqrt((x_ij − μ_ij)ᵀ Σ_ij⁻¹ (x_ij − μ_ij))"
+      diagram: padim_5.svg
+    - short: Mapa de calor
+      title: Mapa de anomalía
+      text: >-
+        Las distancias se interpolan y suavizan; la puntuación de imagen es el máximo. Como las
+        estadísticas son por posición, los objetos desalineados parecen anómalos — diferencia clave con PatchCore.
+      diagram: padim_6.svg
+
+efficientad:
+  steps:
+    - short: Maestro
+      title: Modelo maestro
+      text: "Una red pequeña y rápida (PDN) se destila de una red grande pre-entrenada y se congela: 'describe' cada parche."
+      diagram: efficientad_1.svg
+    - short: Estudiante
+      title: Modelo estudiante
+      text: "Un PDN estudiante aprende a reproducir la salida del maestro, pero solo con imágenes normales."
+      diagram: efficientad_2.svg
+    - short: Aprender lo normal
+      title: Aprender de ejemplos normales
+      text: >-
+        Una pérdida de *características difíciles* enfoca el entrenamiento en lo que el estudiante
+        imita peor; una penalización con ImageNet evita que imite al maestro fuera del producto. Un
+        autoencoder aprende en paralelo una descripción global (lógica).
+      math: "L_ST = media del top-q % de (T(x) − S(x))²  +  media (S(x_imagenet))²"
+      diagram: efficientad_3.svg
+    - short: Desacuerdo
+      title: Desacuerdo de características
+      text: "Donde el estudiante **no logra imitar** al maestro hay algo nunca visto: ese error es el mapa local."
+      math: "A_local = media_c (T(x)_c − S_ST(x)_c)² ;  A_global = media_c (A(x)_c − S_AE(x)_c)²"
+      diagram: efficientad_4.svg
+    - short: Localización
+      title: Localización de anomalías
+      text: "Ambos mapas se normalizan con cuantiles de imágenes normales de validación y se promedian."
+      diagram: efficientad_5.svg
+    - short: Latencia
+      title: Consideraciones de tiempo de ejecución
+      text: "Solo cuatro capas convolucionales y sin búsqueda de vecinos: milisegundos en GPU, a cambio de una fase de entrenamiento."
+      diagram: efficientad_6.svg
+
+winclip:
+  steps:
+    - short: Imagen
+      title: Representación de la imagen
+      text: "CLIP codifica la imagen en un espacio compartido con el texto (OpenCLIP ViT-B-16-plus-240, entrada 240×240)."
+      diagram: winclip_1.svg
+    - short: Prompts
+      title: Prompts de texto
+      text: >-
+        Un **conjunto composicional de prompts** describe los dos estados: "a photo of a flawless
+        {object}" frente a "a photo of a damaged {object}". Se promedian por estado.
+      diagram: winclip_2.svg
+    - short: Similitud
+      title: Similitud imagen–texto
+      text: "La puntuación es la probabilidad softmax del texto 'anómalo' frente al 'normal' (τ = 0,07)."
+      math: "p_a(x) = exp(⟨f(x), t_a⟩/τ) / (exp(⟨f(x), t_n⟩/τ) + exp(⟨f(x), t_a⟩/τ))"
+      diagram: winclip_3.svg
+    - short: Ventanas
+      title: Comparación por ventanas
+      text: "La imagen se divide en ventanas a varias escalas; cada una se compara con los prompts y se agregan por píxel."
+      diagram: winclip_4.svg
+    - short: Zero-shot
+      title: Estimación zero-shot
+      text: "No requiere imágenes de entrenamiento. Con k imágenes normales (few-shot) mejora. La localización es gruesa."
+      diagram: winclip_5.svg
+
+anomalydino:
+  steps:
+    - short: k ejemplos
+      title: Unas pocas referencias normales
+      text: "AnomalyDINO solo necesita k imágenes normales (1–8). No hay entrenamiento."
+      diagram: anomalydino_1.svg
+    - short: DINOv2
+      title: Características de parches DINOv2
+      text: "Cada imagen se codifica con DINOv2 ViT-S/14: un token por parche de 14×14, normalizado."
+      diagram: anomalydino_2.svg
+    - short: Memoria
+      title: Banco de memoria
+      text: "Los tokens de las k referencias forman el banco de memoria."
+      diagram: anomalydino_3.svg
+    - short: Coseno NN
+      title: Vecino más cercano por coseno
+      text: "Cada parche de prueba recibe la distancia coseno a su parche normal más parecido."
+      math: "d(p) = 1 − max_{m ∈ M} ⟨p, m⟩"
+      diagram: anomalydino_4.svg
+    - short: Top-1 %
+      title: Puntuación de imagen
+      text: "Media del 1 % de parches con mayor distancia."
+      diagram: anomalydino_5.svg
+
+pc_deviation:
+  steps:
+    - short: Nube normal
+      title: Nube de puntos normal
+      text: "Uno o más escaneos sin defectos sirven de referencia; se submuestrean en vóxeles y se estiman normales."
+      diagram: pc_deviation_1.svg
+    - short: Nube de prueba
+      title: Nube de prueba
+      text: "El escaneo a inspeccionar, en su propio sistema de coordenadas."
+      diagram: pc_deviation_2.svg
+    - short: Alineación
+      title: Alineación (registro)
+      text: >-
+        Alineación gruesa con descriptores FPFH + RANSAC y refinamiento con **ICP** punto-a-plano. Si
+        el registro falla (fitness bajo), las desviaciones no tienen sentido.
+      math: "T* = argmin_T Σ_i ((T p_i − q_i) · n_i)²"
+      diagram: pc_deviation_3.svg
+    - short: Geometría
+      title: Extracción de características geométricas
+      text: "Para cada punto alineado se busca el punto de referencia más cercano y su normal."
+      diagram: pc_deviation_4.svg
+    - short: Comparación
+      title: Comparación de anomalías
+      text: "La desviación es la distancia a la superficie de referencia (unidades del escaneo, a menudo mm)."
+      math: "d_i = |n_j · (T p_i − q_j)|"
+      diagram: pc_deviation_5.svg
+    - short: Colores 3D
+      title: Visualización 3D coloreada
+      text: "Las desviaciones se colorean sobre la nube 3D. Es una **línea base educativa**, no un método 3D publicado."
+      diagram: pc_deviation_6.svg
+
+otsu:
+  steps:
+    - short: Imagen gris
+      title: Imagen en niveles de gris
+      text: "Se convierte a gris y se suaviza ligeramente."
+      diagram: otsu_1.svg
+    - short: Histograma
+      title: Histograma
+      text: "Se cuenta cuántos píxeles tiene cada nivel de gris."
+      diagram: otsu_2.svg
+    - short: Mejor corte
+      title: Mejor división del histograma
+      text: "Otsu elige el umbral que maximiza la varianza entre clases."
+      math: "t* = argmax_t ω₀(t) ω₁(t) (μ₀(t) − μ₁(t))²"
+      diagram: otsu_3.svg
+    - short: Máscara
+      title: Máscara binaria
+      text: "Aun en una superficie sin defectos Otsu divide la imagen en dos: un umbral global no sabe qué es 'normal'."
+      diagram: otsu_4.svg

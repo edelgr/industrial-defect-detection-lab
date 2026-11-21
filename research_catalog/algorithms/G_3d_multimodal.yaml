@@ -1,0 +1,193 @@
+# Group G — 3D and multimodal. IDD Lab runnable entries are EDUCATIONAL BASELINES.
+
+- id: pc_deviation
+  group: G
+  name: Registration + geometric deviation (educational 3D baseline)
+  family: Geometric comparison to normal references
+  year: null
+  paper_title: "A method for registration of 3-D shapes (ICP foundation)"
+  paper_authors: [Paul J. Besl, Neil D. McKay]
+  venue: "IEEE TPAMI 1992"
+  doi: 10.1109/34.121791
+  paper_url: https://doi.org/10.1109/34.121791
+  paper_pdf_url: null
+  official_repository_url: null
+  implementation_repository_url: https://github.com/isl-org/Open3D
+  implementation_type: idd_lab_educational
+  implementation_version: "IDD Lab baseline on Open3D 0.20 (voxel down-sampling, FPFH+RANSAC, ICP point-to-plane, NN / point-to-plane deviation)"
+  implementation_notes: "Educational baseline — it does not reproduce Reg3D-AD, M3DM or any published deep 3D detector."
+  docs_url: https://www.open3d.org/docs/release/tutorial/pipelines/icp_registration.html
+  source_license: MIT (Open3D) / IDD Lab code
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Reference-based (normal point clouds), no learning"
+  training_data_requirements: "1-4 normal point clouds of the same object"
+  supported_modalities: [point_cloud]
+  supported_tasks: [segmentation, classification]
+  inputs: "Test point cloud + normal reference cloud(s)"
+  outputs: "Per-point deviation (input units), alignment fitness/RMSE, object score (percentile)"
+  intuitive_explanation_en: >-
+    Place the test part exactly on top of a good part (registration) and measure, for every
+    point, how far it is from the good surface. Bumps and dents stand out as large distances.
+  intuitive_explanation_es: >-
+    Coloca la pieza de prueba exactamente sobre una pieza buena (registro) y mide, para cada
+    punto, su distancia a la superficie buena. Protuberancias y abolladuras resaltan.
+  scientific_principle: "Rigid registration by FPFH feature matching + RANSAC (coarse) and ICP (fine), followed by nearest-neighbour or point-to-plane distance."
+  main_processing_steps: [Voxel down-sampling + normals, Coarse alignment (FPFH + RANSAC), Fine alignment (ICP point-to-plane), Per-point distance to reference surface, Score = high percentile]
+  mathematical_formulation: "T* = argmin_T Σ ((T p_i − q_i)·n_i)²;  d_i = |n_j·(T p_i − q_j)|, j = NN(T p_i)"
+  advantages: [Physically interpretable (mm), No training, Works with very few normal samples]
+  limitations: ["Fails if registration fails (symmetric or partial objects)", "Normal shape variation appears as defects", "Sensitive to sensor noise and voxel size"]
+  failure_cases: ["Symmetric parts flipped by RANSAC", "Partial scans"]
+  computational_requirements: "CPU; 0.1-3 s per cloud depending on size"
+  recommended_datasets: [D06, D04]
+  educational_exercises: ["Turn off coarse alignment and observe the deviation map", "Compare point-to-point vs point-to-plane"]
+  industrial_use: "Dimensional inspection vs. CAD/golden part; dents, bulges, missing material."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: validated_local_dataset
+  publication_ids: [besl1992icp, chen1992pointplane, rusu2009fpfh, zhou2018open3d]
+
+- id: multimodal_fusion
+  group: G
+  name: Per-modality detectors + late score fusion (educational)
+  family: Multimodal late fusion
+  year: null
+  paper_title: "Multimodal Industrial Anomaly Detection via Hybrid Fusion (related work)"
+  paper_authors: [Yue Wang, Jinlong Peng, Jiangning Zhang, Ran Yi, Yabiao Wang, Chengjie Wang]
+  venue: "CVPR 2023 (related)"
+  doi: 10.1109/CVPR52729.2023.00776
+  paper_url: https://openaccess.thecvf.com/content/CVPR2023/html/Wang_Multimodal_Industrial_Anomaly_Detection_via_Hybrid_Fusion_CVPR_2023_paper.html
+  paper_pdf_url: null
+  official_repository_url: null
+  implementation_repository_url: null
+  implementation_type: idd_lab_educational
+  implementation_version: "IDD Lab: PatchCore/PaDiM on RGB and IR + 3D deviation; z-normalisation on held-out normals; mean/max fusion"
+  implementation_notes: "Not MulSen-TripleAD and not M3DM; a transparent late-fusion protocol for teaching sensor complementarity."
+  docs_url: null
+  source_license: IDD Lab code
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Unsupervised per modality + rule-based fusion"
+  training_data_requirements: "Normal multimodal samples (MulSen-AD train split)"
+  supported_modalities: [rgb, infrared, point_cloud]
+  supported_tasks: [classification]
+  inputs: "Synchronised RGB, infrared image and point cloud of one object"
+  outputs: "Per-modality standardised scores, fused scores, AUROC per modality"
+  intuitive_explanation_en: >-
+    Let one detector look at colour, another at heat and a third at shape. Convert each to the
+    same scale ('how many standard deviations above normal?') and combine — a defect visible to
+    any sensor raises the alarm.
+  intuitive_explanation_es: >-
+    Un detector mira el color, otro el calor y otro la forma. Cada puntuación se lleva a la misma
+    escala ('¿cuántas desviaciones sobre lo normal?') y se combinan — un defecto visible para
+    cualquier sensor dispara la alarma.
+  scientific_principle: "Late fusion of standardised scores; max-fusion approximates an OR over sensors, mean-fusion averages evidence."
+  main_processing_steps: [Fit detector per modality on normal training samples, Standardise scores on held-out normal samples, Fuse (mean / max), Evaluate AUROC per modality and fused]
+  mathematical_formulation: "z_m = (s_m − μ_m)/σ_m (held-out normals);  s_fused = max_m z_m  or  mean_m z_m"
+  advantages: [Simple, Modular, Shows which sensor sees which defect]
+  limitations: ["Ignores cross-modal spatial correspondence", "Standardisation from few normals is noisy"]
+  failure_cases: ["A weak noisy modality dominates max-fusion"]
+  computational_requirements: "GPU for image detectors; CPU for 3D"
+  recommended_datasets: [D06]
+  educational_exercises: ["Find defects detected only by infrared", "Compare mean vs. max fusion"]
+  industrial_use: "Multi-sensor inspection cells (vision + thermography + 3D)."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: validated_local_dataset
+  publication_ids: [wang2023m3dm, li2025mulsenad]
+
+- id: m3dm
+  group: G
+  name: M3DM (hybrid RGB + point-cloud fusion)
+  family: Multimodal feature fusion with memory banks
+  year: 2023
+  paper_title: "Multimodal Industrial Anomaly Detection via Hybrid Fusion"
+  paper_authors: [Yue Wang, Jinlong Peng, Jiangning Zhang, Ran Yi, Yabiao Wang, Chengjie Wang]
+  venue: "CVPR 2023"
+  doi: 10.1109/CVPR52729.2023.00776
+  paper_url: https://openaccess.thecvf.com/content/CVPR2023/html/Wang_Multimodal_Industrial_Anomaly_Detection_via_Hybrid_Fusion_CVPR_2023_paper.html
+  paper_pdf_url: https://openaccess.thecvf.com/content/CVPR2023/papers/Wang_Multimodal_Industrial_Anomaly_Detection_via_Hybrid_Fusion_CVPR_2023_paper.pdf
+  official_repository_url: https://github.com/nomewang/M3DM
+  implementation_repository_url: null
+  implementation_type: none
+  implementation_version: null
+  implementation_notes: "Explanation only in IDD Lab v0.1 (needs Point-MAE / DINO checkpoints and a UFF training stage). The MulSen-AD baseline code builds on M3DM."
+  docs_url: null
+  source_license: MIT (authors)
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Unsupervised (normal samples) with learned fusion"
+  training_data_requirements: "Normal RGB + point-cloud pairs"
+  supported_modalities: [rgb, point_cloud]
+  supported_tasks: [classification, segmentation]
+  inputs: "RGB image + aligned point cloud"
+  outputs: "Fused anomaly map and score"
+  intuitive_explanation_en: >-
+    Extract features from the colour image with a vision transformer and from the 3D points with
+    a point transformer, learn how they relate on normal parts, and keep separate and fused
+    memory banks to compare test samples against.
+  intuitive_explanation_es: >-
+    Extrae características de la imagen con un transformador de visión y de los puntos 3D con un
+    transformador de puntos, aprende su relación en piezas normales y compara con bancos de memoria
+    separados y fusionados.
+  scientific_principle: "Point features (Point-MAE) and RGB features (DINO ViT), unsupervised feature fusion (UFF) by contrastive learning, decision-layer fusion of multiple memory banks."
+  main_processing_steps: [Extract RGB and 3D patch features, Align features spatially, Learn fusion (UFF), Build memory banks, One-class SVM decision fusion]
+  mathematical_formulation: null
+  advantages: [Uses both appearance and geometry, Strong on MVTec 3D-AD]
+  limitations: ["Requires pixel-aligned RGB-D data", "Several pretrained checkpoints"]
+  failure_cases: ["Unregistered sensors (as in MulSen-AD's separate scans)"]
+  computational_requirements: "GPU; large memory banks"
+  recommended_datasets: [D06]
+  educational_exercises: ["Contrast feature-level fusion (M3DM) with IDD Lab's score-level fusion"]
+  industrial_use: "RGB-D inspection stations."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: explanation_only
+  publication_ids: [wang2023m3dm]
+
+- id: reg3dad
+  group: G
+  name: Reg3D-AD (registration-based 3D AD)
+  family: Registration + point-feature memory bank
+  year: 2023
+  paper_title: "Real3D-AD: A Dataset of Point Cloud Anomaly Detection"
+  paper_authors: [Jiaqi Liu, Guoyang Xie, Ruitao Chen, Xinpeng Li, Jinbao Wang, Yong Liu, Chengjie Wang, Feng Zheng]
+  venue: "NeurIPS 2023 D&B"
+  doi: 10.52202/075280-1324
+  paper_url: https://proceedings.neurips.cc/paper_files/paper/2023/hash/611b896d447df43c898062358df4c114-Abstract-Datasets_and_Benchmarks.html
+  paper_pdf_url: https://proceedings.neurips.cc/paper_files/paper/2023/file/611b896d447df43c898062358df4c114-Paper-Datasets_and_Benchmarks.pdf
+  official_repository_url: https://github.com/M-3LAB/Real3D-AD
+  implementation_repository_url: null
+  implementation_type: none
+  implementation_version: null
+  implementation_notes: "Authors' code (main_reg3dad.py) has no licence file; not integrated. IDD Lab's pc_deviation baseline illustrates the registration idea only."
+  docs_url: null
+  source_license: "No licence file (all rights reserved)"
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Unsupervised (few normal prototypes)"
+  training_data_requirements: "4 normal prototypes per class (Real3D-AD)"
+  supported_modalities: [point_cloud]
+  supported_tasks: [classification, segmentation]
+  inputs: "Point cloud"
+  outputs: "Point-level and object-level scores"
+  intuitive_explanation_en: >-
+    Register every test cloud to the normal prototypes, then compare local point features with a
+    memory bank of normal features, combining 'where' (registration) and 'what' (features).
+  intuitive_explanation_es: >-
+    Registra cada nube de prueba con los prototipos normales y compara características locales con
+    un banco de memoria normal, combinando 'dónde' (registro) y 'qué' (características).
+  scientific_principle: "Registration-based alignment plus a dual memory bank of point-level and global features."
+  main_processing_steps: [Register test to prototypes, Extract point features, Memory-bank comparison, Aggregate scores]
+  mathematical_formulation: null
+  advantages: [Designed for 360° clouds with few prototypes]
+  limitations: ["Registration failures propagate"]
+  failure_cases: ["Highly symmetric objects"]
+  computational_requirements: "GPU/CPU; large point counts"
+  recommended_datasets: [D04]
+  educational_exercises: ["Compare with the IDD Lab registration baseline (conceptual)"]
+  industrial_use: "Free-form parts without CAD."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: explanation_only
+  publication_ids: [liu2023real3dad]

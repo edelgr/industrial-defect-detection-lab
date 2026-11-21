@@ -1,0 +1,8 @@
+# Manual verification records for links whose publishers block automated clients (HTTP 403).
+# A 403 does not mean the URL is wrong. Each entry states how it was verified instead.
+https://doi.org/10.1080/2151237X.2007.10129236:
+  note: "DOI metadata (title, authors, journal) confirmed via the Crossref API; Taylor & Francis blocks bots."
+  date: "2026-11-20"
+https://doi.org/10.1126/science.1127647:
+  note: "DOI metadata confirmed via the Crossref API; science.org blocks bots. Author-hosted PDF reachable."
+  date: "2026-11-20"

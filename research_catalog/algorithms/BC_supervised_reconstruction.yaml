@@ -1,0 +1,239 @@
+# Groups B (supervised) and C (reconstruction). In IDD Lab v0.1 these are EDUCATIONAL
+# EXPLANATIONS: supervised models need labelled defect data and training that are outside the
+# workshop's live time budget; no pretrained industrial-defect weights are bundled.
+
+- id: cnn_classification
+  group: B
+  name: CNN image classification (OK / NOK)
+  family: Supervised classification
+  year: 2016
+  paper_title: "Deep Residual Learning for Image Recognition"
+  paper_authors: [Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun]
+  venue: "CVPR 2016"
+  doi: 10.1109/CVPR.2016.90
+  paper_url: https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html
+  paper_pdf_url: https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf
+  official_repository_url: https://github.com/KaimingHe/deep-residual-networks
+  implementation_repository_url: null
+  implementation_type: none
+  implementation_version: null
+  implementation_notes: "ResNet is cited as a representative CNN backbone; it is also the feature extractor used by PaDiM and PatchCore."
+  docs_url: null
+  source_license: MIT (authors' Caffe models)
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Supervised (labelled good and defective images)"
+  training_data_requirements: "Many labelled examples of every defect class; balanced or re-weighted classes"
+  supported_modalities: [rgb, grayscale]
+  supported_tasks: [classification]
+  inputs: "Image"
+  outputs: "Class probabilities (OK / defect types)"
+  intuitive_explanation_en: >-
+    Show the network thousands of labelled good and bad images; it learns which visual patterns
+    separate the classes. It answers 'is this image defective?' but not 'where?'.
+  intuitive_explanation_es: >-
+    Se muestran a la red miles de imágenes etiquetadas buenas y malas; aprende qué patrones
+    separan las clases. Responde '¿es defectuosa?' pero no '¿dónde?'.
+  scientific_principle: "Hierarchical convolutional features trained end-to-end with cross-entropy; residual connections enable very deep networks."
+  main_processing_steps: [Collect & label data, Train with cross-entropy, Calibrate decision threshold on validation data, Deploy]
+  mathematical_formulation: "L = −Σ_c y_c log softmax(f_θ(x))_c"
+  advantages: [High accuracy for known defect types, Mature tooling]
+  limitations: ["Needs many labelled defects — rare in production", "Fails on unseen defect types", "No localisation"]
+  failure_cases: ["New defect type", "Class imbalance"]
+  computational_requirements: "GPU training; fast inference"
+  recommended_datasets: [D01, D03]
+  educational_exercises: ["Discuss why anomaly detection is preferred when defects are rare"]
+  industrial_use: "Stable processes with a fixed, well-sampled set of defect classes."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: explanation_only
+  publication_ids: [he2016resnet]
+
+- id: yolo
+  group: B
+  name: YOLO object detection
+  family: Supervised object detection
+  year: 2016
+  paper_title: "You Only Look Once: Unified, Real-Time Object Detection"
+  paper_authors: [Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi]
+  venue: "CVPR 2016"
+  doi: 10.1109/CVPR.2016.91
+  paper_url: https://openaccess.thecvf.com/content_cvpr_2016/html/Redmon_You_Only_Look_CVPR_2016_paper.html
+  paper_pdf_url: https://openaccess.thecvf.com/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf
+  official_repository_url: https://github.com/pjreddie/darknet
+  implementation_repository_url: https://github.com/ultralytics/ultralytics
+  implementation_type: none
+  implementation_version: null
+  implementation_notes: "Modern Ultralytics YOLO (e.g. YOLOv8/YOLO11 families) is AGPL-3.0, including trained models by default; IDD Lab does not bundle or redistribute it. General-purpose COCO-pretrained YOLO models do NOT detect industrial defects without training on labelled defect boxes."
+  docs_url: https://docs.ultralytics.com/
+  source_license: "Darknet: public domain (YOLO LICENSE v2); Ultralytics: AGPL-3.0"
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Supervised (bounding-box labels)"
+  training_data_requirements: "Images with bounding boxes for every defect class"
+  supported_modalities: [rgb]
+  supported_tasks: [detection]
+  inputs: "Image"
+  outputs: "Boxes with class labels and confidences"
+  intuitive_explanation_en: >-
+    Divide the image into a grid and let each cell predict boxes around objects in one single
+    pass — fast enough for video. For inspection, the 'objects' are labelled defects.
+  intuitive_explanation_es: >-
+    Divide la imagen en una cuadrícula y cada celda predice cajas alrededor de objetos en una sola
+    pasada — suficientemente rápido para video. En inspección, los 'objetos' son defectos etiquetados.
+  scientific_principle: "Single-stage regression of box coordinates and class probabilities from a CNN feature grid."
+  main_processing_steps: [Label defect boxes, Train detector, Non-maximum suppression, Confidence threshold]
+  mathematical_formulation: "Loss = λ_coord·box regression + objectness + classification terms (Redmon et al. 2016, Eq. 3)"
+  advantages: [Real-time, Localises with boxes, Counts instances]
+  limitations: ["Needs labelled boxes", "Boxes are coarse for thin scratches", "Only finds trained classes"]
+  failure_cases: ["Unseen defects", "Very small defects at low input resolution"]
+  computational_requirements: "GPU training; real-time inference"
+  recommended_datasets: [D03]
+  educational_exercises: ["Compare classification, detection and segmentation outputs for the same defect"]
+  industrial_use: "Counting/locating known defect types or components at line speed."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: explanation_only
+  publication_ids: [redmon2016yolo]
+
+- id: unet
+  group: B
+  name: U-Net segmentation
+  family: Supervised semantic segmentation
+  year: 2015
+  paper_title: "U-Net: Convolutional Networks for Biomedical Image Segmentation"
+  paper_authors: [Olaf Ronneberger, Philipp Fischer, Thomas Brox]
+  venue: "MICCAI 2015"
+  doi: 10.1007/978-3-319-24574-4_28
+  paper_url: https://arxiv.org/abs/1505.04597
+  paper_pdf_url: https://arxiv.org/pdf/1505.04597
+  official_repository_url: https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/
+  implementation_repository_url: https://github.com/milesial/Pytorch-UNet
+  implementation_type: none
+  implementation_version: null
+  implementation_notes: "milesial/Pytorch-UNet is a third-party PyTorch implementation under GPL-3.0; IDD Lab does not include its code."
+  docs_url: null
+  source_license: "Authors' release: unverified; milesial/Pytorch-UNet: GPL-3.0"
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Supervised (pixel masks)"
+  training_data_requirements: "Images with pixel-accurate defect masks"
+  supported_modalities: [rgb, grayscale]
+  supported_tasks: [segmentation]
+  inputs: "Image"
+  outputs: "Per-pixel class map"
+  intuitive_explanation_en: >-
+    An encoder compresses the image into features, a decoder expands them back to full
+    resolution, and skip connections carry fine details across — producing a defect label for
+    every pixel.
+  intuitive_explanation_es: >-
+    Un codificador comprime la imagen en características, un decodificador las expande a resolución
+    completa y las conexiones de salto conservan detalles — dando una etiqueta por píxel.
+  scientific_principle: "Symmetric encoder–decoder with skip connections trained with pixel-wise cross-entropy/Dice loss."
+  main_processing_steps: [Annotate masks, Train encoder-decoder, Threshold per-pixel probabilities]
+  mathematical_formulation: "L = −Σ_x w(x) log p_{y(x)}(x)"
+  advantages: [Precise localisation, Works with few hundred labelled images and augmentation]
+  limitations: ["Pixel masks are expensive", "Only learns annotated defect types"]
+  failure_cases: ["Novel defects", "Annotation inconsistency"]
+  computational_requirements: "GPU training"
+  recommended_datasets: [D01]
+  educational_exercises: ["Contrast supervised U-Net masks with unsupervised anomaly maps"]
+  industrial_use: "When defect area must be measured precisely and labelled data exist."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: explanation_only
+  publication_ids: [ronneberger2015unet]
+
+- id: conv_autoencoder
+  group: C
+  name: Convolutional autoencoder (reconstruction)
+  family: Reconstruction-based anomaly detection
+  year: 2019
+  paper_title: "Improving Unsupervised Defect Segmentation by Applying Structural Similarity to Autoencoders"
+  paper_authors: [Paul Bergmann, Sindy Löwe, Michael Fauser, David Sattlegger, Carsten Steger]
+  venue: "VISAPP 2019"
+  doi: 10.5220/0007364503720380
+  paper_url: https://arxiv.org/abs/1807.02011
+  paper_pdf_url: https://www.scitepress.org/Papers/2019/73645/73645.pdf
+  official_repository_url: null
+  implementation_repository_url: null
+  implementation_type: none
+  implementation_version: null
+  implementation_notes: "Generic lesson: foundations in Hinton & Salakhutdinov (2006) and Masci et al. (2011); this is not DRAEM."
+  docs_url: null
+  source_license: null
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Unsupervised (normal images only)"
+  training_data_requirements: "Hundreds of normal images; training from scratch"
+  supported_modalities: [rgb, grayscale]
+  supported_tasks: [segmentation, classification]
+  inputs: "Image"
+  outputs: "Reconstruction, reconstruction-error map (L2 or 1−SSIM)"
+  intuitive_explanation_en: >-
+    Train a network to compress and redraw normal images. It learns to redraw only what it has
+    seen; at test time, a defect is redrawn poorly, so the reconstruction error highlights it.
+  intuitive_explanation_es: >-
+    Se entrena una red para comprimir y redibujar imágenes normales. Solo aprende a redibujar lo
+    que ha visto; un defecto se reconstruye mal y el error de reconstrucción lo resalta.
+  scientific_principle: "A bottleneck encoder–decoder minimising reconstruction loss on normal data; anomaly = high residual."
+  main_processing_steps: [Train on normal images, Reconstruct test image, Residual map (L2 or SSIM), Threshold]
+  mathematical_formulation: "A(x) = ||x − D(E(x))||² or 1 − SSIM(x, D(E(x)))"
+  advantages: [Intuitive, No pretrained features required]
+  limitations: ["Generalises too well: may also reconstruct defects", "Blurry reconstructions cause false positives on edges"]
+  failure_cases: ["Large homogeneous defects reconstructed correctly", "High-frequency textures"]
+  computational_requirements: "GPU training (minutes-hours)"
+  recommended_datasets: [D01]
+  educational_exercises: ["Discuss the 'identity shortcut' problem of autoencoders"]
+  industrial_use: "Historical baseline; superseded by feature-based methods on most benchmarks."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: explanation_only
+  publication_ids: [hinton2006, masci2011, bergmann2019ssimae]
+
+- id: draem
+  group: C
+  name: DRAEM
+  family: Reconstruction + discriminative segmentation
+  year: 2021
+  paper_title: "DRAEM - A Discriminatively Trained Reconstruction Embedding for Surface Anomaly Detection"
+  paper_authors: [Vitjan Zavrtanik, Matej Kristan, Danijel Skočaj]
+  venue: "ICCV 2021"
+  doi: 10.1109/ICCV48922.2021.00822
+  paper_url: https://openaccess.thecvf.com/content/ICCV2021/html/Zavrtanik_DRAEM_-_A_Discriminatively_Trained_Reconstruction_Embedding_for_Surface_Anomaly_ICCV_2021_paper.html
+  paper_pdf_url: https://openaccess.thecvf.com/content/ICCV2021/papers/Zavrtanik_DRAEM_-_A_Discriminatively_Trained_Reconstruction_Embedding_for_Surface_Anomaly_ICCV_2021_paper.pdf
+  official_repository_url: https://github.com/VitjanZ/DRAEM
+  implementation_repository_url: https://github.com/open-edge-platform/anomalib
+  implementation_type: none
+  implementation_version: null
+  implementation_notes: "Anomalib contains a DRAEM re-implementation; not integrated in IDD Lab v0.1 because training (≈700 epochs in the paper, plus DTD texture images for anomaly simulation) exceeds the workshop budget."
+  docs_url: https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/index.html
+  source_license: MIT (authors)
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Self-supervised (normal images + simulated anomalies)"
+  training_data_requirements: "Normal images + an external texture dataset (DTD) for synthetic anomalies"
+  supported_modalities: [rgb]
+  supported_tasks: [segmentation, classification]
+  inputs: "Image"
+  outputs: "Reconstruction + anomaly segmentation mask"
+  intuitive_explanation_en: >-
+    Paste fake defects onto normal images, train one network to repair them and a second
+    network to point at what was changed by comparing the input with its repair.
+  intuitive_explanation_es: >-
+    Pega defectos falsos sobre imágenes normales, entrena una red para repararlos y otra para
+    señalar lo que cambió comparando la entrada con su reparación.
+  scientific_principle: "A reconstructive sub-network and a discriminative sub-network trained jointly on synthetically corrupted normal images (Perlin-noise masks + DTD textures)."
+  main_processing_steps: [Generate simulated anomalies, Train reconstruction (L2 + SSIM), Train discriminative segmentation (focal loss), Score = max of smoothed segmentation]
+  mathematical_formulation: "L = L_rec(I, I_r) + L_seg(M, M̂) with focal loss for segmentation"
+  advantages: [Directly learns a segmentation, Avoids pure-residual false positives]
+  limitations: ["Long training", "Depends on how realistic simulated anomalies are"]
+  failure_cases: ["Defects unlike the simulated ones"]
+  computational_requirements: "GPU; long training"
+  recommended_datasets: [D01]
+  educational_exercises: ["Compare DRAEM's idea with a plain autoencoder (conceptual)"]
+  industrial_use: "Surface inspection where realistic anomaly simulation is possible."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: explanation_only
+  publication_ids: [zavrtanik2021draem]

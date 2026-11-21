@@ -1,0 +1,67 @@
+id: D03
+name: Visual Anomaly Dataset
+acronym: VisA
+adapter: null
+description_en: >-
+  12 subsets of complex, often multi-instance objects (PCBs, capsules, macaroni, cashews, fryums
+  ...) with 10,821 high-resolution images, introduced together with the SPot-the-Difference
+  self-supervised pre-training method.
+description_es: >-
+  12 subconjuntos de objetos complejos, a menudo con varias instancias (PCB, cápsulas, macarrones,
+  anacardos ...), con 10 821 imágenes de alta resolución, presentado junto al método de
+  pre-entrenamiento auto-supervisado SPot-the-Difference.
+scientific_purpose: >-
+  Test generalisation to diverse products, multiple instances, complex structures and
+  non-aligned objects, beyond MVTec AD.
+year_first_release: 2022
+publication_year: 2022
+authors: [Yang Zou, Jongheon Jeong, Latha Pemula, Dongqing Zhang, Onkar Dabeer]
+institutions: [Amazon]
+publication_title: "SPot-the-Difference Self-Supervised Pre-training for Anomaly Detection and Segmentation"
+publication_venue: "ECCV 2022"
+doi: 10.1007/978-3-031-20056-4_23
+paper_url: https://arxiv.org/abs/2207.14315
+paper_pdf_url: https://arxiv.org/pdf/2207.14315
+official_website: https://registry.opendata.aws/visa/
+official_repository_url: https://github.com/amazon-science/spot-diff
+implementation_repository_url: https://github.com/amazon-science/spot-diff
+download_url: https://amazon-visual-anomaly.s3.us-west-2.amazonaws.com/VisA_20220922.tar
+access_method: "Direct public download from AWS Open Data (no registration); single 1.93 GB tar, no per-category archives."
+license: CC BY 4.0
+license_url: https://creativecommons.org/licenses/by/4.0/
+redistribution_allowed: true
+modalities: [rgb]
+categories: [pcb1, pcb2, pcb3, pcb4, capsules, candle, macaroni1, macaroni2, cashew, chewinggum, fryum, pipe_fryum]
+sample_count: 10821
+anomaly_types: [structural, surface, missing_part, misplacement]
+annotation_types: [image-level label, "pixel masks (multi-class PNG)", split CSV files]
+data_formats: [JPG, PNG, CSV]
+image_resolution: "High resolution (captured with a 4000×6000 sensor); stored resolution varies — unverified"
+train_split: "Official 1-class split (split_csv/1cls.csv): 90 % of normal images"
+validation_split: "none in the 1-class split"
+test_split: "10 % of normal images + all 1200 anomalous images (100 per class)"
+ground_truth_availability: "Public pixel masks for anomalous images."
+benchmark_protocol: >-
+  Use the official split CSVs (1-class, 2-class high-shot or few-shot) with
+  utils/prepare_data.py; report image and pixel AUROC / PRO.
+principal_challenges:
+  - Multiple instances and complex structures (PCBs)
+  - Objects are not always aligned
+  - Small anomalies on large images
+scientific_contribution: >-
+  Larger and more diverse benchmark; few-shot splits used for zero/few-shot methods (WinCLIP,
+  AnomalyDINO).
+limitations:
+  - Only one archive (no per-category download)
+  - Anomalies are mostly structural; no logical constraints
+recommended_educational_exercises:
+  - Compare AnomalyDINO few-shot (k=1,4) on pcb1 vs. candle
+size_notes: "1,929,840,640 bytes (~1.93 GB) tar — requires explicit approval (> 1 GB)."
+installation_status: not_installed
+source_verification_date: "2026-11-20"
+source_verification_status: verified_automated
+source_notes: "No local IDD Lab adapter yet; after prepare_data.py --split-type 1cls the MVTec-style layout can be imported."
+publication_ids: [zou2022visa]
+resource_guide: >-
+  Paper: arXiv / ECCV. Dataset: AWS Open Data registry (direct S3 tar). Code repository
+  (split CSVs, data preparation and metrics): amazon-science/spot-diff (Apache-2.0); data CC BY 4.0.

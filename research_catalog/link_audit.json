@@ -1,0 +1,1785 @@
+{
+  "generated": "2026-11-20T23:53:03",
+  "problems": [
+    "algorithm otsu: no official authors' repository (stated as such)",
+    "algorithm adaptive_threshold: no official authors' repository (stated as such)",
+    "algorithm canny: no official authors' repository (stated as such)",
+    "algorithm gabor: no official authors' repository (stated as such)",
+    "algorithm morphology: no official authors' repository (stated as such)",
+    "algorithm reference_difference: no official authors' repository (stated as such)",
+    "algorithm conv_autoencoder: no official authors' repository (stated as such)",
+    "algorithm padim: no official authors' repository (stated as such)",
+    "algorithm efficientad: no official authors' repository (stated as such)",
+    "algorithm winclip: no official authors' repository (stated as such)",
+    "algorithm pc_deviation: no official authors' repository (stated as such)",
+    "algorithm multimodal_fusion: no official authors' repository (stated as such)"
+  ],
+  "links": {
+    "https://openaccess.thecvf.com/content_CVPR_2019/html/Bergmann_MVTec_AD_--_A_Comprehensive_Real-World_Dataset_for_Unsupervised_Anomaly_CVPR_2019_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content_CVPR_2019/html/Bergmann_MVTec_AD_--_A_Comprehensive_Real-World_Dataset_for_Unsupervised_Anomaly_CVPR_2019_paper.html",
+      "status": "ok",
+      "used_by": [
+        "dataset:D01.paper_url",
+        "publication:bergmann2019mvtecad.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content_CVPR_2019/papers/Bergmann_MVTec_AD_--_A_Comprehensive_Real-World_Dataset_for_Unsupervised_Anomaly_CVPR_2019_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content_CVPR_2019/papers/Bergmann_MVTec_AD_--_A_Comprehensive_Real-World_Dataset_for_Unsupervised_Anomaly_CVPR_2019_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "dataset:D01.paper_pdf_url",
+        "publication:bergmann2019mvtecad.pdf_url"
+      ]
+    },
+    "https://www.mvtec.com/research-teaching/datasets/mvtec-ad": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.mvtec.com/research-teaching/datasets/mvtec-ad",
+      "status": "ok",
+      "used_by": [
+        "dataset:D01.official_website"
+      ]
+    },
+    "https://www.mvtec.com/research-teaching/datasets/mvtec-ad/downloads": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.mvtec.com/research-teaching/datasets/mvtec-ad/downloads",
+      "status": "ok",
+      "used_by": [
+        "dataset:D01.download_url"
+      ]
+    },
+    "https://creativecommons.org/licenses/by-nc-sa/4.0/": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "status": "ok",
+      "used_by": [
+        "dataset:D01.license_url",
+        "dataset:D02.license_url",
+        "dataset:D05.license_url",
+        "dataset:D07.license_url",
+        "dataset:D08.license_url"
+      ]
+    },
+    "https://doi.org/10.1109/CVPR.2019.00982": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/8954181/",
+      "status": "redirect",
+      "used_by": [
+        "dataset:D01.doi",
+        "publication:bergmann2019mvtecad.doi"
+      ]
+    },
+    "https://link.springer.com/article/10.1007/s11263-022-01578-9": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://link.springer.com/article/10.1007/s11263-022-01578-9",
+      "status": "ok",
+      "used_by": [
+        "dataset:D02.paper_url",
+        "publication:bergmann2022loco.paper_url"
+      ]
+    },
+    "https://link.springer.com/content/pdf/10.1007/s11263-022-01578-9.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://link.springer.com/content/pdf/10.1007/s11263-022-01578-9.pdf",
+      "status": "ok",
+      "used_by": [
+        "dataset:D02.paper_pdf_url",
+        "publication:bergmann2022loco.pdf_url"
+      ]
+    },
+    "https://www.mvtec.com/research-teaching/datasets/mvtec-loco-ad": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.mvtec.com/research-teaching/datasets/mvtec-loco-ad",
+      "status": "ok",
+      "used_by": [
+        "dataset:D02.official_website"
+      ]
+    },
+    "https://www.mvtec.com/research-teaching/datasets/mvtec-loco-ad/downloads": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.mvtec.com/research-teaching/datasets/mvtec-loco-ad/downloads",
+      "status": "ok",
+      "used_by": [
+        "dataset:D02.download_url"
+      ]
+    },
+    "https://doi.org/10.1007/s11263-022-01578-9": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://link.springer.com/10.1007/s11263-022-01578-9",
+      "status": "redirect",
+      "used_by": [
+        "dataset:D02.doi",
+        "publication:bergmann2022loco.doi"
+      ]
+    },
+    "https://arxiv.org/abs/2207.14315": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/abs/2207.14315",
+      "status": "ok",
+      "used_by": [
+        "dataset:D03.paper_url",
+        "publication:zou2022visa.paper_url"
+      ]
+    },
+    "https://arxiv.org/pdf/2207.14315": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/pdf/2207.14315",
+      "status": "ok",
+      "used_by": [
+        "dataset:D03.paper_pdf_url",
+        "publication:zou2022visa.pdf_url"
+      ]
+    },
+    "https://registry.opendata.aws/visa/": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://registry.opendata.aws/visa/",
+      "status": "ok",
+      "used_by": [
+        "dataset:D03.official_website"
+      ]
+    },
+    "https://github.com/amazon-science/spot-diff": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/amazon-science/spot-diff",
+      "status": "ok",
+      "used_by": [
+        "dataset:D03.official_repository_url",
+        "dataset:D03.implementation_repository_url",
+        "publication:zou2022visa.code_url"
+      ]
+    },
+    "https://amazon-visual-anomaly.s3.us-west-2.amazonaws.com/VisA_20220922.tar": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://amazon-visual-anomaly.s3.us-west-2.amazonaws.com/VisA_20220922.tar",
+      "status": "ok",
+      "used_by": [
+        "dataset:D03.download_url"
+      ]
+    },
+    "https://creativecommons.org/licenses/by/4.0/": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://creativecommons.org/licenses/by/4.0/",
+      "status": "ok",
+      "used_by": [
+        "dataset:D03.license_url",
+        "dataset:D04.license_url"
+      ]
+    },
+    "https://doi.org/10.1007/978-3-031-20056-4_23": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://link.springer.com/chapter/10.1007/978-3-031-20056-4_23",
+      "status": "redirect",
+      "used_by": [
+        "dataset:D03.doi",
+        "publication:zou2022visa.doi"
+      ]
+    },
+    "https://proceedings.neurips.cc/paper_files/paper/2023/hash/611b896d447df43c898062358df4c114-Abstract-Datasets_and_Benchmarks.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/611b896d447df43c898062358df4c114-Abstract-Datasets_and_Benchmarks.html",
+      "status": "ok",
+      "used_by": [
+        "dataset:D04.paper_url",
+        "algorithm:reg3dad.paper_url",
+        "publication:liu2023real3dad.paper_url"
+      ]
+    },
+    "https://proceedings.neurips.cc/paper_files/paper/2023/file/611b896d447df43c898062358df4c114-Paper-Datasets_and_Benchmarks.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://proceedings.neurips.cc/paper_files/paper/2023/file/611b896d447df43c898062358df4c114-Paper-Datasets_and_Benchmarks.pdf",
+      "status": "ok",
+      "used_by": [
+        "dataset:D04.paper_pdf_url",
+        "algorithm:reg3dad.paper_pdf_url",
+        "publication:liu2023real3dad.pdf_url"
+      ]
+    },
+    "https://github.com/M-3LAB/Real3D-AD": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/M-3LAB/Real3D-AD",
+      "status": "ok",
+      "used_by": [
+        "dataset:D04.official_website",
+        "dataset:D04.official_repository_url",
+        "dataset:D04.implementation_repository_url",
+        "algorithm:reg3dad.official_repository_url",
+        "publication:liu2023real3dad.code_url"
+      ]
+    },
+    "https://drive.google.com/file/d/1oM4qjhlIMsQc_wiFIFIVBvuuR8nyk2k0/view": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://drive.google.com/file/d/1oM4qjhlIMsQc_wiFIFIVBvuuR8nyk2k0/view",
+      "status": "ok",
+      "used_by": [
+        "dataset:D04.download_url"
+      ]
+    },
+    "https://doi.org/10.52202/075280-1324": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.proceedings.com/075280-1324.html",
+      "status": "redirect",
+      "used_by": [
+        "dataset:D04.doi",
+        "algorithm:reg3dad.doi",
+        "publication:liu2023real3dad.doi"
+      ]
+    },
+    "https://arxiv.org/abs/2503.21622": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/abs/2503.21622",
+      "status": "ok",
+      "used_by": [
+        "dataset:D05.paper_url"
+      ]
+    },
+    "https://link.springer.com/content/pdf/10.1007/s11263-026-02743-0.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://link.springer.com/content/pdf/10.1007/s11263-026-02743-0.pdf",
+      "status": "ok",
+      "used_by": [
+        "dataset:D05.paper_pdf_url",
+        "publication:hecklerkram2026mvtecad2.pdf_url"
+      ]
+    },
+    "https://www.mvtec.com/research-teaching/datasets/mvtec-ad-2": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.mvtec.com/research-teaching/datasets/mvtec-ad-2",
+      "status": "ok",
+      "used_by": [
+        "dataset:D05.official_website"
+      ]
+    },
+    "https://www.mvtec.com/research-teaching/datasets/mvtec-ad-2/downloads": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.mvtec.com/research-teaching/datasets/mvtec-ad-2/downloads",
+      "status": "ok",
+      "used_by": [
+        "dataset:D05.download_url"
+      ]
+    },
+    "https://doi.org/10.1007/s11263-026-02743-0": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://link.springer.com/10.1007/s11263-026-02743-0",
+      "status": "redirect",
+      "used_by": [
+        "dataset:D05.doi",
+        "publication:hecklerkram2026mvtecad2.paper_url",
+        "publication:hecklerkram2026mvtecad2.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2025/html/Li_Multi-Sensor_Object_Anomaly_Detection_Unifying_Appearance_Geometry_and_Internal_Properties_CVPR_2025_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2025/html/Li_Multi-Sensor_Object_Anomaly_Detection_Unifying_Appearance_Geometry_and_Internal_Properties_CVPR_2025_paper.html",
+      "status": "ok",
+      "used_by": [
+        "dataset:D06.paper_url",
+        "publication:li2025mulsenad.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2025/papers/Li_Multi-Sensor_Object_Anomaly_Detection_Unifying_Appearance_Geometry_and_Internal_Properties_CVPR_2025_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2025/papers/Li_Multi-Sensor_Object_Anomaly_Detection_Unifying_Appearance_Geometry_and_Internal_Properties_CVPR_2025_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "dataset:D06.paper_pdf_url",
+        "publication:li2025mulsenad.pdf_url"
+      ]
+    },
+    "https://mapleboat.github.io/MulSen_AD/": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://mapleboat.github.io/MulSen_AD/",
+      "status": "ok",
+      "used_by": [
+        "dataset:D06.official_website"
+      ]
+    },
+    "https://github.com/MapleBoat/MulSen-AD": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/MapleBoat/MulSen-AD",
+      "status": "ok",
+      "used_by": [
+        "dataset:D06.official_repository_url",
+        "dataset:D06.implementation_repository_url",
+        "publication:li2025mulsenad.code_url"
+      ]
+    },
+    "https://huggingface.co/datasets/orgjy314159/MulSen_AD": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://huggingface.co/datasets/orgjy314159/MulSen_AD",
+      "status": "ok",
+      "used_by": [
+        "dataset:D06.download_url"
+      ]
+    },
+    "https://doi.org/10.1109/CVPR52734.2025.00933": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/11094456/",
+      "status": "redirect",
+      "used_by": [
+        "dataset:D06.doi",
+        "publication:li2025mulsenad.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2025/html/Zhu_Real-IAD_D3_A_Real-World_2DPseudo-3D3D_Dataset_for_Industrial_Anomaly_Detection_CVPR_2025_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2025/html/Zhu_Real-IAD_D3_A_Real-World_2DPseudo-3D3D_Dataset_for_Industrial_Anomaly_Detection_CVPR_2025_paper.html",
+      "status": "ok",
+      "used_by": [
+        "dataset:D07.paper_url",
+        "publication:zhu2025realiadd3.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2025/papers/Zhu_Real-IAD_D3_A_Real-World_2DPseudo-3D3D_Dataset_for_Industrial_Anomaly_Detection_CVPR_2025_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2025/papers/Zhu_Real-IAD_D3_A_Real-World_2DPseudo-3D3D_Dataset_for_Industrial_Anomaly_Detection_CVPR_2025_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "dataset:D07.paper_pdf_url",
+        "publication:zhu2025realiadd3.pdf_url"
+      ]
+    },
+    "https://realiad4ad.github.io/Real-IAD_D3/": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://realiad4ad.github.io/Real-IAD_D3/",
+      "status": "ok",
+      "used_by": [
+        "dataset:D07.official_website"
+      ]
+    },
+    "https://huggingface.co/datasets/Real-IAD/Real-IAD_D3": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://huggingface.co/datasets/Real-IAD/Real-IAD_D3",
+      "status": "ok",
+      "used_by": [
+        "dataset:D07.download_url"
+      ]
+    },
+    "https://doi.org/10.1109/CVPR52734.2025.01417": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/11093434/",
+      "status": "redirect",
+      "used_by": [
+        "dataset:D07.doi",
+        "publication:zhu2025realiadd3.doi"
+      ]
+    },
+    "https://arxiv.org/abs/2507.07838": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/abs/2507.07838",
+      "status": "ok",
+      "used_by": [
+        "dataset:D08.paper_url"
+      ]
+    },
+    "https://arxiv.org/pdf/2507.07838": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/pdf/2507.07838",
+      "status": "ok",
+      "used_by": [
+        "dataset:D08.paper_pdf_url",
+        "publication:mchard2026adam3d.pdf_url"
+      ]
+    },
+    "https://huggingface.co/datasets/pmchard/3D-ADAM": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://huggingface.co/datasets/pmchard/3D-ADAM",
+      "status": "ok",
+      "used_by": [
+        "dataset:D08.official_website",
+        "dataset:D08.download_url"
+      ]
+    },
+    "https://github.com/open-edge-platform/anomalib": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/open-edge-platform/anomalib",
+      "status": "ok",
+      "used_by": [
+        "dataset:D08.implementation_repository_url",
+        "algorithm:draem.implementation_repository_url",
+        "algorithm:padim.implementation_repository_url",
+        "algorithm:patchcore.implementation_repository_url",
+        "algorithm:efficientad.implementation_repository_url",
+        "algorithm:anomalydino.implementation_repository_url",
+        "algorithm:winclip.implementation_repository_url",
+        "algorithm:dinomaly.implementation_repository_url",
+        "publication:akcay2022anomalib.code_url"
+      ]
+    },
+    "https://doi.org/10.1109/ICRA57385.2026.11697283": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/11697283/",
+      "status": "redirect",
+      "used_by": [
+        "dataset:D08.doi",
+        "publication:mchard2026adam3d.doi"
+      ]
+    },
+    "https://doi.org/10.1109/TSMC.1979.4310076": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/4310076/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:otsu.paper_url",
+        "algorithm:otsu.doi",
+        "publication:otsu1979.paper_url",
+        "publication:otsu1979.doi"
+      ]
+    },
+    "https://github.com/opencv/opencv": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/opencv/opencv",
+      "status": "ok",
+      "used_by": [
+        "algorithm:otsu.implementation_repository_url",
+        "algorithm:adaptive_threshold.implementation_repository_url",
+        "algorithm:canny.implementation_repository_url",
+        "algorithm:gabor.implementation_repository_url",
+        "algorithm:morphology.implementation_repository_url",
+        "algorithm:reference_difference.implementation_repository_url"
+      ]
+    },
+    "https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://docs.opencv.org/4.13.0/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:otsu.docs_url"
+      ]
+    },
+    "https://doi.org/10.1016/S0031-3203(99)00055-2": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0031320399000552",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:adaptive_threshold.paper_url",
+        "algorithm:adaptive_threshold.doi",
+        "publication:sauvola2000.paper_url",
+        "publication:sauvola2000.doi"
+      ]
+    },
+    "https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga72b913f352e4a1b1b397736707afcde3": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://docs.opencv.org/4.13.0/d7/d1b/group__imgproc__misc.html#ga72b913f352e4a1b1b397736707afcde3",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:adaptive_threshold.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/TPAMI.1986.4767851": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/4767851",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:canny.paper_url",
+        "algorithm:canny.doi",
+        "publication:canny1986.paper_url",
+        "publication:canny1986.doi"
+      ]
+    },
+    "https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga04723e007ed888ddf11d9ba04e2232de": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://docs.opencv.org/4.13.0/dd/d1a/group__imgproc__feature.html#ga04723e007ed888ddf11d9ba04e2232de",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:canny.docs_url"
+      ]
+    },
+    "https://doi.org/10.1016/0031-3203(91)90143-S": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://linkinghub.elsevier.com/retrieve/pii/003132039190143S",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:gabor.paper_url",
+        "algorithm:gabor.doi",
+        "publication:jain1991.paper_url",
+        "publication:jain1991.doi"
+      ]
+    },
+    "https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#gae84c92d248183bd92fa713ce51cc3599": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://docs.opencv.org/4.13.0/d4/d86/group__imgproc__filter.html#gae84c92d248183bd92fa713ce51cc3599",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:gabor.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/TPAMI.1987.4767941": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/4767941",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:morphology.paper_url",
+        "publication:haralick1987.paper_url",
+        "publication:haralick1987.doi"
+      ]
+    },
+    "https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://docs.opencv.org/4.13.0/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:morphology.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/TPAMI.2008.113": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/4515873/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:reference_difference.paper_url",
+        "publication:evangelidis2008ecc.paper_url",
+        "publication:evangelidis2008ecc.doi"
+      ]
+    },
+    "https://docs.opencv.org/4.x/": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://docs.opencv.org/4.13.0/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:reference_difference.docs_url"
+      ]
+    },
+    "https://www.ece.uwaterloo.ca/~z70wang/publications/ssim.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.ece.uwaterloo.ca/~z70wang/publications/ssim.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:ssim.paper_url",
+        "publication:wang2004ssim.paper_url"
+      ]
+    },
+    "https://www.ece.uwaterloo.ca/~z70wang/publications/ssim.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.ece.uwaterloo.ca/~z70wang/publications/ssim.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:ssim.paper_pdf_url",
+        "publication:wang2004ssim.pdf_url"
+      ]
+    },
+    "https://www.ece.uwaterloo.ca/~z70wang/research/ssim/": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.ece.uwaterloo.ca/~z70wang/research/ssim/",
+      "status": "ok",
+      "used_by": [
+        "algorithm:ssim.official_repository_url",
+        "publication:wang2004ssim.code_url"
+      ]
+    },
+    "https://github.com/scikit-image/scikit-image": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/scikit-image/scikit-image",
+      "status": "ok",
+      "used_by": [
+        "algorithm:ssim.implementation_repository_url"
+      ]
+    },
+    "https://scikit-image.org/docs/stable/api/skimage.metrics.html#skimage.metrics.structural_similarity": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://scikit-image.org/docs/stable/api/skimage.metrics.html#skimage.metrics.structural_similarity",
+      "status": "ok",
+      "used_by": [
+        "algorithm:ssim.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/TIP.2003.819861": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/1284395/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:ssim.doi",
+        "publication:wang2004ssim.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:cnn_classification.paper_url",
+        "publication:he2016resnet.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:cnn_classification.paper_pdf_url",
+        "publication:he2016resnet.pdf_url"
+      ]
+    },
+    "https://github.com/KaimingHe/deep-residual-networks": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/KaimingHe/deep-residual-networks",
+      "status": "ok",
+      "used_by": [
+        "algorithm:cnn_classification.official_repository_url",
+        "publication:he2016resnet.code_url"
+      ]
+    },
+    "https://doi.org/10.1109/CVPR.2016.90": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/7780459/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:cnn_classification.doi",
+        "publication:he2016resnet.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content_cvpr_2016/html/Redmon_You_Only_Look_CVPR_2016_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content_cvpr_2016/html/Redmon_You_Only_Look_CVPR_2016_paper.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:yolo.paper_url",
+        "publication:redmon2016yolo.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:yolo.paper_pdf_url",
+        "publication:redmon2016yolo.pdf_url"
+      ]
+    },
+    "https://github.com/pjreddie/darknet": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/pjreddie/darknet",
+      "status": "ok",
+      "used_by": [
+        "algorithm:yolo.official_repository_url",
+        "publication:redmon2016yolo.code_url"
+      ]
+    },
+    "https://github.com/ultralytics/ultralytics": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/ultralytics/ultralytics",
+      "status": "ok",
+      "used_by": [
+        "algorithm:yolo.implementation_repository_url"
+      ]
+    },
+    "https://docs.ultralytics.com/": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://docs.ultralytics.com/",
+      "status": "ok",
+      "used_by": [
+        "algorithm:yolo.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/CVPR.2016.91": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/7780460/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:yolo.doi",
+        "publication:redmon2016yolo.doi"
+      ]
+    },
+    "https://arxiv.org/abs/1505.04597": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/abs/1505.04597",
+      "status": "ok",
+      "used_by": [
+        "algorithm:unet.paper_url",
+        "publication:ronneberger2015unet.paper_url"
+      ]
+    },
+    "https://arxiv.org/pdf/1505.04597": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/pdf/1505.04597",
+      "status": "ok",
+      "used_by": [
+        "algorithm:unet.paper_pdf_url",
+        "publication:ronneberger2015unet.pdf_url"
+      ]
+    },
+    "https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/",
+      "status": "ok",
+      "used_by": [
+        "algorithm:unet.official_repository_url",
+        "publication:ronneberger2015unet.code_url"
+      ]
+    },
+    "https://github.com/milesial/Pytorch-UNet": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/milesial/Pytorch-UNet",
+      "status": "ok",
+      "used_by": [
+        "algorithm:unet.implementation_repository_url"
+      ]
+    },
+    "https://doi.org/10.1007/978-3-319-24574-4_28": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://link.springer.com/10.1007/978-3-319-24574-4_28",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:unet.doi",
+        "publication:ronneberger2015unet.doi"
+      ]
+    },
+    "https://arxiv.org/abs/1807.02011": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/abs/1807.02011",
+      "status": "ok",
+      "used_by": [
+        "algorithm:conv_autoencoder.paper_url",
+        "publication:bergmann2019ssimae.paper_url"
+      ]
+    },
+    "https://www.scitepress.org/Papers/2019/73645/73645.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.scitepress.org/Papers/2019/73645/73645.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:conv_autoencoder.paper_pdf_url",
+        "publication:bergmann2019ssimae.pdf_url"
+      ]
+    },
+    "https://doi.org/10.5220/0007364503720380": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.scitepress.org/Link.aspx?doi=10.5220/0007364503720380",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:conv_autoencoder.doi",
+        "publication:bergmann2019ssimae.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/ICCV2021/html/Zavrtanik_DRAEM_-_A_Discriminatively_Trained_Reconstruction_Embedding_for_Surface_Anomaly_ICCV_2021_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/ICCV2021/html/Zavrtanik_DRAEM_-_A_Discriminatively_Trained_Reconstruction_Embedding_for_Surface_Anomaly_ICCV_2021_paper.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:draem.paper_url",
+        "publication:zavrtanik2021draem.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/ICCV2021/papers/Zavrtanik_DRAEM_-_A_Discriminatively_Trained_Reconstruction_Embedding_for_Surface_Anomaly_ICCV_2021_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/ICCV2021/papers/Zavrtanik_DRAEM_-_A_Discriminatively_Trained_Reconstruction_Embedding_for_Surface_Anomaly_ICCV_2021_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:draem.paper_pdf_url",
+        "publication:zavrtanik2021draem.pdf_url"
+      ]
+    },
+    "https://github.com/VitjanZ/DRAEM": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/VitjanZ/DRAEM",
+      "status": "ok",
+      "used_by": [
+        "algorithm:draem.official_repository_url",
+        "publication:zavrtanik2021draem.code_url"
+      ]
+    },
+    "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/index.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/index.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:draem.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/ICCV48922.2021.00822": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/9710329/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:draem.doi",
+        "publication:zavrtanik2021draem.doi"
+      ]
+    },
+    "https://arxiv.org/abs/2011.08785": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/abs/2011.08785",
+      "status": "ok",
+      "used_by": [
+        "algorithm:padim.paper_url",
+        "publication:defard2021padim.paper_url"
+      ]
+    },
+    "https://arxiv.org/pdf/2011.08785": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/pdf/2011.08785",
+      "status": "ok",
+      "used_by": [
+        "algorithm:padim.paper_pdf_url",
+        "publication:defard2021padim.pdf_url"
+      ]
+    },
+    "https://huggingface.co/timm/resnet18.a1_in1k": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://huggingface.co/timm/resnet18.a1_in1k",
+      "status": "ok",
+      "used_by": [
+        "algorithm:padim.weights_url"
+      ]
+    },
+    "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/padim.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/padim.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:padim.docs_url"
+      ]
+    },
+    "https://doi.org/10.1007/978-3-030-68799-1_35": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://link.springer.com/10.1007/978-3-030-68799-1_35",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:padim.doi",
+        "publication:defard2021padim.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2022/html/Roth_Towards_Total_Recall_in_Industrial_Anomaly_Detection_CVPR_2022_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2022/html/Roth_Towards_Total_Recall_in_Industrial_Anomaly_Detection_CVPR_2022_paper.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:patchcore.paper_url",
+        "publication:roth2022patchcore.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2022/papers/Roth_Towards_Total_Recall_in_Industrial_Anomaly_Detection_CVPR_2022_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2022/papers/Roth_Towards_Total_Recall_in_Industrial_Anomaly_Detection_CVPR_2022_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:patchcore.paper_pdf_url",
+        "publication:roth2022patchcore.pdf_url"
+      ]
+    },
+    "https://github.com/amazon-science/patchcore-inspection": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/amazon-science/patchcore-inspection",
+      "status": "ok",
+      "used_by": [
+        "algorithm:patchcore.official_repository_url",
+        "publication:roth2022patchcore.code_url"
+      ]
+    },
+    "https://huggingface.co/timm/wide_resnet50_2.racm_in1k": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://huggingface.co/timm/wide_resnet50_2.racm_in1k",
+      "status": "ok",
+      "used_by": [
+        "algorithm:patchcore.weights_url"
+      ]
+    },
+    "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/patchcore.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/patchcore.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:patchcore.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/CVPR52688.2022.01392": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/9879738/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:patchcore.doi",
+        "publication:roth2022patchcore.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/WACV2024/html/Batzner_EfficientAD_Accurate_Visual_Anomaly_Detection_at_Millisecond-Level_Latencies_WACV_2024_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/WACV2024/html/Batzner_EfficientAD_Accurate_Visual_Anomaly_Detection_at_Millisecond-Level_Latencies_WACV_2024_paper.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:efficientad.paper_url",
+        "publication:batzner2024efficientad.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/WACV2024/papers/Batzner_EfficientAD_Accurate_Visual_Anomaly_Detection_at_Millisecond-Level_Latencies_WACV_2024_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/WACV2024/papers/Batzner_EfficientAD_Accurate_Visual_Anomaly_Detection_at_Millisecond-Level_Latencies_WACV_2024_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:efficientad.paper_pdf_url",
+        "publication:batzner2024efficientad.pdf_url"
+      ]
+    },
+    "https://github.com/open-edge-platform/anomalib/releases/download/efficientad_pretrained_weights/efficientad_pretrained_weights.zip": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://release-assets.githubusercontent.com/github-production-release-asset/423775360/d2a14009-95fa-4bac-aa8f-c380c948a298?…",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:efficientad.weights_url"
+      ]
+    },
+    "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/efficient_ad.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/efficient_ad.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:efficientad.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/WACV57701.2024.00020": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/10484326/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:efficientad.doi",
+        "publication:batzner2024efficientad.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/WACV2025/html/Damm_AnomalyDINO_Boosting_Patch-Based_Few-Shot_Anomaly_Detection_with_DINOv2_WACV_2025_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/WACV2025/html/Damm_AnomalyDINO_Boosting_Patch-Based_Few-Shot_Anomaly_Detection_with_DINOv2_WACV_2025_paper.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:anomalydino.paper_url",
+        "publication:damm2025anomalydino.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/WACV2025/papers/Damm_AnomalyDINO_Boosting_Patch-Based_Few-Shot_Anomaly_Detection_with_DINOv2_WACV_2025_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/WACV2025/papers/Damm_AnomalyDINO_Boosting_Patch-Based_Few-Shot_Anomaly_Detection_with_DINOv2_WACV_2025_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:anomalydino.paper_pdf_url",
+        "publication:damm2025anomalydino.pdf_url"
+      ]
+    },
+    "https://github.com/dammsi/AnomalyDINO": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/dammsi/AnomalyDINO",
+      "status": "ok",
+      "used_by": [
+        "algorithm:anomalydino.official_repository_url",
+        "publication:damm2025anomalydino.code_url"
+      ]
+    },
+    "https://huggingface.co/timm/vit_small_patch14_dinov2.lvd142m": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://huggingface.co/timm/vit_small_patch14_dinov2.lvd142m",
+      "status": "ok",
+      "used_by": [
+        "algorithm:anomalydino.weights_url"
+      ]
+    },
+    "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/anomaly_dino.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/anomaly_dino.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:anomalydino.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/WACV61041.2025.00136": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/10944159/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:anomalydino.doi",
+        "publication:damm2025anomalydino.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2023/html/Jeong_WinCLIP_Zero-Few-Shot_Anomaly_Classification_and_Segmentation_CVPR_2023_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2023/html/Jeong_WinCLIP_Zero-Few-Shot_Anomaly_Classification_and_Segmentation_CVPR_2023_paper.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:winclip.paper_url",
+        "publication:jeong2023winclip.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2023/papers/Jeong_WinCLIP_Zero-Few-Shot_Anomaly_Classification_and_Segmentation_CVPR_2023_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2023/papers/Jeong_WinCLIP_Zero-Few-Shot_Anomaly_Classification_and_Segmentation_CVPR_2023_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:winclip.paper_pdf_url",
+        "publication:jeong2023winclip.pdf_url"
+      ]
+    },
+    "https://huggingface.co/timm/vit_base_patch16_plus_clip_240.laion400m_e31": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://huggingface.co/timm/vit_base_patch16_plus_clip_240.laion400m_e31",
+      "status": "ok",
+      "used_by": [
+        "algorithm:winclip.weights_url"
+      ]
+    },
+    "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/winclip.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/winclip.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:winclip.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/CVPR52729.2023.01878": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/10204096/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:winclip.doi",
+        "publication:jeong2023winclip.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2025/html/Guo_Dinomaly_The_Less_Is_More_Philosophy_in_Multi-Class_Unsupervised_Anomaly_CVPR_2025_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2025/html/Guo_Dinomaly_The_Less_Is_More_Philosophy_in_Multi-Class_Unsupervised_Anomaly_CVPR_2025_paper.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:dinomaly.paper_url",
+        "publication:guo2025dinomaly.paper_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2025/papers/Guo_Dinomaly_The_Less_Is_More_Philosophy_in_Multi-Class_Unsupervised_Anomaly_CVPR_2025_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2025/papers/Guo_Dinomaly_The_Less_Is_More_Philosophy_in_Multi-Class_Unsupervised_Anomaly_CVPR_2025_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:dinomaly.paper_pdf_url",
+        "publication:guo2025dinomaly.pdf_url"
+      ]
+    },
+    "https://github.com/guojiajeremy/Dinomaly": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/guojiajeremy/Dinomaly",
+      "status": "ok",
+      "used_by": [
+        "algorithm:dinomaly.official_repository_url",
+        "publication:guo2025dinomaly.code_url"
+      ]
+    },
+    "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/dinomaly.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/dinomaly.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:dinomaly.docs_url"
+      ]
+    },
+    "https://doi.org/10.1109/CVPR52734.2025.01900": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/11092978/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:dinomaly.doi",
+        "publication:guo2025dinomaly.doi"
+      ]
+    },
+    "https://arxiv.org/abs/2508.10104": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/abs/2508.10104",
+      "status": "ok",
+      "used_by": [
+        "algorithm:dino_features.paper_url",
+        "publication:simeoni2025dinov3.paper_url"
+      ]
+    },
+    "https://arxiv.org/pdf/2508.10104": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/pdf/2508.10104",
+      "status": "ok",
+      "used_by": [
+        "algorithm:dino_features.paper_pdf_url",
+        "publication:simeoni2025dinov3.pdf_url"
+      ]
+    },
+    "https://github.com/facebookresearch/dinov3": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/facebookresearch/dinov3",
+      "status": "ok",
+      "used_by": [
+        "algorithm:dino_features.official_repository_url",
+        "algorithm:dino_features.docs_url",
+        "publication:simeoni2025dinov3.code_url"
+      ]
+    },
+    "https://github.com/facebookresearch/dinov2": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/facebookresearch/dinov2",
+      "status": "ok",
+      "used_by": [
+        "algorithm:dino_features.implementation_repository_url",
+        "publication:oquab2023dinov2.code_url"
+      ]
+    },
+    "https://doi.org/10.1109/34.121791": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/121791/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:pc_deviation.paper_url",
+        "algorithm:pc_deviation.doi",
+        "publication:besl1992icp.paper_url",
+        "publication:besl1992icp.doi"
+      ]
+    },
+    "https://github.com/isl-org/Open3D": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/isl-org/Open3D",
+      "status": "ok",
+      "used_by": [
+        "algorithm:pc_deviation.implementation_repository_url",
+        "publication:zhou2018open3d.code_url"
+      ]
+    },
+    "https://www.open3d.org/docs/release/tutorial/pipelines/icp_registration.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.open3d.org/docs/release/tutorial/pipelines/icp_registration.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:pc_deviation.docs_url"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2023/html/Wang_Multimodal_Industrial_Anomaly_Detection_via_Hybrid_Fusion_CVPR_2023_paper.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2023/html/Wang_Multimodal_Industrial_Anomaly_Detection_via_Hybrid_Fusion_CVPR_2023_paper.html",
+      "status": "ok",
+      "used_by": [
+        "algorithm:multimodal_fusion.paper_url",
+        "algorithm:m3dm.paper_url",
+        "publication:wang2023m3dm.paper_url"
+      ]
+    },
+    "https://doi.org/10.1109/CVPR52729.2023.00776": {
+      "checked": "2026-11-20",
+      "http_status": 202,
+      "final_url": "https://ieeexplore.ieee.org/document/10203503/",
+      "status": "redirect",
+      "used_by": [
+        "algorithm:multimodal_fusion.doi",
+        "algorithm:m3dm.doi",
+        "publication:wang2023m3dm.doi"
+      ]
+    },
+    "https://openaccess.thecvf.com/content/CVPR2023/papers/Wang_Multimodal_Industrial_Anomaly_Detection_via_Hybrid_Fusion_CVPR_2023_paper.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2023/papers/Wang_Multimodal_Industrial_Anomaly_Detection_via_Hybrid_Fusion_CVPR_2023_paper.pdf",
+      "status": "ok",
+      "used_by": [
+        "algorithm:m3dm.paper_pdf_url",
+        "publication:wang2023m3dm.pdf_url"
+      ]
+    },
+    "https://github.com/nomewang/M3DM": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/nomewang/M3DM",
+      "status": "ok",
+      "used_by": [
+        "algorithm:m3dm.official_repository_url",
+        "publication:wang2023m3dm.code_url"
+      ]
+    },
+    "https://doi.org/10.1007/s11263-020-01400-4": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://link.springer.com/10.1007/s11263-020-01400-4",
+      "status": "redirect",
+      "used_by": [
+        "publication:bergmann2021mvtecad_ijcv.paper_url",
+        "publication:bergmann2021mvtecad_ijcv.doi"
+      ]
+    },
+    "https://ieeexplore.ieee.org/abstract/document/11697283": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://ieeexplore.ieee.org/abstract/document/11697283",
+      "status": "ok",
+      "used_by": [
+        "publication:mchard2026adam3d.paper_url"
+      ]
+    },
+    "https://doi.org/10.1080/2151237X.2007.10129236": {
+      "checked": "2026-11-20",
+      "http_status": 403,
+      "final_url": "https://www.tandfonline.com/doi/full/10.1080/2151237X.2007.10129236",
+      "status": "manual",
+      "used_by": [
+        "publication:bradley2007.paper_url",
+        "publication:bradley2007.doi"
+      ],
+      "note": "DOI metadata (title, authors, journal) confirmed via the Crossref API; Taylor & Francis blocks bots.",
+      "date": "2026-11-20"
+    },
+    "https://doi.org/10.1364/JOSAA.2.001160": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://opg.optica.org/josaa/abstract.cfm?uri=josaa-2-7-1160",
+      "status": "redirect",
+      "used_by": [
+        "publication:daugman1985.paper_url",
+        "publication:daugman1985.doi"
+      ]
+    },
+    "https://openlibrary.org/search?q=image+analysis+and+mathematical+morphology+serra": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openlibrary.org/search?q=image+analysis+and+mathematical+morphology+serra",
+      "status": "ok",
+      "used_by": [
+        "publication:serra1982.paper_url"
+      ]
+    },
+    "https://doi.org/10.1126/science.1127647": {
+      "checked": "2026-11-20",
+      "http_status": 403,
+      "final_url": "https://www.science.org/doi/10.1126/science.1127647",
+      "status": "manual",
+      "used_by": [
+        "publication:hinton2006.paper_url",
+        "publication:hinton2006.doi"
+      ],
+      "note": "DOI metadata confirmed via the Crossref API; science.org blocks bots. Author-hosted PDF reachable.",
+      "date": "2026-11-20"
+    },
+    "https://www.cs.toronto.edu/~hinton/absps/science.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://www.cs.toronto.edu/~hinton/absps/science.pdf",
+      "status": "ok",
+      "used_by": [
+        "publication:hinton2006.pdf_url"
+      ]
+    },
+    "https://doi.org/10.1007/978-3-642-21735-7_7": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://link.springer.com/10.1007/978-3-642-21735-7_7",
+      "status": "redirect",
+      "used_by": [
+        "publication:masci2011.paper_url",
+        "publication:masci2011.doi"
+      ]
+    },
+    "https://people.idsia.ch/~ciresan/data/icann2011.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://people.idsia.ch/~ciresan/data/icann2011.pdf",
+      "status": "ok",
+      "used_by": [
+        "publication:masci2011.pdf_url"
+      ]
+    },
+    "https://dspace.isical.ac.in/items/dabb573e-3ce2-4bef-add0-04efa29d0317/full": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://dspace.isical.ac.in/items/dabb573e-3ce2-4bef-add0-04efa29d0317/full",
+      "status": "ok",
+      "used_by": [
+        "publication:mahalanobis1936.paper_url"
+      ]
+    },
+    "https://github.com/taikiinoue45/PaDiM": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/taikiinoue45/PaDiM",
+      "status": "ok",
+      "used_by": [
+        "publication:defard2021padim.code_url"
+      ]
+    },
+    "https://arxiv.org/abs/2202.08341": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/abs/2202.08341",
+      "status": "ok",
+      "used_by": [
+        "publication:akcay2022anomalib.paper_url"
+      ]
+    },
+    "https://arxiv.org/pdf/2202.08341": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/pdf/2202.08341",
+      "status": "ok",
+      "used_by": [
+        "publication:akcay2022anomalib.pdf_url"
+      ]
+    },
+    "https://proceedings.mlr.press/v139/radford21a.html": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://proceedings.mlr.press/v139/radford21a.html",
+      "status": "ok",
+      "used_by": [
+        "publication:radford2021clip.paper_url"
+      ]
+    },
+    "https://proceedings.mlr.press/v139/radford21a/radford21a.pdf": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://proceedings.mlr.press/v139/radford21a/radford21a.pdf",
+      "status": "ok",
+      "used_by": [
+        "publication:radford2021clip.pdf_url"
+      ]
+    },
+    "https://github.com/openai/CLIP": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/openai/CLIP",
+      "status": "ok",
+      "used_by": [
+        "publication:radford2021clip.code_url"
+      ]
+    },
+    "https://github.com/mala-lab/WinCLIP": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://github.com/mala-lab/WinCLIP",
+      "status": "ok",
+      "used_by": [
+        "publication:jeong2023winclip.code_url"
+      ]
+    },
+    "https://openreview.net/forum?id=a68SUt6zFt": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://openreview.net/challenge?redirect=%2Fforum%3Fid%3Da68SUt6zFt",
+      "status": "redirect",
+      "used_by": [
+        "publication:oquab2023dinov2.paper_url"
+      ]
+    },
+    "https://arxiv.org/pdf/2304.07193": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/pdf/2304.07193",
+      "status": "ok",
+      "used_by": [
+        "publication:oquab2023dinov2.pdf_url"
+      ]
+    },
+    "https://doi.org/10.1016/0262-8856(92)90066-C": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://linkinghub.elsevier.com/retrieve/pii/026288569290066C",
+      "status": "redirect",
+      "used_by": [
+        "publication:chen1992pointplane.paper_url",
+        "publication:chen1992pointplane.doi"
+      ]
+    },
+    "https://doi.org/10.1109/ROBOT.2009.5152473": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://ieeexplore.ieee.org/document/5152473/",
+      "status": "redirect",
+      "used_by": [
+        "publication:rusu2009fpfh.paper_url",
+        "publication:rusu2009fpfh.doi"
+      ]
+    },
+    "https://arxiv.org/abs/1801.09847": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/abs/1801.09847",
+      "status": "ok",
+      "used_by": [
+        "publication:zhou2018open3d.paper_url"
+      ]
+    },
+    "https://arxiv.org/pdf/1801.09847": {
+      "checked": "2026-11-20",
+      "http_status": 200,
+      "final_url": "https://arxiv.org/pdf/1801.09847",
+      "status": "ok",
+      "used_by": [
+        "publication:zhou2018open3d.pdf_url"
+      ]
+    },
+    "https://ieeexplore.ieee.org/document/11701006": {
+      "checked": "2026-11-21",
+      "http_status": 418,
+      "status": "blocked",
+      "note": "IEEE Xplore refuses automated clients (HTTP 418); bibliographic data verified via Crossref and by the maintainer",
+      "used_by": [
+        "dataset:D05.complementary_references[0]",
+        "publication:vo2026beyondbenchmark.paper_url"
+      ]
+    },
+    "https://doi.org/10.1109/ACCESS.2026.3735579": {
+      "checked": "2026-11-21",
+      "http_status": 302,
+      "status": "redirect",
+      "final_url": "https://ieeexplore.ieee.org/document/11701006/",
+      "used_by": [
+        "publication:vo2026beyondbenchmark.doi"
+      ]
+    }
+  },
+  "publications": {
+    "bergmann2019mvtecad": {
+      "doi_status": "match",
+      "crossref_title": "MVTec AD — A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection",
+      "similarity": 1.0
+    },
+    "bergmann2021mvtecad_ijcv": {
+      "doi_status": "match",
+      "crossref_title": "The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection",
+      "similarity": 1.0
+    },
+    "bergmann2022loco": {
+      "doi_status": "match",
+      "crossref_title": "Beyond Dents and Scratches: Logical Constraints in Unsupervised Anomaly Detection and Localization",
+      "similarity": 1.0
+    },
+    "zou2022visa": {
+      "doi_status": "match",
+      "crossref_title": "SPot-the-Difference Self-supervised Pre-training for Anomaly Detection and Segmentation",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "SPot-the-Difference Self-Supervised Pre-training for Anomaly Detection and Segmentation"
+    },
+    "liu2023real3dad": {
+      "doi_status": "match",
+      "crossref_title": "Real3D-AD: A Dataset of Point Cloud Anomaly Detection",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "Real3D-AD: A Dataset of Point Cloud Anomaly Detection"
+    },
+    "hecklerkram2026mvtecad2": {
+      "doi_status": "match",
+      "crossref_title": "The MVTec AD 2 Dataset: Advanced Scenarios for Unsupervised Anomaly Detection",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "The MVTec AD 2 Dataset: Advanced Scenarios for Unsupervised Anomaly Detection"
+    },
+    "li2025mulsenad": {
+      "doi_status": "match",
+      "crossref_title": "Multi-Sensor Object Anomaly Detection: Unifying Appearance, Geometry, and Internal Properties",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "Multi-Sensor Object Anomaly Detection: Unifying Appearance, Geometry, and Internal Properties"
+    },
+    "zhu2025realiadd3": {
+      "doi_status": "match",
+      "crossref_title": "Real-IAD D\n                    <sup>3</sup>\n                    : A Real-World 2D/Pseudo-3D/3D Dataset for Industrial Anomaly Detection",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "Real-IAD D3: A Real-World 2D/Pseudo-3D/3D Dataset for Industrial Anomaly Detection"
+    },
+    "mchard2026adam3d": {
+      "doi_status": "match",
+      "crossref_title": "3D-ADAM: A Dataset for 3D Anomaly Detection in Additive Manufacturing",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "3D-ADAM: A Dataset for 3D Anomaly Detection in Additive Manufacturing"
+    },
+    "otsu1979": {
+      "doi_status": "match",
+      "crossref_title": "A Threshold Selection Method from Gray-Level Histograms",
+      "similarity": 1.0
+    },
+    "sauvola2000": {
+      "doi_status": "match",
+      "crossref_title": "Adaptive document image binarization",
+      "similarity": 1.0
+    },
+    "bradley2007": {
+      "doi_status": "match",
+      "crossref_title": "Adaptive Thresholding using the Integral Image",
+      "similarity": 1.0
+    },
+    "canny1986": {
+      "doi_status": "match",
+      "crossref_title": "A Computational Approach to Edge Detection",
+      "similarity": 1.0
+    },
+    "daugman1985": {
+      "doi_status": "match",
+      "crossref_title": "Uncertainty relation for resolution in space, spatial frequency, and orientation optimized by two-dimensional visual cortical filters",
+      "similarity": 1.0
+    },
+    "jain1991": {
+      "doi_status": "match",
+      "crossref_title": "Unsupervised texture segmentation using Gabor filters",
+      "similarity": 1.0
+    },
+    "serra1982": {},
+    "haralick1987": {
+      "doi_status": "match",
+      "crossref_title": "Image Analysis Using Mathematical Morphology",
+      "similarity": 1.0
+    },
+    "wang2004ssim": {
+      "doi_status": "match",
+      "crossref_title": "Image quality assessment: from error visibility to structural similarity",
+      "similarity": 1.0
+    },
+    "evangelidis2008ecc": {
+      "doi_status": "match",
+      "crossref_title": "Parametric Image Alignment Using Enhanced Correlation Coefficient Maximization",
+      "similarity": 1.0
+    },
+    "he2016resnet": {
+      "doi_status": "match",
+      "crossref_title": "Deep Residual Learning for Image Recognition",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "Deep Residual Learning for Image Recognition"
+    },
+    "redmon2016yolo": {
+      "doi_status": "match",
+      "crossref_title": "You Only Look Once: Unified, Real-Time Object Detection",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "You Only Look Once: Unified, Real-Time Object Detection"
+    },
+    "ronneberger2015unet": {
+      "doi_status": "match",
+      "crossref_title": "U-Net: Convolutional Networks for Biomedical Image Segmentation",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "U-Net: Convolutional Networks for Biomedical Image Segmentation"
+    },
+    "hinton2006": {
+      "doi_status": "match",
+      "crossref_title": "Reducing the Dimensionality of Data with Neural Networks",
+      "similarity": 1.0
+    },
+    "masci2011": {
+      "doi_status": "match",
+      "crossref_title": "Stacked Convolutional Auto-Encoders for Hierarchical Feature Extraction",
+      "similarity": 1.0
+    },
+    "bergmann2019ssimae": {
+      "doi_status": "match",
+      "crossref_title": "Improving Unsupervised Defect Segmentation by Applying Structural Similarity to Autoencoders",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "Improving Unsupervised Defect Segmentation by Applying Structural Similarity to Autoencoders"
+    },
+    "zavrtanik2021draem": {
+      "doi_status": "match",
+      "crossref_title": "DRÆM – A discriminatively trained reconstruction embedding for surface anomaly detection",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "DRAEM -- A discriminatively trained reconstruction embedding for surface anomaly detection"
+    },
+    "mahalanobis1936": {},
+    "defard2021padim": {
+      "doi_status": "match",
+      "crossref_title": "PaDiM: A Patch Distribution Modeling Framework for Anomaly Detection and Localization",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization"
+    },
+    "roth2022patchcore": {
+      "doi_status": "match",
+      "crossref_title": "Towards Total Recall in Industrial Anomaly Detection",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "Towards Total Recall in Industrial Anomaly Detection"
+    },
+    "akcay2022anomalib": {
+      "arxiv_status": "match",
+      "arxiv_title": "Anomalib: A Deep Learning Library for Anomaly Detection",
+      "similarity": 1.0
+    },
+    "batzner2024efficientad": {
+      "doi_status": "match",
+      "crossref_title": "EfficientAD: Accurate Visual Anomaly Detection at Millisecond-Level Latencies",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "EfficientAD: Accurate Visual Anomaly Detection at Millisecond-Level Latencies"
+    },
+    "radford2021clip": {
+      "arxiv_status": "match",
+      "arxiv_title": "Learning Transferable Visual Models From Natural Language Supervision",
+      "similarity": 1.0
+    },
+    "jeong2023winclip": {
+      "doi_status": "match",
+      "crossref_title": "WinCLIP: Zero-/Few-Shot Anomaly Classification and Segmentation",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "WinCLIP: Zero-/Few-Shot Anomaly Classification and Segmentation"
+    },
+    "oquab2023dinov2": {
+      "arxiv_status": "match",
+      "arxiv_title": "DINOv2: Learning Robust Visual Features without Supervision",
+      "similarity": 1.0
+    },
+    "simeoni2025dinov3": {
+      "arxiv_status": "match",
+      "arxiv_title": "DINOv3",
+      "similarity": 1.0
+    },
+    "damm2025anomalydino": {
+      "doi_status": "match",
+      "crossref_title": "AnomalyDINO: Boosting Patch-based Few-Shot Anomaly Detection with DINOv2",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "AnomalyDINO: Boosting Patch-based Few-shot Anomaly Detection with DINOv2"
+    },
+    "guo2025dinomaly": {
+      "doi_status": "match",
+      "crossref_title": "Dinomaly: The Less Is More Philosophy in Multi-Class Unsupervised Anomaly Detection",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "Dinomaly: The Less Is More Philosophy in Multi-Class Unsupervised Anomaly Detection"
+    },
+    "besl1992icp": {
+      "doi_status": "match",
+      "crossref_title": "A method for registration of 3-D shapes",
+      "similarity": 1.0
+    },
+    "chen1992pointplane": {
+      "doi_status": "match",
+      "crossref_title": "Object modelling by registration of multiple range images",
+      "similarity": 1.0
+    },
+    "rusu2009fpfh": {
+      "doi_status": "match",
+      "crossref_title": "Fast Point Feature Histograms (FPFH) for 3D registration",
+      "similarity": 1.0
+    },
+    "zhou2018open3d": {
+      "arxiv_status": "match",
+      "arxiv_title": "Open3D: A Modern Library for 3D Data Processing",
+      "similarity": 1.0
+    },
+    "wang2023m3dm": {
+      "doi_status": "match",
+      "crossref_title": "Multimodal Industrial Anomaly Detection via Hybrid Fusion",
+      "similarity": 1.0,
+      "arxiv_status": "match",
+      "arxiv_title": "Multimodal Industrial Anomaly Detection via Hybrid Fusion"
+    }
+  }
+}

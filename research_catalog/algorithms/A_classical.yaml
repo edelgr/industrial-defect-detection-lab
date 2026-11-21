@@ -1,0 +1,348 @@
+# Group A — classical computer vision. Implementations: OpenCV / scikit-image (implementation
+# libraries, not the original research code).
+
+- id: otsu
+  group: A
+  name: Otsu thresholding
+  family: Global histogram thresholding
+  year: 1979
+  paper_title: "A Threshold Selection Method from Gray-Level Histograms"
+  paper_authors: [Nobuyuki Otsu]
+  venue: "IEEE Trans. Systems, Man, and Cybernetics"
+  doi: 10.1109/TSMC.1979.4310076
+  paper_url: https://doi.org/10.1109/TSMC.1979.4310076
+  paper_pdf_url: null
+  official_repository_url: null
+  implementation_repository_url: https://github.com/opencv/opencv
+  implementation_type: library
+  implementation_version: "OpenCV 4.x (cv2.threshold with THRESH_OTSU)"
+  implementation_notes: "OpenCV is an implementation library; the 1979 paper predates public code repositories."
+  docs_url: https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57
+  source_license: Apache-2.0 (OpenCV)
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "No learning (per-image statistics)"
+  training_data_requirements: "None"
+  supported_modalities: [rgb, grayscale, infrared]
+  supported_tasks: [segmentation]
+  inputs: "One grey-level image"
+  outputs: "Binary mask, global threshold, histogram"
+  intuitive_explanation_en: >-
+    Look at the histogram of grey levels and pick the threshold that best separates two groups of
+    pixels (dark vs. bright). If defects are much darker or brighter than the background, the
+    threshold isolates them.
+  intuitive_explanation_es: >-
+    Se observa el histograma de niveles de gris y se elige el umbral que mejor separa dos grupos de
+    píxeles (oscuros y claros). Si los defectos son mucho más oscuros o claros que el fondo, el
+    umbral los aísla.
+  scientific_principle: >-
+    Otsu's method chooses the threshold t that maximises the between-class variance of the two
+    classes it creates (equivalently minimises the within-class variance). It assumes a bimodal
+    histogram.
+  main_processing_steps:
+    - Convert to grey and optionally smooth
+    - Compute the 256-bin histogram
+    - For every t, compute class weights ω0, ω1 and means μ0, μ1
+    - Select t* = argmax ω0(t) ω1(t) [μ0(t) − μ1(t)]²
+    - Pixels on the defect side of t* form the mask
+  mathematical_formulation: "t* = argmax_t ω0(t)·ω1(t)·(μ0(t) − μ1(t))²"
+  advantages: [Parameter-free, Extremely fast, Easy to explain]
+  limitations:
+    - "Assumes a bimodal histogram: a defect-free uniform surface is still split in two"
+    - Global threshold fails under uneven illumination
+    - Tiny defects barely change the histogram
+  failure_cases: ["Illumination gradient: one side of the part is flagged", "Textured surfaces"]
+  computational_requirements: "CPU, < 5 ms per megapixel"
+  recommended_datasets: [D05, D01]
+  educational_exercises:
+    - Run Otsu on a GOOD image and explain why pixels are still flagged
+    - Compare with adaptive thresholding under an illumination gradient
+  industrial_use: "Back-lit or high-contrast inspection (silhouettes, holes, dark contamination on bright parts)."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: runnable_classical
+  publication_ids: [otsu1979]
+
+- id: adaptive_threshold
+  group: A
+  name: Adaptive (local) thresholding
+  family: Local thresholding
+  year: 2000
+  paper_title: "Adaptive document image binarization (foundational/related)"
+  paper_authors: [J. Sauvola, M. Pietikäinen]
+  venue: "Pattern Recognition"
+  doi: 10.1016/S0031-3203(99)00055-2
+  paper_url: https://doi.org/10.1016/S0031-3203(99)00055-2
+  paper_pdf_url: null
+  official_repository_url: null
+  implementation_repository_url: https://github.com/opencv/opencv
+  implementation_type: library
+  implementation_version: "IDD Lab: local mean / Gaussian-weighted mean − C (as cv2.adaptiveThreshold)"
+  implementation_notes: "The implemented rule (local mean − C) matches OpenCV's adaptiveThreshold; Sauvola (2000) and Bradley & Roth (2007) are related foundational methods, not the exact formula."
+  docs_url: https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga72b913f352e4a1b1b397736707afcde3
+  source_license: Apache-2.0 (OpenCV)
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "No learning (local statistics)"
+  training_data_requirements: "None"
+  supported_modalities: [rgb, grayscale, infrared]
+  supported_tasks: [segmentation]
+  inputs: "One grey-level image"
+  outputs: "Deviation-from-local-mean map, binary mask"
+  intuitive_explanation_en: >-
+    Instead of one threshold for the whole image, compare every pixel with the average of its
+    neighbourhood. A pixel much darker than its surroundings is suspicious, regardless of the
+    overall brightness.
+  intuitive_explanation_es: >-
+    En lugar de un umbral global, cada píxel se compara con el promedio de su vecindad. Un píxel
+    mucho más oscuro que su entorno es sospechoso, sin importar el brillo general.
+  scientific_principle: "Threshold T(x,y) = m_w(x,y) − C, where m_w is the (Gaussian-weighted) mean over a b×b window."
+  main_processing_steps: [Grey conversion, Local mean over a b×b window, Difference to local mean, Threshold with offset C]
+  mathematical_formulation: "mask(x,y) = [ m_w(x,y) − I(x,y) > C ]  (dark defects)"
+  advantages: [Robust to smooth illumination changes, Fast, Two intuitive parameters]
+  limitations: ["Window size must be larger than the defect but smaller than illumination changes", "Texture produces false positives"]
+  failure_cases: ["Large defects (window too small)", "High-contrast texture"]
+  computational_requirements: "CPU, milliseconds"
+  recommended_datasets: [D05]
+  educational_exercises: ["Vary the block size and observe which defect sizes survive"]
+  industrial_use: "Uneven lighting where a global threshold fails."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: runnable_classical
+  publication_ids: [sauvola2000, bradley2007]
+
+- id: canny
+  group: A
+  name: Canny edge detection
+  family: Gradient-based edge detection
+  year: 1986
+  paper_title: "A Computational Approach to Edge Detection"
+  paper_authors: [John Canny]
+  venue: "IEEE TPAMI"
+  doi: 10.1109/TPAMI.1986.4767851
+  paper_url: https://doi.org/10.1109/TPAMI.1986.4767851
+  paper_pdf_url: null
+  official_repository_url: null
+  implementation_repository_url: https://github.com/opencv/opencv
+  implementation_type: library
+  implementation_version: "OpenCV 4.x cv2.Canny + IDD Lab edge-density map"
+  implementation_notes: "Edge density (local fraction of edge pixels) is an IDD Lab visualisation to turn edges into a map."
+  docs_url: https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga04723e007ed888ddf11d9ba04e2232de
+  source_license: Apache-2.0 (OpenCV)
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "No learning"
+  training_data_requirements: "None"
+  supported_modalities: [rgb, grayscale, infrared]
+  supported_tasks: [edge_detection]
+  inputs: "One grey-level image"
+  outputs: "Binary edge map, local edge-density map"
+  intuitive_explanation_en: >-
+    Find places where brightness changes sharply. Scratches and cracks create edges — but so do
+    texture, part borders and shadows, so edges are evidence, not a defect decision.
+  intuitive_explanation_es: >-
+    Encuentra lugares donde el brillo cambia bruscamente. Rayones y grietas crean bordes — pero
+    también la textura, los contornos y las sombras; un borde es evidencia, no una decisión.
+  scientific_principle: "Gaussian smoothing, gradient magnitude/direction, non-maximum suppression and hysteresis thresholding with two thresholds."
+  main_processing_steps: [Gaussian smoothing, Sobel gradients, Non-maximum suppression, Hysteresis (low/high thresholds)]
+  mathematical_formulation: "|∇(G_σ * I)| along the gradient direction; keep strong edges (> high) and weak edges (> low) connected to strong ones."
+  advantages: [Well-localised thin edges, Fast, Classic teaching example]
+  limitations: ["Does not distinguish defect edges from normal edges", "Sensitive to thresholds and noise"]
+  failure_cases: ["Brushed or textured metal", "Part contours"]
+  computational_requirements: "CPU, milliseconds"
+  recommended_datasets: [D05, D01]
+  educational_exercises: ["Count edges on good vs. defective sheet_metal images; is edge count a good score?"]
+  industrial_use: "Crack detection on smooth surfaces; dimension measurement."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: runnable_classical
+  publication_ids: [canny1986]
+
+- id: gabor
+  group: A
+  name: Gabor texture analysis
+  family: Filter-bank texture analysis
+  year: 1991
+  paper_title: "Unsupervised texture segmentation using Gabor filters"
+  paper_authors: [Anil K. Jain, Farshid Farrokhnia]
+  venue: "Pattern Recognition"
+  doi: 10.1016/0031-3203(91)90143-S
+  paper_url: https://doi.org/10.1016/0031-3203(91)90143-S
+  paper_pdf_url: null
+  official_repository_url: null
+  implementation_repository_url: https://github.com/opencv/opencv
+  implementation_type: idd_lab_educational
+  implementation_version: "IDD Lab: cv2.getGaborKernel bank + robust z-score of local energies"
+  implementation_notes: "Anomaly scoring (robust z-score of log energies vs. the image's own statistics) is an IDD Lab educational design."
+  docs_url: https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#gae84c92d248183bd92fa713ce51cc3599
+  source_license: Apache-2.0 (OpenCV) / IDD Lab code
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "No learning (self-referenced statistics)"
+  training_data_requirements: "None"
+  supported_modalities: [rgb, grayscale]
+  supported_tasks: [segmentation]
+  inputs: "One grey-level image"
+  outputs: "Texture-deviation map"
+  intuitive_explanation_en: >-
+    Describe the texture at every pixel by how strongly it responds to oriented 'wave' filters at
+    several scales. A region whose response pattern differs from the rest of the surface is
+    suspicious.
+  intuitive_explanation_es: >-
+    Describe la textura de cada píxel según su respuesta a filtros 'onda' orientados en varias
+    escalas. Una región cuyo patrón difiere del resto de la superficie es sospechosa.
+  scientific_principle: "Gabor filters (Gaussian-windowed sinusoids) are jointly localised in space and frequency (Daugman 1985); energies of a filter bank form texture features (Jain & Farrokhnia 1991)."
+  main_processing_steps: [Build bank of orientations × wavelengths, Filter image, Local energy (squared response smoothed), Robust z-score per feature, Max over features]
+  mathematical_formulation: "g(x,y) = exp(−(x'²+γ²y'²)/2σ²)·cos(2πx'/λ); z_k = |log E_k − median| / (1.4826·MAD)"
+  advantages: [Captures orientation/periodicity, Interpretable, No training]
+  limitations: ["Many parameters", "Assumes the defect is a small fraction of the image"]
+  failure_cases: ["Large defects dominating the statistics", "Non-stationary textures"]
+  computational_requirements: "CPU, tens to hundreds of ms"
+  recommended_datasets: [D05, D01]
+  educational_exercises: ["Change orientations and see when a scratch parallel to the brushing direction is missed"]
+  industrial_use: "Textile, wood, brushed metal surface inspection."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: runnable_classical
+  publication_ids: [daugman1985, jain1991]
+
+- id: morphology
+  group: A
+  name: Mathematical morphology (top-hat / black-hat)
+  family: Morphological image analysis
+  year: 1982
+  paper_title: "Image Analysis and Mathematical Morphology"
+  paper_authors: [Jean Serra]
+  venue: "Academic Press (book)"
+  doi: null
+  paper_url: https://doi.org/10.1109/TPAMI.1987.4767941
+  paper_pdf_url: null
+  official_repository_url: null
+  implementation_repository_url: https://github.com/opencv/opencv
+  implementation_type: library
+  implementation_version: "OpenCV 4.x cv2.morphologyEx (TOPHAT / BLACKHAT)"
+  implementation_notes: "Paper link points to Haralick et al. 1987 (TPAMI tutorial); Serra 1982 is a book without DOI."
+  docs_url: https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f
+  source_license: Apache-2.0 (OpenCV)
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "No learning"
+  training_data_requirements: "None"
+  supported_modalities: [rgb, grayscale, infrared]
+  supported_tasks: [segmentation]
+  inputs: "One grey-level image"
+  outputs: "Top-hat response map, cleaned binary mask"
+  intuitive_explanation_en: >-
+    'Erase' every structure smaller than a chosen shape (the structuring element) and look at
+    what disappeared: small dark spots, pits and thin scratches pop out.
+  intuitive_explanation_es: >-
+    'Borra' toda estructura más pequeña que una forma elegida (elemento estructurante) y observa
+    lo que desapareció: manchas oscuras, picaduras y rayones finos resaltan.
+  scientific_principle: "Black-hat = closing(I) − I highlights dark details smaller than the structuring element; white top-hat = I − opening(I) highlights bright ones."
+  main_processing_steps: [Choose structuring element, Closing/opening, Difference to original, Threshold, Opening to remove noise]
+  mathematical_formulation: "BH(I) = (I ⊕ B) ⊖ B − I ;  TH(I) = I − (I ⊖ B) ⊕ B"
+  advantages: [Shape- and size-selective, Fast, Robust to slow illumination changes]
+  limitations: ["Requires prior knowledge of defect size/shape", "Texture of similar size triggers"]
+  failure_cases: ["Defects larger than the structuring element"]
+  computational_requirements: "CPU, milliseconds"
+  recommended_datasets: [D05]
+  educational_exercises: ["Sweep the structuring-element size and plot which defects are found"]
+  industrial_use: "Pits, dust, small holes on smooth surfaces; mask cleaning in any pipeline."
+  source_verification_date: "2026-11-20"
+  source_verification_status: partially_verified
+  implementation_status: runnable_classical
+  publication_ids: [serra1982, haralick1987]
+
+- id: reference_difference
+  group: A
+  name: Reference image difference
+  family: Golden-template comparison
+  year: null
+  paper_title: null
+  paper_authors: null
+  venue: null
+  doi: null
+  paper_url: https://doi.org/10.1109/TPAMI.2008.113
+  paper_pdf_url: null
+  official_repository_url: null
+  implementation_repository_url: https://github.com/opencv/opencv
+  implementation_type: idd_lab_educational
+  implementation_version: "IDD Lab: ECC alignment (cv2.findTransformECC) + absolute difference"
+  implementation_notes: "Golden-template subtraction is a textbook technique without a single founding paper; the reference is for the ECC alignment step."
+  docs_url: https://docs.opencv.org/4.x/
+  source_license: Apache-2.0 (OpenCV) / IDD Lab code
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "One normal reference image"
+  training_data_requirements: "One defect-free reference image of the same product"
+  supported_modalities: [rgb, grayscale, infrared]
+  supported_tasks: [segmentation]
+  inputs: "Test image + normal reference image"
+  outputs: "Absolute difference map, mask"
+  intuitive_explanation_en: >-
+    Compare the part with a known good 'golden' sample pixel by pixel. Anything that differs is a
+    candidate defect — provided both images are perfectly aligned and equally lit.
+  intuitive_explanation_es: >-
+    Compara la pieza con una muestra 'dorada' sin defectos píxel a píxel. Lo que difiere es un
+    candidato a defecto — siempre que ambas imágenes estén alineadas e iluminadas igual.
+  scientific_principle: "Registration (ECC maximisation) followed by |I_test − I_ref|."
+  main_processing_steps: [Align test to reference (ECC), Blur both, Absolute difference, Threshold]
+  mathematical_formulation: "D(x) = |I_t(W(x;p*)) − I_r(x)|, p* = argmax ECC"
+  advantages: [Very intuitive, Works for rigid repeatable parts]
+  limitations: ["Needs precise alignment and stable lighting", "Normal variation appears as defects"]
+  failure_cases: ["Misalignment of a few pixels", "Natural products (walnuts, fabric)"]
+  computational_requirements: "CPU; alignment dominates (tens of ms)"
+  recommended_datasets: [D05, D01]
+  educational_exercises: ["Disable alignment and observe the edge artefacts"]
+  industrial_use: "PCB, printed labels, stamped parts with fixtures."
+  source_verification_date: "2026-11-20"
+  source_verification_status: partially_verified
+  implementation_status: runnable_classical
+  publication_ids: [evangelidis2008ecc]
+
+- id: ssim
+  group: A
+  name: SSIM-based comparison
+  family: Structural similarity to a reference
+  year: 2004
+  paper_title: "Image quality assessment: from error visibility to structural similarity"
+  paper_authors: [Zhou Wang, Alan C. Bovik, Hamid R. Sheikh, Eero P. Simoncelli]
+  venue: "IEEE Transactions on Image Processing"
+  doi: 10.1109/TIP.2003.819861
+  paper_url: https://www.ece.uwaterloo.ca/~z70wang/publications/ssim.html
+  paper_pdf_url: https://www.ece.uwaterloo.ca/~z70wang/publications/ssim.pdf
+  official_repository_url: https://www.ece.uwaterloo.ca/~z70wang/research/ssim/
+  implementation_repository_url: https://github.com/scikit-image/scikit-image
+  implementation_type: library
+  implementation_version: "scikit-image skimage.metrics.structural_similarity (full map)"
+  implementation_notes: "Bergmann et al. (VISAPP 2019) popularised SSIM for defect segmentation with autoencoders."
+  docs_url: https://scikit-image.org/docs/stable/api/skimage.metrics.html#skimage.metrics.structural_similarity
+  source_license: BSD-3-Clause (scikit-image)
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "One normal reference image"
+  training_data_requirements: "One defect-free reference image"
+  supported_modalities: [rgb, grayscale, infrared]
+  supported_tasks: [segmentation]
+  inputs: "Test image + normal reference"
+  outputs: "1 − local SSIM map, mean SSIM"
+  intuitive_explanation_en: >-
+    Rather than comparing raw brightness, compare local structure — mean, contrast and
+    correlation in small windows. Small brightness shifts matter less; changed structure matters more.
+  intuitive_explanation_es: >-
+    En lugar de comparar el brillo, compara la estructura local — media, contraste y correlación
+    en ventanas pequeñas. Los cambios de brillo pesan menos; los cambios de estructura, más.
+  scientific_principle: "SSIM combines luminance, contrast and structure terms computed in local windows."
+  main_processing_steps: [Align, Local means/variances/covariance (Gaussian window), SSIM map, 1 − SSIM as anomaly map]
+  mathematical_formulation: "SSIM(x,y) = ((2μxμy + C1)(2σxy + C2)) / ((μx² + μy² + C1)(σx² + σy² + C2))"
+  advantages: [More robust than pixel difference to global brightness, Perceptually motivated]
+  limitations: ["Still requires alignment", "Window size limits detectable defect size"]
+  failure_cases: ["Low-texture regions (σ≈0) are unstable", "Normal variation"]
+  computational_requirements: "CPU, tens of ms"
+  recommended_datasets: [D05, D01]
+  educational_exercises: ["Compare SSIM and absolute difference under a brightness change"]
+  industrial_use: "Template comparison where illumination drifts slightly."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: runnable_classical
+  publication_ids: [wang2004ssim, bergmann2019ssimae, evangelidis2008ecc]

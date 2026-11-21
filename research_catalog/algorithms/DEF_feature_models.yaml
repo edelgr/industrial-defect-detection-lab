@@ -1,0 +1,339 @@
+# Groups D (distributions & memory banks), E (teacher-student), F (foundation models).
+
+- id: padim
+  group: D
+  name: PaDiM
+  family: Patch feature distribution modelling
+  year: 2020
+  paper_title: "PaDiM: A Patch Distribution Modeling Framework for Anomaly Detection and Localization"
+  paper_authors: [Thomas Defard, Aleksandr Setkov, Angelique Loesch, Romaric Audigier]
+  venue: "ICPR 2020 Workshops (Springer LNCS 2021)"
+  doi: 10.1007/978-3-030-68799-1_35
+  paper_url: https://arxiv.org/abs/2011.08785
+  paper_pdf_url: https://arxiv.org/pdf/2011.08785
+  official_repository_url: null
+  implementation_repository_url: https://github.com/open-edge-platform/anomalib
+  implementation_type: anomalib
+  implementation_version: "Anomalib 2.7.1 PadimModel (torch model used directly)"
+  implementation_notes: "No official authors' code was found. Reference re-implementation: github.com/taikiinoue45/PaDiM (MIT, third-party). IDD Lab resizes to 256×256 without centre-crop so maps align with masks."
+  docs_url: https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/padim.html
+  source_license: Apache-2.0 (Anomalib)
+  weights_url: https://huggingface.co/timm/resnet18.a1_in1k
+  weights_license: "Apache-2.0 (timm model card, checked 2026-11-21); ImageNet-1k pretraining — ImageNet terms not verified"
+  learning_paradigm: "Unsupervised (normal images only), no gradient training"
+  training_data_requirements: "Tens to hundreds of normal images of one category"
+  supported_modalities: [rgb, infrared]
+  supported_tasks: [classification, segmentation]
+  inputs: "Image (256×256 after resize)"
+  outputs: "Mahalanobis anomaly map, image score (max)"
+  intuitive_explanation_en: >-
+    At every position of the image, describe what normal looks like as a cloud of feature
+    vectors from a pretrained CNN, summarised by a mean and a covariance. A test patch far from
+    that cloud — measured with Mahalanobis distance — is anomalous.
+  intuitive_explanation_es: >-
+    En cada posición de la imagen, describe cómo es lo normal como una nube de vectores de
+    características de una CNN pre-entrenada, resumida por media y covarianza. Un parche lejano —
+    según la distancia de Mahalanobis — es anómalo.
+  scientific_principle: "Multivariate Gaussian per patch position over concatenated multi-layer CNN embeddings (random dimension reduction); anomaly = Mahalanobis distance."
+  main_processing_steps: [Extract layer1-3 features of normal images, Concatenate + random channel subset, Fit mean/covariance per position, Mahalanobis distance per test patch, Upsample + Gaussian smoothing]
+  mathematical_formulation: "M(x_ij) = sqrt((x_ij − μ_ij)ᵀ Σ_ij⁻¹ (x_ij − μ_ij)),  Σ_ij = cov + εI"
+  advantages: [Fast fitting, Good localisation, Interpretable statistics]
+  limitations: ["Assumes roughly aligned images (per-position statistics)", "Memory grows with feature dimension²"]
+  failure_cases: ["Objects at varying positions/rotations", "Very small defects after down-scaling"]
+  computational_requirements: "GPU recommended; fitting seconds; ≈1-5 ms inference on RTX-class GPU (measured in IDD Lab)"
+  recommended_datasets: [D05, D01]
+  educational_exercises: ["Compare PaDiM and PatchCore on aligned vs. unaligned categories"]
+  industrial_use: "Fixtured parts with stable pose; fast deployment."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: requires_fitting
+  publication_ids: [defard2021padim, mahalanobis1936, he2016resnet, akcay2022anomalib]
+
+- id: patchcore
+  group: D
+  name: PatchCore
+  family: Memory bank of patch features
+  year: 2022
+  paper_title: "Towards Total Recall in Industrial Anomaly Detection"
+  paper_authors: [Karsten Roth, Latha Pemula, Joaquin Zepeda, Bernhard Schölkopf, Thomas Brox, Peter Gehler]
+  venue: "CVPR 2022"
+  doi: 10.1109/CVPR52688.2022.01392
+  paper_url: https://openaccess.thecvf.com/content/CVPR2022/html/Roth_Towards_Total_Recall_in_Industrial_Anomaly_Detection_CVPR_2022_paper.html
+  paper_pdf_url: https://openaccess.thecvf.com/content/CVPR2022/papers/Roth_Towards_Total_Recall_in_Industrial_Anomaly_Detection_CVPR_2022_paper.pdf
+  official_repository_url: https://github.com/amazon-science/patchcore-inspection
+  implementation_repository_url: https://github.com/open-edge-platform/anomalib
+  implementation_type: anomalib
+  implementation_version: "Anomalib 2.7.1 PatchcoreModel (torch model used directly)"
+  implementation_notes: "The authors' official code (Apache-2.0) exists; IDD Lab uses Anomalib's re-implementation for a uniform interface. No official weights are released (none needed beyond the ImageNet backbone)."
+  docs_url: https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/patchcore.html
+  source_license: Apache-2.0 (Anomalib and authors' code)
+  weights_url: https://huggingface.co/timm/wide_resnet50_2.racm_in1k
+  weights_license: "Apache-2.0 (timm model card, checked 2026-11-21); ImageNet-1k pretraining — ImageNet terms not verified"
+  learning_paradigm: "Unsupervised (normal images only), no gradient training"
+  training_data_requirements: "Tens to hundreds of normal images"
+  supported_modalities: [rgb, infrared]
+  supported_tasks: [classification, segmentation]
+  inputs: "Image (256×256 after resize)"
+  outputs: "Nearest-neighbour distance map, re-weighted image score"
+  intuitive_explanation_en: >-
+    Store small pieces (patches) of every normal image as feature vectors in a memory bank.
+    For a test image, look up the most similar normal patch for each of its patches; if even the
+    best match is far away, that patch has never been seen in normal data.
+  intuitive_explanation_es: >-
+    Guarda pequeños trozos (parches) de cada imagen normal como vectores en un banco de memoria.
+    Para una imagen de prueba, busca el parche normal más parecido; si incluso el mejor está lejos,
+    ese parche nunca se vio en datos normales.
+  scientific_principle: "Locally aware mid-level patch features (layer2+layer3, 3×3 neighbourhood pooling), greedy k-center coreset subsampling, nearest-neighbour distance as anomaly score with a re-weighting of the maximum."
+  main_processing_steps: [Extract patch features of normal images, Coreset subsampling (k-center greedy), Nearest neighbour search for each test patch, Patch score = NN distance, Image score = re-weighted max, Upsample + Gaussian smoothing]
+  mathematical_formulation: "s* = max_{p∈P(x)} min_{m∈M} ||p − m||₂ ;  s = (1 − exp||p*−m*|| / Σ_{m∈N_b(m*)} exp||p*−m||)·s*"
+  advantages: [State-of-the-art on MVTec AD, No position assumption, Few-shot capable]
+  limitations: ["Memory and search cost grow with the bank", "Patch-local: misses logical anomalies"]
+  failure_cases: ["Logical anomalies (MVTec LOCO)", "Strong illumination shift (MVTec AD 2)"]
+  computational_requirements: "GPU recommended; coreset selection dominates fitting time"
+  recommended_datasets: [D05, D01, D02]
+  educational_exercises: ["Vary the coreset ratio and plot AUROC vs. latency", "k-shot experiment: 1, 5, 20 normal images"]
+  industrial_use: "General surface/object inspection with only normal data available."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: requires_fitting
+  publication_ids: [roth2022patchcore, he2016resnet, akcay2022anomalib]
+
+- id: efficientad
+  group: E
+  name: EfficientAD
+  family: Teacher–student + autoencoder
+  year: 2024
+  paper_title: "EfficientAD: Accurate Visual Anomaly Detection at Millisecond-Level Latencies"
+  paper_authors: [Kilian Batzner, Lars Heckler, Rebecca König]
+  venue: "WACV 2024"
+  doi: 10.1109/WACV57701.2024.00020
+  paper_url: https://openaccess.thecvf.com/content/WACV2024/html/Batzner_EfficientAD_Accurate_Visual_Anomaly_Detection_at_Millisecond-Level_Latencies_WACV_2024_paper.html
+  paper_pdf_url: https://openaccess.thecvf.com/content/WACV2024/papers/Batzner_EfficientAD_Accurate_Visual_Anomaly_Detection_at_Millisecond-Level_Latencies_WACV_2024_paper.pdf
+  official_repository_url: null
+  implementation_repository_url: https://github.com/open-edge-platform/anomalib
+  implementation_type: anomalib
+  implementation_version: "Anomalib 2.7.1 EfficientAdModel + IDD Lab training loop (default 10 000 steps; paper 70 000)"
+  implementation_notes: "No official authors' code. Third-party: Anomalib (Apache-2.0, networks and losses used here) and nelson1425/EfficientAD (unofficial, Apache-2.0). IDD Lab trains with a short educational schedule and uses Imagenette2-320 (342 MB) for the ImageNet penalty instead of the full-size Imagenette (1.56 GB); teacher weights (40 MB) from Anomalib's release. Accuracy is therefore below the paper's."
+  docs_url: https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/efficient_ad.html
+  source_license: Apache-2.0 (Anomalib)
+  weights_url: https://github.com/open-edge-platform/anomalib/releases/download/efficientad_pretrained_weights/efficientad_pretrained_weights.zip
+  weights_license: "Not stated in the release (checked 2026-11-21; repository Apache-2.0) — do not redistribute"
+  learning_paradigm: "Unsupervised; student and autoencoder trained on normal images"
+  training_data_requirements: "Normal images (paper: 70k iterations); ImageNet-like images for the penalty term"
+  supported_modalities: [rgb]
+  supported_tasks: [classification, segmentation]
+  inputs: "Image (256×256)"
+  outputs: "Local (student–teacher) and global (autoencoder–student) anomaly maps, combined"
+  intuitive_explanation_en: >-
+    A frozen 'teacher' network describes images; a small 'student' learns to imitate it, but
+    only on normal images. Where the student fails to imitate the teacher, the image contains
+    something it never saw. A small autoencoder adds a global, logical view.
+  intuitive_explanation_es: >-
+    Una red 'maestra' congelada describe las imágenes; un 'estudiante' pequeño aprende a imitarla,
+    solo con imágenes normales. Donde no logra imitarla hay algo nunca visto. Un pequeño
+    autoencoder añade una visión global y lógica.
+  scientific_principle: "Patch Description Network (PDN) teacher distilled from WideResNet; hard-feature loss for the student; autoencoder for logical anomalies; quantile-based map normalisation."
+  main_processing_steps: [Distilled PDN teacher (pretrained), Train student on normal images with hard-feature loss + ImageNet penalty, Train autoencoder and student's second head, Combine normalised local and global maps]
+  mathematical_formulation: "Local map = mean_c (T(x) − S_ST(x))²;  global map = mean_c (A(x) − S_AE(x))²"
+  advantages: [Millisecond latency, Strong on MVTec AD and LOCO]
+  limitations: ["Requires training (minutes-hours)", "Extra data for the penalty term"]
+  failure_cases: ["Too few training iterations", "Domain far from ImageNet"]
+  computational_requirements: "GPU training; ~2-5 ms inference (paper reports < 2 ms for EfficientAD-S on a high-end GPU)"
+  recommended_datasets: [D05, D02]
+  educational_exercises: ["Discuss the latency/accuracy trade-off versus PatchCore"]
+  industrial_use: "High-throughput lines with strict latency budgets."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: requires_fitting
+  publication_ids: [batzner2024efficientad, akcay2022anomalib]
+
+- id: anomalydino
+  group: F
+  name: AnomalyDINO
+  family: Few-shot patch matching with DINOv2
+  year: 2025
+  paper_title: "AnomalyDINO: Boosting Patch-Based Few-Shot Anomaly Detection with DINOv2"
+  paper_authors: [Simon Damm, Mike Laszkiewicz, Johannes Lederer, Asja Fischer]
+  venue: "WACV 2025"
+  doi: 10.1109/WACV61041.2025.00136
+  paper_url: https://openaccess.thecvf.com/content/WACV2025/html/Damm_AnomalyDINO_Boosting_Patch-Based_Few-Shot_Anomaly_Detection_with_DINOv2_WACV_2025_paper.html
+  paper_pdf_url: https://openaccess.thecvf.com/content/WACV2025/papers/Damm_AnomalyDINO_Boosting_Patch-Based_Few-Shot_Anomaly_Detection_with_DINOv2_WACV_2025_paper.pdf
+  official_repository_url: https://github.com/dammsi/AnomalyDINO
+  implementation_repository_url: https://github.com/open-edge-platform/anomalib
+  implementation_type: anomalib
+  implementation_version: "Anomalib 2.7.1 AnomalyDINOModel (DINOv2 ViT-S/14 via timm)"
+  implementation_notes: "Official authors' code exists (Apache-2.0); IDD Lab uses Anomalib's integration. Background masking (PCA) is optional and off by default."
+  docs_url: https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/anomaly_dino.html
+  source_license: Apache-2.0 (authors and Anomalib)
+  weights_url: https://huggingface.co/timm/vit_small_patch14_dinov2.lvd142m
+  weights_license: Apache-2.0 (DINOv2)
+  learning_paradigm: "Few-shot (k normal reference images), training-free"
+  training_data_requirements: "1-16 normal reference images"
+  supported_modalities: [rgb]
+  supported_tasks: [classification, segmentation]
+  inputs: "Image (448×448 default in IDD Lab)"
+  outputs: "Cosine-distance patch map, image score (mean of top-1 % patches)"
+  intuitive_explanation_en: >-
+    A foundation model (DINOv2) already 'understands' visual parts without any industrial
+    training. Show it a handful of normal examples; any patch of a test image that has no close
+    match among them is suspicious.
+  intuitive_explanation_es: >-
+    Un modelo fundacional (DINOv2) ya 'entiende' partes visuales sin entrenamiento industrial.
+    Basta mostrarle unos pocos ejemplos normales; todo parche sin correspondencia cercana es sospechoso.
+  scientific_principle: "Patch-level nearest-neighbour search in a memory bank of DINOv2 patch tokens from k normal shots; cosine distance; top-1 % mean aggregation."
+  main_processing_steps: [Extract DINOv2 patch tokens of k references, (optional) zero-shot background masking, Cosine NN distance per test patch, Mean of top 1 % distances as image score]
+  mathematical_formulation: "d(p) = 1 − max_{m∈M} ⟨p, m⟩/(||p||·||m||);  s = mean(top-1% d)"
+  advantages: [Works with 1 image, No training, Strong few-shot results]
+  limitations: ["ViT patch size (14 px) limits tiny-defect resolution", "Generic features may ignore subtle industrial cues"]
+  failure_cases: ["Very small defects on large images", "Normal variation absent from the k shots"]
+  computational_requirements: "GPU recommended; ~20-60 ms per image"
+  recommended_datasets: [D05, D03, D01]
+  educational_exercises: ["k = 1, 2, 4, 8: plot AUROC vs. number of shots"]
+  industrial_use: "New products with very few normal samples (fast set-up)."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: requires_fitting
+  publication_ids: [damm2025anomalydino, oquab2023dinov2, akcay2022anomalib]
+
+- id: winclip
+  group: F
+  name: WinCLIP
+  family: Zero/few-shot vision–language anomaly detection
+  year: 2023
+  paper_title: "WinCLIP: Zero-/Few-Shot Anomaly Classification and Segmentation"
+  paper_authors: [Jongheon Jeong, Yang Zou, Taewan Kim, Dongqing Zhang, Avinash Ravichandran, Onkar Dabeer]
+  venue: "CVPR 2023"
+  doi: 10.1109/CVPR52729.2023.01878
+  paper_url: https://openaccess.thecvf.com/content/CVPR2023/html/Jeong_WinCLIP_Zero-Few-Shot_Anomaly_Classification_and_Segmentation_CVPR_2023_paper.html
+  paper_pdf_url: https://openaccess.thecvf.com/content/CVPR2023/papers/Jeong_WinCLIP_Zero-Few-Shot_Anomaly_Classification_and_Segmentation_CVPR_2023_paper.pdf
+  official_repository_url: null
+  implementation_repository_url: https://github.com/open-edge-platform/anomalib
+  implementation_type: anomalib
+  implementation_version: "Anomalib 2.7.1 WinClipModel (OpenCLIP ViT-B-16-plus-240, laion400m_e31; open-clip-torch < 2.26.1)"
+  implementation_notes: "No official code from the authors. Third-party: Anomalib (Apache-2.0, used here), mala-lab/WinCLIP (unofficial, GPL-3.0), caoyunkang/WinClip (MIT)."
+  docs_url: https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/winclip.html
+  source_license: Apache-2.0 (Anomalib)
+  weights_url: https://huggingface.co/timm/vit_base_patch16_plus_clip_240.laion400m_e31
+  weights_license: "MIT (timm/OpenCLIP model card, checked 2026-11-21); trained on LAION-400M"
+  learning_paradigm: "Zero-shot (text prompts) or few-shot (k normal images)"
+  training_data_requirements: "None (zero-shot: object name); optional k normal images"
+  supported_modalities: [rgb]
+  supported_tasks: [classification, segmentation]
+  inputs: "Image (240×240) + class name"
+  outputs: "Window-level anomaly map, zero/few-shot image score"
+  intuitive_explanation_en: >-
+    CLIP links images and text. Ask it how much each window of the image looks like 'a photo
+    of a flawless metal sheet' versus 'a photo of a damaged metal sheet' — no training images
+    needed at all.
+  intuitive_explanation_es: >-
+    CLIP vincula imágenes y texto. Se le pregunta cuánto se parece cada ventana a 'una foto de
+    una lámina metálica perfecta' frente a 'una foto de una lámina dañada' — sin imágenes de entrenamiento.
+  scientific_principle: "Compositional prompt ensemble for normal/anomalous states; window-based CLIP embeddings at multiple scales; harmonic aggregation; optional few-shot visual memory."
+  main_processing_steps: [Build normal/anomalous prompt ensemble, Encode text, Encode image windows at several scales, Image–text similarity per window, Aggregate to pixel map]
+  mathematical_formulation: "score(w) = softmax(⟨f(w), [t_n, t_a]⟩/τ)_a, aggregated harmonically over windows"
+  advantages: [True zero-shot, Explains anomalies via language]
+  limitations: ["Coarse localisation (patch 16 px at 240 px input)", "Prompt- and class-name sensitive", "Much weaker than fitted methods on subtle defects"]
+  failure_cases: ["Tiny defects on large images", "Unusual industrial object names"]
+  computational_requirements: "GPU; ~0.8 GB weights"
+  recommended_datasets: [D03, D01, D05]
+  educational_exercises: ["Change the class name prompt and observe the score", "Zero-shot vs. 1-shot"]
+  industrial_use: "Rapid prototyping when no data exist yet; screening."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: runnable_pretrained
+  publication_ids: [jeong2023winclip, radford2021clip, akcay2022anomalib]
+
+- id: dinomaly
+  group: F
+  name: Dinomaly
+  family: Multi-class reconstruction on DINOv2 features
+  year: 2025
+  paper_title: "Dinomaly: The Less Is More Philosophy in Multi-Class Unsupervised Anomaly Detection"
+  paper_authors: [Jia Guo, Shuai Lu, Weihang Zhang, Fang Chen, Huiqi Li, Hongen Liao]
+  venue: "CVPR 2025"
+  doi: 10.1109/CVPR52734.2025.01900
+  paper_url: https://openaccess.thecvf.com/content/CVPR2025/html/Guo_Dinomaly_The_Less_Is_More_Philosophy_in_Multi-Class_Unsupervised_Anomaly_CVPR_2025_paper.html
+  paper_pdf_url: https://openaccess.thecvf.com/content/CVPR2025/papers/Guo_Dinomaly_The_Less_Is_More_Philosophy_in_Multi-Class_Unsupervised_Anomaly_CVPR_2025_paper.pdf
+  official_repository_url: https://github.com/guojiajeremy/Dinomaly
+  implementation_repository_url: https://github.com/open-edge-platform/anomalib
+  implementation_type: anomalib
+  implementation_version: "Anomalib 2.7.1 contains Dinomaly (not integrated in IDD Lab v0.1)"
+  implementation_notes: "Requires multi-class training over many categories (tens of thousands of iterations); kept as an explanation in v0.1. Authors' checkpoints are on Google Drive (no separate licence stated)."
+  docs_url: https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/dinomaly.html
+  source_license: Apache-2.0 (authors and Anomalib)
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Unsupervised multi-class (one model for all categories)"
+  training_data_requirements: "Normal images of all categories; long GPU training"
+  supported_modalities: [rgb]
+  supported_tasks: [classification, segmentation]
+  inputs: "Image"
+  outputs: "Feature-reconstruction anomaly map"
+  intuitive_explanation_en: >-
+    Train one simple transformer to reconstruct DINOv2 features of normal images from all
+    product types at once, deliberately 'blurred' with dropout and loose attention so it cannot
+    copy anomalies through.
+  intuitive_explanation_es: >-
+    Entrena un transformador simple para reconstruir características DINOv2 de imágenes normales
+    de todos los productos a la vez, 'difuminado' con dropout y atención laxa para no copiar anomalías.
+  scientific_principle: "Noisy bottleneck (dropout), linear attention, loose reconstruction of grouped encoder layers; anomaly = cosine distance between encoder and decoder features."
+  main_processing_steps: [Frozen DINOv2 encoder, Noisy MLP bottleneck, Linear-attention decoder, Loose group-wise reconstruction loss, Cosine-distance anomaly maps]
+  mathematical_formulation: "A(x) = Σ_g (1 − cos(E_g(x), D_g(x)))"
+  advantages: [Single model for many classes, State-of-the-art multi-class results]
+  limitations: ["Long training", "Large backbone"]
+  failure_cases: ["Very small datasets"]
+  computational_requirements: "GPU training (hours)"
+  recommended_datasets: [D01, D03]
+  educational_exercises: ["Discuss one-model-per-class vs. multi-class models (conceptual)"]
+  industrial_use: "Plants with many product variants."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: explanation_only
+  publication_ids: [guo2025dinomaly, oquab2023dinov2]
+
+- id: dino_features
+  group: F
+  name: DINOv2 / DINOv3 visual features (feature extractor, not a detector)
+  family: Self-supervised foundation feature extractors
+  year: 2025
+  paper_title: "DINOv3"
+  paper_authors: [Oriane Siméoni, et al.]
+  venue: "arXiv 2508.10104 (DINOv2: TMLR)"
+  doi: null
+  paper_url: https://arxiv.org/abs/2508.10104
+  paper_pdf_url: https://arxiv.org/pdf/2508.10104
+  official_repository_url: https://github.com/facebookresearch/dinov3
+  implementation_repository_url: https://github.com/facebookresearch/dinov2
+  implementation_type: none
+  implementation_version: null
+  implementation_notes: "DINOv3 is NOT an anomaly detector: it provides general-purpose patch features that methods such as AnomalyDINO can use. DINOv3 code+weights use the custom 'DINOv3 License' and weights are gated; IDD Lab uses DINOv2 (Apache-2.0) inside AnomalyDINO."
+  docs_url: https://github.com/facebookresearch/dinov3
+  source_license: "DINOv2: Apache-2.0; DINOv3: DINOv3 License (custom, gated weights)"
+  weights_url: null
+  weights_license: null
+  learning_paradigm: "Self-supervised pre-training (no labels)"
+  training_data_requirements: "Not trained in IDD Lab"
+  supported_modalities: [rgb]
+  supported_tasks: [feature_extraction]
+  inputs: "Image"
+  outputs: "Global and patch feature tokens"
+  intuitive_explanation_en: >-
+    Huge vision models trained on millions of unlabelled images learn features that separate
+    object parts, materials and textures. They are the 'eyes' that few-shot detectors reuse.
+  intuitive_explanation_es: >-
+    Grandes modelos de visión entrenados con millones de imágenes sin etiquetas aprenden
+    características que separan partes, materiales y texturas. Son los 'ojos' que reutilizan los detectores few-shot.
+  scientific_principle: "Self-distillation (student/teacher ViTs) with masked-image objectives; DINOv3 adds Gram anchoring for dense features at scale."
+  main_processing_steps: [Self-supervised pre-training at scale, Freeze backbone, Use patch tokens as features]
+  mathematical_formulation: null
+  advantages: [Strong dense features without labels, Transferable]
+  limitations: ["Not specific to industrial defects", "Licences differ between versions"]
+  failure_cases: ["Fine textures below patch resolution"]
+  computational_requirements: "GPU for large variants"
+  recommended_datasets: [D05, D03]
+  educational_exercises: ["Explain why a feature extractor alone cannot decide OK/NOK"]
+  industrial_use: "Backbone for few-shot inspection systems."
+  source_verification_date: "2026-11-20"
+  source_verification_status: verified_automated
+  implementation_status: explanation_only
+  publication_ids: [simeoni2025dinov3, oquab2023dinov2]

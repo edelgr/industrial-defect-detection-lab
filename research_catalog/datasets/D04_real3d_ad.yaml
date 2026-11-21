@@ -1,0 +1,64 @@
+id: D04
+name: Real3D-AD
+acronym: Real3D-AD
+adapter: core.datasets.real3d:Real3DADAdapter
+description_en: >-
+  High-resolution real point clouds of 12 object classes (toys, candies, shells, gemstones ...)
+  with bulge and sink defects annotated per point; each class provides only 4 normal
+  prototypes for training.
+description_es: >-
+  Nubes de puntos reales de alta resolución de 12 clases de objetos (juguetes, caramelos,
+  conchas, gemas ...) con defectos de protuberancia y hundimiento anotados por punto; cada
+  clase ofrece solo 4 prototipos normales para entrenamiento.
+scientific_purpose: >-
+  Benchmark pure 3D (geometry-only) anomaly detection on complete 360° point clouds, where
+  2D cues are unavailable and registration matters.
+year_first_release: 2023
+publication_year: 2023
+authors: [Jiaqi Liu, Guoyang Xie, Ruitao Chen, Xinpeng Li, Jinbao Wang, Yong Liu, Chengjie Wang, Feng Zheng]
+institutions: null
+publication_title: "Real3D-AD: A Dataset of Point Cloud Anomaly Detection"
+publication_venue: "NeurIPS 2023 Datasets and Benchmarks Track"
+doi: 10.52202/075280-1324
+paper_url: https://proceedings.neurips.cc/paper_files/paper/2023/hash/611b896d447df43c898062358df4c114-Abstract-Datasets_and_Benchmarks.html
+paper_pdf_url: https://proceedings.neurips.cc/paper_files/paper/2023/file/611b896d447df43c898062358df4c114-Paper-Datasets_and_Benchmarks.pdf
+official_website: https://github.com/M-3LAB/Real3D-AD
+official_repository_url: https://github.com/M-3LAB/Real3D-AD
+implementation_repository_url: https://github.com/M-3LAB/Real3D-AD
+download_url: https://drive.google.com/file/d/1oM4qjhlIMsQc_wiFIFIVBvuuR8nyk2k0/view
+access_method: "Google Drive or Baidu Pan links in the README (real3d-ad-pcd.zip for training/evaluation; real3d-ad-ply.zip raw). Size not published."
+license: CC BY 4.0 (dataset)
+license_url: https://creativecommons.org/licenses/by/4.0/
+redistribution_allowed: "Dataset: yes with attribution. Code: no licence file (all rights reserved)."
+modalities: [point_cloud]
+categories: [airplane, car, candybar, chicken, diamond, duck, fish, gemstone, seahorse, shell, starfish, toffees]
+sample_count: 1254
+anomaly_types: [geometric, bulge, sink]
+annotation_types: [point-level labels]
+data_formats: [PCD, PLY, TXT]
+image_resolution: "Point clouds; up to ~2 M points per training cloud (class dependent)"
+train_split: "4 normal prototypes per class"
+validation_split: "none"
+test_split: "~100 per class (about 50 good / 50 defective)"
+ground_truth_availability: "gt/<stem>.txt: full cloud with an x y z label column (space-delimited)."
+benchmark_protocol: "Object-level and point-level AUROC; baselines include BTF, M3DM, PatchCore variants and Reg3D-AD (registration-based)."
+principal_challenges:
+  - Only 4 training prototypes per class
+  - Test clouds are partial/rotated and must be registered
+  - Very large point counts
+scientific_contribution: "First large real high-precision 3D point-cloud AD dataset; proposes the Reg3D-AD registration-based baseline."
+limitations:
+  - Defects partly created by copying and cutting edges
+  - Training file naming differs between README (prototype) and loader (template)
+recommended_educational_exercises:
+  - Align a test cloud to a prototype with ICP and colour the deviation
+size_notes: "Archive size not published (Google Drive) — check before downloading."
+installation_status: not_installed
+source_verification_date: "2026-11-20"
+source_verification_status: verified_automated
+source_notes: "The repository serves as dataset page and reference code; GitHub API reports no code licence."
+publication_ids: [liu2023real3dad]
+resource_guide: >-
+  Paper: NeurIPS proceedings. Dataset download links (Google Drive / Baidu) and baseline code
+  (Reg3D-AD, BTF, M3DM, PatchCore) are in the M-3LAB/Real3D-AD repository; the dataset is
+  CC BY 4.0, while the code has no licence.

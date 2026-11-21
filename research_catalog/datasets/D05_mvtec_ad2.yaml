@@ -1,0 +1,89 @@
+id: D05
+name: MVTec AD 2
+acronym: MVTec AD 2
+adapter: core.datasets.mvtec:MVTecAD2Adapter
+description_en: >-
+  The successor of MVTec AD with advanced, realistic scenarios: 8 categories with transparent and
+  overlapping objects, dark-field and back-light illumination, strong normal variability, very
+  small defects, and test images under changed lighting. Private test labels are evaluated only
+  on the official server.
+description_es: >-
+  Sucesor de MVTec AD con escenarios avanzados y realistas: 8 categorías con objetos
+  transparentes y superpuestos, iluminación de campo oscuro y contraluz, gran variabilidad normal,
+  defectos muy pequeños e imágenes de prueba con iluminación cambiada. Las etiquetas privadas solo
+  se evalúan en el servidor oficial.
+scientific_purpose: >-
+  Re-open a saturated benchmark: measure robustness to lighting changes, tiny defects and
+  difficult normal variation, with an evaluation protocol that prevents test-set overfitting.
+year_first_release: 2025
+publication_year: 2026
+authors: [Lars Heckler-Kram, Jan-Hendrik Neudeck, Ulla Scheler, Rebecca König, Carsten Steger]
+institutions: [MVTec Software GmbH]
+publication_title: "The MVTec AD 2 Dataset: Advanced Scenarios for Unsupervised Anomaly Detection"
+publication_venue: "International Journal of Computer Vision 134(4), 2026 (arXiv preprint 2025; VAND 3.0 challenge @ CVPR 2025)"
+doi: 10.1007/s11263-026-02743-0
+paper_url: https://arxiv.org/abs/2503.21622
+paper_pdf_url: https://link.springer.com/content/pdf/10.1007/s11263-026-02743-0.pdf
+official_website: https://www.mvtec.com/research-teaching/datasets/mvtec-ad-2
+official_repository_url: null
+implementation_repository_url: null
+download_url: https://www.mvtec.com/research-teaching/datasets/mvtec-ad-2/downloads
+access_method: "Free for non-commercial use; download form on the MVTec website. Per-category .tar.gz archives (0.77-10 GB; sheet_metal 1.53 GB) or full ~30.4 GB. Evaluation of private splits only via https://benchmark.mvtec.com/."
+license: CC BY-NC-SA 4.0
+license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+redistribution_allowed: "Non-commercial, share-alike with attribution; IDD Lab never redistributes it."
+modalities: [rgb]
+categories: [can, fabric, fruit_jelly, rice, sheet_metal, vial, wallplugs, walnuts]
+sample_count: 8004
+anomaly_types: [structural, surface, small_defects, illumination_shift]
+annotation_types: [image-level label, pixel-precise masks (test_public only)]
+data_formats: [PNG]
+image_resolution: "1400×1900 to 4224×1056 (sheet_metal: 4224×1056)"
+train_split: "defect-free; e.g. sheet_metal 137 images"
+validation_split: "defect-free; e.g. sheet_metal 19 images"
+test_split: "test_public (labelled, all lighting conditions; sheet_metal 24 good / 90 bad), test_private and test_private_mixed (flat folders, labels withheld)"
+ground_truth_availability: "Public only for test_public (<name>_mask.png, 255 = anomalous); private GT kept by MVTec."
+benchmark_protocol: >-
+  Official results are computed by MVTec's evaluation server on test_private (regular lighting)
+  and test_private_mixed (seen/unseen lighting) from submitted float anomaly maps (TIFF) and
+  binary maps; segmentation is evaluated with thresholded metrics (SegF1). test_public is meant
+  for development and local analysis — results on it are not official benchmark numbers.
+principal_challenges:
+  - Lighting changes between training and test
+  - Very small defects on very large images (memory/resolution trade-off)
+  - Transparent, reflective and overlapping objects; high normal variability
+scientific_contribution: >-
+  Shows that state-of-the-art methods that saturate MVTec AD drop substantially in realistic
+  settings, and introduces a server-side private test protocol to avoid test-set tuning.
+limitations:
+  - Private labels are unavailable for local experiments by design
+  - Large archives for some categories (fabric 10 GB, rice 6.3 GB)
+recommended_educational_exercises:
+  - sheet_metal — compare classical baselines with PatchCore on tiny defects
+  - Visualise how down-scaling a 4224×1056 image hides small defects
+size_notes: "Full ~30.4 GB; sheet_metal 1.53 GB (requires explicit approval > 1 GB), vial 0.77 GB."
+installation_status: not_installed
+source_verification_date: "2026-11-20"
+source_verification_status: verified_automated
+source_notes: "Journal DOI resolves (302 to Springer). Official code utilities (PyTorch dataset class, submission checker) are distributed as a tar.gz on mydrive.ch; no public GitHub repository."
+publication_ids: [hecklerkram2026mvtecad2]
+resource_guide: >-
+  Paper: arXiv (2025) and IJCV (2026, open access). Dataset: MVTec website / downloads page.
+  Official evaluation: benchmark.mvtec.com (private splits). Code utilities: MVTec mydrive.ch
+  archive linked from the dataset page. No model weights.
+complementary_references:
+  - url: https://ieeexplore.ieee.org/document/11701006
+    label: "IEEE Access 2026 — analysis of resolution, spatial structure, illumination and seed sensitivity on MVTec AD 2"
+    title: "Beyond Benchmark Scores: An Analysis of Resolution, Spatial Structure, Illumination, and Seed Sensitivity in Training-Free Industrial Anomaly Localization on MVTec AD 2"
+    authors: [Vinh Phong Vo, Lenh Phan Cong Pham, Thai Duy Pham, Phat Ngoc Nguyen]
+    venue: "IEEE Access 14, pp. 145972-145991, 2026 (published 21 September 2026)"
+    doi: 10.1109/ACCESS.2026.3735579
+    publication_id: vo2026beyondbenchmark
+    verification_status: verified
+    note: >-
+      Complementary reference (not the dataset paper). Bibliographic data supplied by the maintainer
+      and confirmed against Crossref on 2026-11-21 (title, authors, journal, volume, pages, year; CC BY
+      4.0 licence). doi.org resolves to IEEE Xplore document 11701006, but IEEE Xplore refuses
+      automated clients (HTTP 418), so automated access to the full text may be blocked — open it in
+      a browser. IDD Lab has not reproduced or summarised its findings.
+    added: "2026-11-21"

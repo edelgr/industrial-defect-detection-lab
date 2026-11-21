@@ -1,0 +1,70 @@
+id: D06
+name: Multi-Sensor Anomaly Detection Dataset
+acronym: MulSen-AD
+adapter: core.datasets.mulsen:MulSenADAdapter
+description_en: >-
+  15 industrial products captured with three synchronised sensors — RGB camera, lock-in
+  infrared thermography and a high-precision 3D laser scanner — so that surface, geometric and
+  internal (sub-surface) anomalies can be studied together. Labels are given per modality.
+description_es: >-
+  15 productos industriales capturados con tres sensores sincronizados — cámara RGB, termografía
+  infrarroja lock-in y escáner láser 3D de alta precisión — para estudiar conjuntamente anomalías
+  superficiales, geométricas e internas. Las etiquetas se dan por modalidad.
+scientific_purpose: >-
+  Study object-level anomaly detection where no single sensor sees every defect type, and
+  evaluate multi-sensor fusion.
+year_first_release: 2025
+publication_year: 2025
+authors: [Wenqiao Li, Bozhong Zheng, Xiaohao Xu, Jinye Gan, Fading Lu, Xiang Li, Na Ni, Zheng Tian, Xiaonan Huang, Shenghua Gao, Yingna Wu]
+institutions: null
+publication_title: "Multi-Sensor Object Anomaly Detection: Unifying Appearance, Geometry, and Internal Properties"
+publication_venue: "CVPR 2025"
+doi: 10.1109/CVPR52734.2025.00933
+paper_url: https://openaccess.thecvf.com/content/CVPR2025/html/Li_Multi-Sensor_Object_Anomaly_Detection_Unifying_Appearance_Geometry_and_Internal_Properties_CVPR_2025_paper.html
+paper_pdf_url: https://openaccess.thecvf.com/content/CVPR2025/papers/Li_Multi-Sensor_Object_Anomaly_Detection_Unifying_Appearance_Geometry_and_Internal_Properties_CVPR_2025_paper.pdf
+official_website: https://mapleboat.github.io/MulSen_AD/
+official_repository_url: https://github.com/MapleBoat/MulSen-AD
+implementation_repository_url: https://github.com/MapleBoat/MulSen-AD
+download_url: https://huggingface.co/datasets/orgjy314159/MulSen_AD
+access_method: "Public, not gated, on Hugging Face: single archive (MulSen_AD.rar 7.5 GB / MulSen_AD.zip 8.97 GB). No per-category download is offered; IDD Lab can fetch selected categories from the ZIP via HTTP Range requests (generic technique)."
+license: "Not stated by the authors (repository code: MIT)"
+license_url: null
+redistribution_allowed: "Unknown — treat as not permitted; local research/teaching use only."
+modalities: [rgb, infrared, point_cloud]
+categories: [button_cell, capsule, cotton, cube, flat_pad, light, nut, piggy, plastic_cylinder, screen, screw, solar_panel, spring_pad, toothbrush, zipper]
+sample_count: 2035
+anomaly_types: [surface, geometric, internal, structural]
+annotation_types: [object-level labels per modality (data.csv), RGB masks, infrared masks, point-level 3D labels]
+data_formats: ["PNG (often BMP-encoded content)", "STL (binary mesh)", "TXT (anomalous xyz points)", CSV]
+image_resolution: "RGB 1280×960; infrared 640×480; 3D scanner ~0.03 mm"
+train_split: "1391 normal samples (64-118 per class)"
+validation_split: "none"
+test_split: "644 samples: 150 good (10 per class) + 494 anomalous"
+ground_truth_availability: "Public; masks only for modalities in which the sample is anomalous."
+benchmark_protocol: >-
+  Object-level AUROC per modality and for the fused triple-modality setting (MulSen-TripleAD
+  baseline in the official repository), plus pixel/point-level metrics.
+principal_challenges:
+  - A defect may be visible in only one modality (internal flaws only in infrared)
+  - Different resolutions and geometries per sensor; no pixel-level registration across sensors
+  - Small training sets per class
+scientific_contribution: >-
+  First industrial dataset unifying appearance, geometry and internal properties with
+  synchronised RGB, lock-in thermography and 3D scans and per-modality annotations.
+limitations:
+  - Infrared images are visualisations, not calibrated temperature maps
+  - Licence of the data not stated
+  - Single large archive
+recommended_educational_exercises:
+  - Find a sample that is anomalous only in infrared and explain the physics
+  - Compare RGB-only, IR-only, 3D-only and fused AUROC
+size_notes: "Full archive 7.5-9 GB (approval required). Per-category transfer via HTTP range: e.g. capsule ≈ 257 MB, nut ≈ 216 MB, flat_pad ≈ 181 MB."
+installation_status: not_installed
+source_verification_date: "2026-11-20"
+source_verification_status: verified_automated
+source_notes: "github.com/ZZZBBBZZZ/MulSen-AD 301-redirects to MapleBoat/MulSen-AD; old project page zzzbbbzzz.github.io is 404."
+publication_ids: [li2025mulsenad]
+resource_guide: >-
+  Paper: CVF open access. Data: Hugging Face orgjy314159/MulSen_AD (linked from the official
+  repository). Code (MulSen-TripleAD baseline, dataset loader): MapleBoat/MulSen-AD (MIT); the
+  README also links a Point-MAE checkpoint (Google Drive).

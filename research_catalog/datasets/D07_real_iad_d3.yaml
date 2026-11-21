@@ -1,0 +1,64 @@
+id: D07
+name: Real-IAD D³
+acronym: Real-IAD D³
+adapter: null
+description_en: >-
+  A large real-world dataset of 20 electronic and mechanical part categories, each sample
+  captured as a high-resolution RGB image, a photometric-stereo pseudo-3D representation and a
+  structured-light 3D point cloud.
+description_es: >-
+  Gran conjunto de datos real de 20 categorías de piezas electrónicas y mecánicas; cada muestra
+  incluye una imagen RGB de alta resolución, una representación pseudo-3D por estéreo fotométrico
+  y una nube de puntos 3D de luz estructurada.
+scientific_purpose: >-
+  Study complementarity of 2D appearance, pseudo-3D (surface normals/shading from photometric
+  stereo) and true 3D geometry for industrial anomaly detection at high precision.
+year_first_release: 2025
+publication_year: 2025
+authors: [Wenbing Zhu, Lidong Wang, Ziqing Zhou, Chengjie Wang, Yurui Pan, Ruoyi Zhang, Zhuhao Chen, Linjie Cheng, Bin-Bin Gao, Jiangning Zhang, Zhenye Gan, Yuxie Wang, Yulong Chen, Shuguang Qian, Mingmin Chi, Bo Peng, Lizhuang Ma]
+institutions: null
+publication_title: "Real-IAD D3: A Real-World 2D/Pseudo-3D/3D Dataset for Industrial Anomaly Detection"
+publication_venue: "CVPR 2025"
+doi: 10.1109/CVPR52734.2025.01417
+paper_url: https://openaccess.thecvf.com/content/CVPR2025/html/Zhu_Real-IAD_D3_A_Real-World_2DPseudo-3D3D_Dataset_for_Industrial_Anomaly_Detection_CVPR_2025_paper.html
+paper_pdf_url: https://openaccess.thecvf.com/content/CVPR2025/papers/Zhu_Real-IAD_D3_A_Real-World_2DPseudo-3D3D_Dataset_for_Industrial_Anomaly_Detection_CVPR_2025_paper.pdf
+official_website: https://realiad4ad.github.io/Real-IAD_D3/
+official_repository_url: null
+implementation_repository_url: null
+download_url: https://huggingface.co/datasets/Real-IAD/Real-IAD_D3
+access_method: "Gated Hugging Face dataset (research only): auto-approved for academic e-mail accounts, otherwise request by e-mail (realiad4ad@outlook.com) with affiliation and supervisor."
+license: "CC BY-NC-SA 4.0 per Hugging Face card metadata (gated LICENSE.txt not read)"
+license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+redistribution_allowed: false
+modalities: [rgb, pseudo_3d, point_cloud]
+categories: [audio_jack_socket, common_mode_filter, connector_housing_female, crimp_st_cable_mount_box, dc_power_connector, ethernet_connector, ferrite_bead, fork_crimp_terminal, fuse_holder, headphone_jack_socket, humidity_sensor, knob_cap, lattice_block_plug, lego_pin_connector_plate, lego_propeller, limit_switch, miniature_lifting_motor, power_jack, purple_clay_pot, telephone_spring_switch]
+sample_count: 8450
+anomaly_types: [surface, geometric, structural]
+annotation_types: [image-level label, 2D masks]
+data_formats: [PNG/JPG (RGB), TIFF, PLY]
+image_resolution: "RGB 3648×5472; point clouds up to 16.2 M points (0.01 mm resolution)"
+train_split: "unknown (data gated; not verified)"
+validation_split: "unknown"
+test_split: "unknown"
+ground_truth_availability: "2D masks per the paper; on-disk format not verified (gated)."
+benchmark_protocol: "Paper reports 2D, 3D and fused benchmarks with the proposed D³M method; official split not verified."
+principal_challenges:
+  - Extremely large data volume (~278 GB)
+  - Aligning three representations of very different nature
+  - Fine defects on small electronic parts
+scientific_contribution: "First real dataset combining 2D, photometric-stereo pseudo-3D and high-precision 3D per sample."
+limitations:
+  - Gated access, research only
+  - No reference implementation (D³M) publicly found
+  - Layout not verifiable without access
+recommended_educational_exercises:
+  - Discuss what photometric stereo recovers that RGB and 3D scanning cannot (conceptual)
+size_notes: "≈ 277.6 GB total; per-category zips 4-32 GB — not used in the workshop."
+installation_status: not_installed
+source_verification_date: "2026-11-20"
+source_verification_status: partially_verified
+source_notes: "github.com/realiad4ad/Real-IAD_D3 only contains the project website (README, index.html, access-request template) — it is not a reference implementation."
+publication_ids: [zhu2025realiadd3]
+resource_guide: >-
+  Paper: CVF open access. Project page: realiad4ad.github.io (its GitHub repo hosts only the
+  website). Data: gated Hugging Face dataset. No public code or weights were found.

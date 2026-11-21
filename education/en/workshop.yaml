@@ -1,0 +1,361 @@
+title: "Guided Workshop — CIARP 2026"
+subtitle: "Industrial Defect Detection and Anomaly Analysis using Computer Vision, Multimodal Imaging, and AI (3 h)"
+intro: |
+  ## Welcome
+  This guided workshop takes you from classical image processing to foundation models and
+  multimodal 3D inspection in **seven activities (180 min)**, followed by an **MVTec AD 2 deep-dive**
+  (activities A, B, C, 15 min each: resolution, illumination, metrics) that can replace part of
+  Activity 7 or be used as homework. Every activity uses real implementations on real data prepared
+  beforehand — no long live training is required.
+
+  **Offline demo profile:** start with `.\start.ps1 -Workshop` (or Settings → General → Profile).
+  Methods Laboratory and Compare Methods then load *Workshop Verified* checkpoints and ask before any
+  training.
+
+  **Before the session** (instructor): run *Settings → Diagnostics & readiness → Offline readiness
+  check*. Required: MVTec AD 2 `sheet_metal` (imported from the official download) and the
+  MulSen-AD subset; model weights cached by `prepare_models.ps1`.
+
+  **If MVTec AD 2 is not installed**, Activities 2–5 and 7 can be run on the real **MulSen-AD
+  RGB** images (capsule, nut, flat_pad). The SYNTHETIC set is only for learning the interface;
+  never interpret its numbers.
+
+  **Rules of evidence used throughout:** raw anomaly scores are not probabilities; thresholds
+  are calibrated on normal images only; local results are *educational*, not official benchmark numbers.
+
+  Select an activity on the left.
+activities:
+  - id: "A1"
+    title: "Introduction and modern datasets"
+    duration_min: 15
+    objectives:
+      - Explain what an industrial anomaly-detection benchmark is and why protocols matter
+      - Distinguish structural, logical, geometric and internal anomalies
+      - Compare MVTec AD, MVTec AD 2, MulSen-AD and Real-IAD D³
+    theory: >-
+      Benchmarks fix data, splits, annotations and metrics so that methods can be compared.
+      MVTec AD (2019) defined the unsupervised protocol: train on normal images only. Its success
+      led to saturation (>99 % AUROC), which motivated harder datasets: logical constraints (LOCO,
+      2022), realistic lighting and tiny defects with a private test server (MVTec AD 2, 2025/26),
+      and multiple sensors (MulSen-AD, Real-IAD D³, 2025).
+    dataset: "Dataset Research Atlas (no installed data needed)"
+    algorithm: "—"
+    parameters: "—"
+    instructions:
+      - Open the Atlas → Timeline and follow the evolution 2019 → 2026.
+      - Open the Compare datasets table; note modality, annotations and access restrictions.
+      - Open MVTec AD 2 and MulSen-AD detail pages; read 'Benchmark protocol' and 'Principal challenges'.
+      - Open one original paper from the 'Research Sources & Downloads' panel.
+    observations:
+      - Newer datasets add difficulty along different axes (lighting, logic, sensors), not only size
+      - Some datasets restrict access or evaluation (private test labels, gated downloads)
+    reflection:
+      - Why does MVTec AD 2 keep its test labels private?
+      - Which anomaly in MulSen-AD could no RGB camera ever detect?
+    extension: "Read the 'Limitations' section of three datasets and propose a dataset you would build for your industry."
+    references: [bergmann2019mvtecad, bergmann2022loco, hecklerkram2026mvtecad2, li2025mulsenad, zhu2025realiadd3]
+    actions:
+      - {label: "Open Atlas", page: atlas}
+      - {label: "MVTec AD 2 profile", page: atlas, preset: {dataset_id: D05}}
+      - {label: "MulSen-AD profile", page: atlas, preset: {dataset_id: D06}}
+
+  - id: "A2"
+    title: "Classical defect detection"
+    duration_min: 20
+    objectives:
+      - Apply Canny, Otsu, morphology and Gabor texture analysis to real parts
+      - Observe sensitivity to illumination, texture and alignment
+    theory: >-
+      Classical operators encode hand-designed assumptions: Otsu assumes a bimodal histogram,
+      Canny finds intensity discontinuities, morphology selects structures by size and shape, and
+      Gabor filters describe oriented texture. They need no training but no notion of 'normal'.
+    dataset: "MVTec AD 2 sheet_metal (fallback: MulSen-AD capsule RGB)"
+    algorithm: "Otsu, adaptive thresholding, Canny, morphology (black-hat), Gabor"
+    parameters: "Canny low/high = 40/120; black-hat SE 15 px, threshold 25; adaptive block 51, C 12"
+    instructions:
+      - In the Methods Laboratory choose a GOOD image and run Otsu. What is flagged?
+      - Switch to a defective image; run Canny and morphology. Adjust parameters until the defect is isolated.
+      - Keep the parameters and run them on several good images. Count false alarms.
+      - Use Calibrate thresholds, then Evaluate on test split for Canny and morphology.
+    observations:
+      - Otsu splits even defect-free surfaces in two
+      - Parameters tuned on one image rarely transfer to other images or lighting
+      - Edge maps respond to texture and part borders, not only to defects
+    reflection:
+      - Which assumption of each operator was violated by the images?
+      - Why is a threshold tuned by looking at test images a biased evaluation?
+    extension: "Compare reference difference with and without ECC alignment."
+    references: [otsu1979, canny1986, haralick1987, jain1991]
+    actions:
+      - {label: "Lab: Otsu", page: lab, preset: {method_id: otsu, dataset_id: D05}}
+      - {label: "Lab: Canny", page: lab, preset: {method_id: canny, dataset_id: D05}}
+      - {label: "Lab: Morphology", page: lab, preset: {method_id: morphology, dataset_id: D05}}
+      - {label: "How Otsu works", page: library, preset: {method_id: otsu}}
+
+  - id: "A3"
+    title: "Learning normality — PaDiM vs. PatchCore"
+    duration_min: 25
+    objectives:
+      - Understand pretrained features, Gaussian modelling and memory banks
+      - Compare localisation quality and computational cost
+    theory: >-
+      Both methods use ImageNet-pretrained CNN features and only normal images. PaDiM models each
+      position with a Gaussian (Mahalanobis distance), assuming alignment; PatchCore stores a
+      coreset of patch features and uses nearest-neighbour distances, without position assumptions.
+    dataset: "MVTec AD 2 sheet_metal (fallback: MulSen-AD capsule RGB)"
+    algorithm: "PaDiM (ResNet-18), PatchCore (Wide-ResNet-50-2, coreset 10 %)"
+    parameters: "Fit on 60 train/good images; calibrate on validation/good; evaluate ≤ 80 test images"
+    instructions:
+      - Read 'How This Algorithm Works' for PatchCore (8 steps) in the Methods Library.
+      - In the Laboratory fit PaDiM, calibrate, run on 3 defective images; repeat with PatchCore.
+      - Evaluate both on the test split; record image AUROC, pixel AUROC and latency.
+      - Open Compare Methods with PaDiM and PatchCore on the same image.
+    observations:
+      - PatchCore usually localises more precisely; PaDiM is faster to fit
+      - Small defects on large images are hard after resizing to 256 px
+    reflection:
+      - Why does PaDiM need aligned images and PatchCore not?
+      - What does a coreset ratio of 1 % vs. 25 % change?
+    extension: "Change PatchCore's coreset ratio and plot AUROC vs. latency."
+    references: [defard2021padim, roth2022patchcore, mahalanobis1936]
+    actions:
+      - {label: "How PatchCore works", page: library, preset: {method_id: patchcore}}
+      - {label: "Lab: PaDiM", page: lab, preset: {method_id: padim, dataset_id: D05}}
+      - {label: "Lab: PatchCore", page: lab, preset: {method_id: patchcore, dataset_id: D05}}
+
+  - id: "A4"
+    title: "Low-latency anomaly detection — EfficientAD"
+    duration_min: 25
+    objectives:
+      - Understand teacher–student feature disagreement
+      - Reason about latency, throughput and deployment constraints
+    theory: >-
+      EfficientAD trains a small student network to imitate a frozen teacher on normal images;
+      disagreement reveals anomalies. An autoencoder adds a global view for logical anomalies. Its
+      tiny networks make inference take milliseconds.
+    dataset: "MVTec AD 2 sheet_metal (fallback: MulSen-AD capsule RGB)"
+    algorithm: "EfficientAD-S (Anomalib model, IDD Lab short training schedule) vs. PatchCore"
+    parameters: "EfficientAD small, 10 000 steps (≈ 6 min per category on an RTX 4090 Laptop — instructor pre-trains before class; students load the cached model), 256 px"
+    instructions:
+      - Step through 'How This Algorithm Works' for EfficientAD.
+      - In the Laboratory, fit EfficientAD (or use the instructor's pre-trained session) and run it on defective images.
+      - In Compare Methods, measure latencies of EfficientAD, PaDiM, PatchCore and AnomalyDINO on the same image.
+      - Compute the maximum line speed (parts/s) each method supports with one GPU.
+      - Discuss why our short training schedule (10 000 vs. 70 000 steps; 2 000 steps gave clearly worse results in our tests) lowers EfficientAD's accuracy.
+    observations:
+      - Memory-bank search cost grows with the bank; teacher–student inference cost is constant
+      - Latency numbers depend on hardware, batch size and input resolution — always report them
+    reflection:
+      - When is 100 ms per part acceptable, and when is 2 ms required?
+      - What does EfficientAD pay for its speed?
+    extension: "Read the EfficientAD paper's latency table and compare with your measurements."
+    references: [batzner2024efficientad]
+    actions:
+      - {label: "How EfficientAD works", page: library, preset: {method_id: efficientad}}
+      - {label: "Lab: EfficientAD", page: lab, preset: {method_id: efficientad, dataset_id: D05}}
+      - {label: "Compare latencies", page: compare}
+
+  - id: "A5"
+    title: "Foundation models — AnomalyDINO vs. WinCLIP"
+    duration_min: 25
+    objectives:
+      - Distinguish zero-shot (text prompts) from few-shot (k normal images)
+      - Understand the limits of generic pretrained representations
+    theory: >-
+      WinCLIP compares image windows with text prompts like 'a photo of a damaged metal sheet' —
+      no training images. AnomalyDINO matches DINOv2 patch features against a handful of normal
+      references. Both are fast to set up but limited in resolution and specificity.
+    dataset: "MVTec AD 2 sheet_metal (fallback: MulSen-AD capsule RGB)"
+    algorithm: "WinCLIP (zero-shot, class name), AnomalyDINO (k = 1, 4)"
+    parameters: "WinCLIP class name 'auto'; AnomalyDINO 448 px, k_shot 1 and 4"
+    instructions:
+      - Run WinCLIP zero-shot on good and defective images; change the class-name prompt.
+      - Run AnomalyDINO with k = 1, then k = 4; evaluate both.
+      - Compare both with PatchCore in Compare Methods.
+    observations:
+      - Zero-shot works for obvious defects; subtle industrial defects are often missed
+      - A few normal images (few-shot) help substantially
+    reflection:
+      - What does the text prompt 'know' about your product?
+      - Why can't DINOv3 by itself decide OK/NOK?
+    extension: "Try WinCLIP with k_shot = 2 and compare with zero-shot."
+    references: [jeong2023winclip, damm2025anomalydino, oquab2023dinov2, radford2021clip]
+    actions:
+      - {label: "Lab: WinCLIP", page: lab, preset: {method_id: winclip, dataset_id: D05}}
+      - {label: "Lab: AnomalyDINO", page: lab, preset: {method_id: anomalydino, dataset_id: D05}}
+      - {label: "How WinCLIP works", page: library, preset: {method_id: winclip}}
+
+  - id: "A6"
+    title: "3D and multimodal inspection"
+    duration_min: 40
+    objectives:
+      - Visualise and manipulate real point clouds; understand registration
+      - Relate RGB, infrared and 3D to surface, internal and geometric defects
+      - Run per-modality detectors and late fusion on MulSen-AD
+    theory: >-
+      Each sensor measures a different physical quantity: reflectance (RGB), thermal response to
+      modulated heating (lock-in thermography — reveals sub-surface defects), and geometry (3D
+      scanning). A defect may be visible in only one modality. Fusion combines evidence.
+    dataset: "MulSen-AD subset (capsule, nut, flat_pad)"
+    algorithm: "Registration + deviation baseline; PatchCore on RGB and IR; late fusion"
+    parameters: "pc_deviation: auto voxel, FPFH+RANSAC, ICP point-to-plane; fusion: 40 fit samples"
+    instructions:
+      - "3D & Multimodal Lab → Multimodal viewer: open capsule test/broken_inside/3 — anomalous only in infrared."
+      - Rotate the 3D cloud, colour by ground truth; compare with RGB and IR masks.
+      - "Point-cloud inspection: align a defective capsule to a normal one, inspect fitness/RMSE and the deviation colours."
+      - "Fusion experiment: run capsule; compare RGB-only, IR-only, 3D-only and fused AUROC."
+    observations:
+      - Internal defects appear only in infrared; geometric ones in 3D
+      - Infrared images are visualisations, not calibrated temperatures
+      - Registration failures produce meaningless deviation maps
+    reflection:
+      - Which modality would you install on a production line for each defect type?
+      - Why may max-fusion be worse than the best single modality?
+    extension: "Compare mean vs. max fusion on nut and flat_pad."
+    references: [li2025mulsenad, besl1992icp, chen1992pointplane, liu2023real3dad, wang2023m3dm]
+    actions:
+      - {label: "Multimodal viewer", page: lab3d, preset: {tab: mm}}
+      - {label: "Point-cloud inspection", page: lab3d, preset: {tab: pc}}
+      - {label: "Fusion experiment", page: lab3d, preset: {tab: fusion}}
+
+  - id: "A7"
+    title: "Algorithm comparison challenge"
+    duration_min: 30
+    objectives:
+      - Compare methods on the same inputs with a fair protocol
+      - Analyse errors and the accuracy/latency trade-off
+    theory: >-
+      Fair comparisons require the same data, same splits, thresholds chosen without test labels,
+      and reported latency on stated hardware. Raw scores of different methods are not comparable;
+      normalise by each method's calibrated threshold.
+    dataset: "MVTec AD 2 sheet_metal (fallback: MulSen-AD RGB)"
+    algorithm: "Canny, SSIM, PaDiM, PatchCore, AnomalyDINO, WinCLIP"
+    parameters: "Compare Methods with 'Calibrate each method on normal images' enabled"
+    instructions:
+      - Teams choose 3 difficult test images (small defect, lighting change, good-but-unusual).
+      - Run Compare Methods; export PNG and CSV.
+      - Identify one false positive and one false negative per method and explain them.
+      - Present an accuracy-vs-latency recommendation for a production line.
+    observations:
+      - No method wins everywhere; failure modes differ
+      - Calibrated scales make heat maps comparable; raw scales do not
+    reflection:
+      - Which result would you report in a paper, and which only in class?
+      - What additional data would you collect to improve the weakest method?
+    extension: "Evaluate the best method on another category and discuss generalisation."
+    references: [roth2022patchcore, defard2021padim, damm2025anomalydino, jeong2023winclip, hecklerkram2026mvtecad2]
+    actions:
+      - {label: "Open Compare Methods", page: compare}
+      - {label: "Experiment log", page: settings}
+
+  # ---- MVTec AD 2 deep-dive (Workshop Verified models; no training during the session)
+  - id: "A"
+    title: "Why does image resolution matter?"
+    duration_min: 15
+    objectives:
+      - See how resizing a 4224×1056 image to the network input hides or preserves small defects
+      - Distinguish detection (image AUROC) from localisation (pixel AUROC, AU-PRO@0.05)
+      - Weigh accuracy against latency and GPU memory
+    theory: >-
+      PatchCore compares small patch features with a memory bank of normal patches. Squashing
+      sheet_metal to 256×256 shrinks it 16.5× horizontally but only 4.1× vertically, so a thin
+      scratch shrinks below one feature cell and normal texture is geometrically distorted. Keeping the
+      aspect ratio (1024×256) shrinks both axes 4.1×: four times more patches, more detail, more cost.
+    dataset: "MVTec AD 2 sheet_metal (test_public)"
+    algorithm: "PatchCore 256×256 vs. PatchCore 1024×256 (Workshop Verified checkpoints)"
+    parameters: "Fitted on all 137 train/good images; thresholds from the 19 validation/good images"
+    instructions:
+      - Open Educational Experiments → A. Choose an anomalous test image with a small defect.
+      - Press 'Run both PatchCore models'. Compare 'what the network sees' for both inputs.
+      - Compare heat-maps (same scale) and the predicted-mask error views; open the zoom.
+      - Read the stored metrics table. Which metric changes most? What does it cost?
+      - Repeat with a normal image and with an image under unseen lighting.
+    observations:
+      - Localisation (AU-PRO@0.05, pixel F1) improves much more than image AUROC
+      - The aspect-preserving model is slower and uses more GPU memory
+    results_from: resolution
+    limitations:
+      - One category, one backbone, one seed; 15 defective and 4 normal scenes only
+      - Local educational results on test_public, not official MVTec AD 2 scores
+    reflection:
+      - Why can image AUROC stay similar while AU-PRO changes a lot?
+      - Which resolution would you deploy for a 100 ms cycle time?
+    extension: "Compare the PaDiM 256×256 / aspect presets in Methods Laboratory and explain the difference."
+    references: [hecklerkram2026mvtecad2, roth2022patchcore, bergmann2021mvtecad_ijcv, vo2026beyondbenchmark]
+    actions:
+      - {label: "Open experiment A", page: experiments, preset: {tab: resolution}}
+      - {label: "PatchCore in the Lab", page: lab, preset: {method_id: patchcore, dataset_id: D05}}
+
+  - id: "B"
+    title: "Can a model handle changing illumination?"
+    duration_min: 15
+    objectives:
+      - Observe how scores, maps and OK/NOK decisions change when only the lighting changes
+      - Understand why lighting variants of one scene are not independent observations
+      - Read cluster-bootstrap confidence intervals and their limits
+    theory: >-
+      All MVTec AD 2 training and validation images use regular lighting; test_public shows the same
+      scenes overexposed, underexposed and with lighting shifts. A model that learned brightness rather
+      than structure raises false alarms or misses defects under unseen light. Because each scene appears
+      under several conditions, uncertainty must be estimated by resampling scenes, not images.
+    dataset: "MVTec AD 2 sheet_metal and fruit_jelly (test_public)"
+    algorithm: "Any Workshop Verified model (PatchCore, PaDiM, EfficientAD, AnomalyDINO)"
+    parameters: "Decisions at the validation-calibrated image threshold"
+    instructions:
+      - Open Educational Experiments → B. Choose a model and a scene marked '⚠ errors'.
+      - Compare the scores and decisions across lighting conditions; compute the anomaly maps.
+      - Read the line plot — which scenes cross the threshold when the light changes?
+      - Compare the cluster (scene) confidence interval with the naive (image) interval.
+      - Switch to fruit_jelly and to another model. Is the same condition always the hardest?
+    observations:
+      - Some scenes flip between OK and NOK when only the lighting changes
+      - For most models the naive (image) interval is narrower than the scene interval — but with 4–5 normal scenes neither is reliable
+    results_from: illumination
+    limitations:
+      - Only 4 (sheet_metal) or 5 (fruit_jelly) normal scenes — intervals are wide and coarse
+      - Per-condition differences are exploratory, not a ranking of lighting conditions
+      - The official robustness test (test_private_mixed) is evaluated only on MVTec's server
+    reflection:
+      - Why would 114 images give a misleadingly precise AUROC?
+      - How would you collect data to make a detector robust to lighting?
+    extension: "Propose a data-augmentation or normalisation strategy and predict its effect on the line plot."
+    references: [hecklerkram2026mvtecad2, roth2022patchcore, defard2021padim, batzner2024efficientad, damm2025anomalydino, vo2026beyondbenchmark]
+    actions:
+      - {label: "Open experiment B", page: experiments, preset: {tab: illumination}}
+
+  - id: "C"
+    title: "Why can a good AUROC produce poor decisions?"
+    duration_min: 15
+    objectives:
+      - Distinguish ranking quality (AUROC, AP, AU-PRO) from decision quality (F1, FAR, FRR)
+      - Understand where a valid threshold comes from and why test-tuned thresholds are invalid
+      - Explain a real case where AUROC is reasonable but image F1 is zero
+    theory: >-
+      AUROC asks whether defective parts score higher than good ones; it uses no threshold. A
+      production line needs one threshold, fixed without test labels — here the 99th percentile of
+      validation normal scores, or the MVTec AD 2 paper's baseline rule (mean + 3σ of validation pixel
+      scores). If that threshold lands above all test scores, nothing is rejected and F1 = 0, whatever
+      the AUROC.
+    dataset: "MVTec AD 2 fruit_jelly and sheet_metal (stored per-image scores of verified models)"
+    algorithm: "PaDiM on fruit_jelly (real example), then any verified model"
+    parameters: "Validation-calibrated threshold (valid) vs. exploratory slider (retrospective)"
+    instructions:
+      - Open Educational Experiments → C and press 'Real example: PaDiM on fruit_jelly'.
+      - Compare the grey (validation), blue (test normal) and red (test anomalous) histograms.
+      - Read the green column (valid protocol) and explain why F1 is 0.
+      - Move the slider. Note the orange banner — why may these numbers never be reported?
+      - Compare with the paper baseline rule column and with another model.
+    observations:
+      - A reasonable AUROC can coexist with F1 = 0 at a validation threshold
+      - Lower thresholds trade missed defects for false alarms
+    results_from: metrics
+    limitations:
+      - Thresholds from 19–37 validation images are themselves uncertain
+      - Exploration on test labels is for understanding only
+    reflection:
+      - Which metric would a quality manager ask for, and which a researcher?
+      - How would you choose a threshold for a real line without test labels?
+    extension: "Write down, before moving the slider, the FAR/FRR you could accept; then check which models meet it at their valid threshold."
+    references: [hecklerkram2026mvtecad2, bergmann2021mvtecad_ijcv, defard2021padim]
+    actions:
+      - {label: "Open experiment C", page: experiments, preset: {tab: metrics, preset_id: d05-fruit_jelly-padim-256}}

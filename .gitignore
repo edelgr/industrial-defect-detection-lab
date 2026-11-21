@@ -1,0 +1,39 @@
+# --- Third-party data and model assets (never commit; licenses restrict redistribution) ---
+/data/*
+!/data/README.md
+/checkpoints/*
+!/checkpoints/README.md
+/cache/
+/experiments/*
+!/experiments/README.md
+
+# --- Local user state ---
+/configs/user_settings.json
+*.sqlite
+*.db
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# --- Archives that may be downloaded/imported locally ---
+*.zip
+*.tar
+*.tar.gz
+*.tar.xz
+*.tgz
+*.7z

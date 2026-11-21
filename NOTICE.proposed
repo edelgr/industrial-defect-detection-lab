@@ -1,0 +1,12 @@
+PROPOSED — NOT IN EFFECT. This file becomes NOTICE only if Apache-2.0 is applied
+(see docs/licensing/IP_AND_ATTRIBUTION_REVIEW.md and docs/PUBLICATION_READINESS.md).
+
+Industrial Defect Detection Lab (IDD Lab)
+Copyright 2026 Edel García Reyes
+
+This product is a personal, independent educational initiative. It is not an official product of,
+and is not endorsed by, any institution.
+
+This product depends on third-party software installed separately by the user (not redistributed);
+see THIRD_PARTY_NOTICES.md. It does not include datasets or model weights; their licences are listed
+in docs/LICENSE_AUDIT.md.

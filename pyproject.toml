@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "idd-lab"
+version = "0.1.0"
+description = "Industrial Defect Detection Lab — interactive learning and benchmarking for industrial defect and anomaly detection (CIARP 2026 workshop)"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { text = "TO BE DECIDED by the maintainers before publication (Apache-2.0 suggested)" }
+authors = [{ name = "IDD Lab contributors" }]
+# Versions below are the ones installed and tested on 2026-11-20 (Windows 11, Python 3.12.6).
+dependencies = [
+  "PySide6==6.12.0",
+  "numpy==2.5.4",
+  "scipy",
+  "opencv-python-headless",
+  "scikit-learn",
+  "scikit-image",
+  "matplotlib",
+  "pyqtgraph",
+  "pyyaml",
+  "jsonschema",
+  "requests",
+]
+
+
+[project.urls]
+Repository = "https://github.com/edelgr/industrial-defect-detection-lab"
+[project.optional-dependencies]
+# PyTorch must be installed from the CUDA index first (see setup.ps1):
+#   pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cu130
+deep = [
+  "anomalib==2.7.1",
+  "open-clip-torch>=2.23.0,<2.26.1",   # anomalib's WinCLIP requires < 2.26.1
+  "timm",
+]
+3d = ["open3d==0.20.0", "pyvista", "pyvistaqt"]
+dev = ["pytest", "pytest-qt"]
+
+[tool.setuptools.packages.find]
+include = ["app*", "core*", "research_catalog*", "scripts*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"
+filterwarnings = ["ignore::DeprecationWarning", "ignore::FutureWarning"]

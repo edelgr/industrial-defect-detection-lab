@@ -1,0 +1,72 @@
+id: D01
+name: MVTec Anomaly Detection Dataset
+acronym: MVTec AD
+adapter: core.datasets.mvtec:MVTecADAdapter
+description_en: >-
+  The foundational benchmark for unsupervised industrial anomaly detection and localisation:
+  15 categories of textures and objects, defect-free training images and a test set with
+  73 defect types annotated with pixel-precise masks.
+description_es: >-
+  El benchmark fundacional para la detección y localización no supervisada de anomalías
+  industriales: 15 categorías de texturas y objetos, imágenes de entrenamiento sin defectos y un
+  conjunto de prueba con 73 tipos de defecto anotados con máscaras a nivel de píxel.
+scientific_purpose: >-
+  Provide a common, realistic benchmark on which methods trained only on normal images can be
+  compared for image-level detection and pixel-level localisation of surface defects.
+year_first_release: 2019
+publication_year: 2019
+authors: [Paul Bergmann, Michael Fauser, David Sattlegger, Carsten Steger]
+institutions: [MVTec Software GmbH]
+publication_title: "MVTec AD -- A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection"
+publication_venue: "CVPR 2019 (extended version: IJCV 129(4), 2021)"
+doi: 10.1109/CVPR.2019.00982
+paper_url: https://openaccess.thecvf.com/content_CVPR_2019/html/Bergmann_MVTec_AD_--_A_Comprehensive_Real-World_Dataset_for_Unsupervised_Anomaly_CVPR_2019_paper.html
+paper_pdf_url: https://openaccess.thecvf.com/content_CVPR_2019/papers/Bergmann_MVTec_AD_--_A_Comprehensive_Real-World_Dataset_for_Unsupervised_Anomaly_CVPR_2019_paper.pdf
+official_website: https://www.mvtec.com/research-teaching/datasets/mvtec-ad
+official_repository_url: null
+implementation_repository_url: null
+download_url: https://www.mvtec.com/research-teaching/datasets/mvtec-ad/downloads
+access_method: "Free for non-commercial use; MVTec asks users to fill in a form before downloading. Per-category .tar.xz archives (104-705 MB) or the full archive (~4.9 GB)."
+license: CC BY-NC-SA 4.0
+license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+redistribution_allowed: "Non-commercial redistribution with attribution under the same licence; IDD Lab never redistributes it."
+modalities: [rgb, grayscale]
+categories: [bottle, cable, capsule, carpet, grid, hazelnut, leather, metal_nut, pill, screw, tile, toothbrush, transistor, wood, zipper]
+sample_count: 5354
+anomaly_types: [structural, surface, missing_part, misplacement]
+annotation_types: [image-level label, pixel-precise segmentation mask]
+data_formats: [PNG]
+image_resolution: "700×700 to 1024×1024 (grid, screw, zipper are single-channel)"
+train_split: "3629 defect-free images"
+validation_split: "none in the official release"
+test_split: "467 good + 1258 defective images"
+ground_truth_availability: "Public pixel-precise masks for every defective test image (~1888 regions)."
+benchmark_protocol: >-
+  Train on defect-free images only; report image-level AUROC and pixel-level AUROC / PRO (the
+  official evaluation code computes PRO up to 30 % FPR). No official validation set: choosing
+  thresholds on test labels inflates F1-type results.
+principal_challenges:
+  - Detect small, subtle surface defects using only normal training images
+  - Large variety of defect types per category
+  - Texture vs. object categories behave differently
+scientific_contribution: >-
+  Established the de-facto standard benchmark and protocol (unsupervised training, image and
+  pixel AUROC, PRO) that drove the development of PaDiM, PatchCore, EfficientAD and most
+  subsequent methods.
+limitations:
+  - Near-saturated performance (top methods > 99 % image AUROC on many categories)
+  - Mostly well-aligned, uniformly lit images; few logical anomalies
+  - No official validation split for threshold selection
+recommended_educational_exercises:
+  - Compare texture and object categories with PatchCore and PaDiM
+  - Show why a high image AUROC does not imply good pixel localisation
+size_notes: "Full ~4.9 GB; categories 104-705 MB each (bottle 148 MB, screw 186 MB)."
+installation_status: not_installed
+source_verification_date: "2026-11-20"
+source_verification_status: verified_automated
+source_notes: "CVF pages may return 403 to automated clients; verified via Crossref and a browser user agent."
+publication_ids: [bergmann2019mvtecad, bergmann2021mvtecad_ijcv]
+resource_guide: >-
+  Paper: CVF open access (and IJCV 2021 extension). Dataset + official evaluation code: MVTec
+  website / downloads page (mydrive.ch archives). There is no GitHub repository; no model code
+  or weights are part of this dataset.

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="250" viewBox="0 0 960 250" font-family="Segoe UI, Arial, sans-serif">
+<text x="16" y="24" fill="#e8eef4" font-size="15" font-weight="600">EfficientAD</text>
+<text x="944" y="24" fill="#f0a742" font-size="11" text-anchor="end">CONCEPTUAL DIAGRAM — not real model activations</text>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9aa8b6"/></marker></defs>
+<rect x="221.0" y="52" rx="9" width="150" height="62" fill="#24303c" stroke="#2bb3a3" stroke-width="1.4"/>
+<g transform="translate(231.0,68)"><g fill="#2bb3a3"><circle cx="3" cy="5" r="2.2"/><circle cx="12" cy="9" r="2.2"/><circle cx="22" cy="4" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="18" cy="21" r="2.2"/><circle cx="27" cy="14" r="2.2"/><circle cx="14" cy="27" r="2.2"/></g></g>
+<text x="269.0" y="79" fill="#9aa8b6" font-size="11">1</text>
+<text x="269.0" y="96" fill="#e8eef4" font-size="13" font-weight="500">Teacher</text>
+<rect x="405.0" y="52" rx="9" width="150" height="62" fill="#24303c" stroke="#2bb3a3" stroke-width="1.4"/>
+<g transform="translate(415.0,68)"><g fill="#2bb3a3"><circle cx="3" cy="5" r="2.2"/><circle cx="12" cy="9" r="2.2"/><circle cx="22" cy="4" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="18" cy="21" r="2.2"/><circle cx="27" cy="14" r="2.2"/><circle cx="14" cy="27" r="2.2"/></g></g>
+<text x="453.0" y="79" fill="#9aa8b6" font-size="11">2</text>
+<text x="453.0" y="96" fill="#e8eef4" font-size="13" font-weight="500">Student</text>
+<rect x="589.0" y="52" rx="9" width="150" height="62" fill="#2bb3a3" stroke="#2bb3a3" stroke-width="2.5"/>
+<g transform="translate(599.0,68)"><g fill="#0d2a27"><circle cx="3" cy="5" r="2.2"/><circle cx="12" cy="9" r="2.2"/><circle cx="22" cy="4" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="18" cy="21" r="2.2"/><circle cx="27" cy="14" r="2.2"/><circle cx="14" cy="27" r="2.2"/></g></g>
+<text x="637.0" y="79" fill="#06231f" font-size="11">3</text>
+<text x="637.0" y="96" fill="#06231f" font-size="13" font-weight="700">Learn normal</text>
+<rect x="221.0" y="150" rx="9" width="150" height="62" fill="#24303c" stroke="#3a4a5a" stroke-width="1.4"/>
+<g transform="translate(231.0,166)"><g fill="#2bb3a3"><circle cx="3" cy="5" r="2.2"/><circle cx="12" cy="9" r="2.2"/><circle cx="22" cy="4" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="18" cy="21" r="2.2"/><circle cx="27" cy="14" r="2.2"/><circle cx="14" cy="27" r="2.2"/></g></g>
+<text x="269.0" y="177" fill="#9aa8b6" font-size="11">4</text>
+<text x="269.0" y="194" fill="#e8eef4" font-size="13" font-weight="500">Disagreement</text>
+<rect x="405.0" y="150" rx="9" width="150" height="62" fill="#24303c" stroke="#3a4a5a" stroke-width="1.4"/>
+<g transform="translate(415.0,166)"><g><rect width="30" height="30" fill="#2a1f3d"/><circle cx="19" cy="12" r="8" fill="#f0a742" opacity=".9"/><circle cx="19" cy="12" r="4" fill="#ffe08a"/></g></g>
+<text x="453.0" y="177" fill="#9aa8b6" font-size="11">5</text>
+<text x="453.0" y="194" fill="#e8eef4" font-size="13" font-weight="500">Localisation</text>
+<rect x="589.0" y="150" rx="9" width="150" height="62" fill="#24303c" stroke="#3a4a5a" stroke-width="1.4"/>
+<g transform="translate(599.0,166)"><g fill="#2bb3a3"><circle cx="3" cy="5" r="2.2"/><circle cx="12" cy="9" r="2.2"/><circle cx="22" cy="4" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="18" cy="21" r="2.2"/><circle cx="27" cy="14" r="2.2"/><circle cx="14" cy="27" r="2.2"/></g></g>
+<text x="637.0" y="177" fill="#9aa8b6" font-size="11">6</text>
+<text x="637.0" y="194" fill="#e8eef4" font-size="13" font-weight="500">Latency</text>
+<line x1="371.0" y1="83.0" x2="402.0" y2="83.0" stroke="#9aa8b6" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="555.0" y1="83.0" x2="586.0" y2="83.0" stroke="#9aa8b6" stroke-width="1.6" marker-end="url(#a)"/>
+<path d="M664.0,114 C664.0,136 296.0,128 296.0,147" fill="none" stroke="#9aa8b6" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="371.0" y1="181.0" x2="402.0" y2="181.0" stroke="#9aa8b6" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="555.0" y1="181.0" x2="586.0" y2="181.0" stroke="#9aa8b6" stroke-width="1.6" marker-end="url(#a)"/>
+</svg>

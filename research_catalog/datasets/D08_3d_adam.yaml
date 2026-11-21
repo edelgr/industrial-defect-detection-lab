@@ -1,0 +1,63 @@
+id: D08
+name: 3D Anomaly Detection in Additive Manufacturing
+acronym: 3D-ADAM
+adapter: null
+description_en: >-
+  14,120 high-resolution RGB + 3D scans of 217 additively manufactured (3D-printed) parts
+  acquired with four industrial depth sensors, with 27,346 annotated defects in 12 categories and
+  machine-element feature annotations.
+description_es: >-
+  14 120 escaneos RGB + 3D de alta resolución de 217 piezas fabricadas aditivamente (impresión 3D)
+  adquiridos con cuatro sensores de profundidad industriales, con 27 346 defectos anotados en 12
+  categorías y anotaciones de elementos de máquina.
+scientific_purpose: >-
+  Benchmark RGB and 3D anomaly detection on real additive-manufacturing surfaces, where layer
+  lines and process artefacts make normality hard to define.
+year_first_release: 2025
+publication_year: 2026
+authors: [Paul McHard, Florent P. Audonnet, Oliver Summerell, Sebastian Andraos, Paul Henderson, Gerardo Aragon-Camarasa]
+institutions: [University of Glasgow]
+publication_title: "3D-ADAM: A Dataset for 3D Anomaly Detection in Additive Manufacturing"
+publication_venue: "IEEE ICRA 2026 (arXiv preprint July 2025)"
+doi: 10.1109/ICRA57385.2026.11697283
+paper_url: https://arxiv.org/abs/2507.07838
+paper_pdf_url: https://arxiv.org/pdf/2507.07838
+official_website: https://huggingface.co/datasets/pmchard/3D-ADAM
+official_repository_url: null
+implementation_repository_url: https://github.com/open-edge-platform/anomalib
+download_url: https://huggingface.co/datasets/pmchard/3D-ADAM
+access_method: "Public Hugging Face dataset (not gated), ≈ 669 GB raw; prepared Anomalib subset pmchard/3D-ADAM_anomalib (MechMind-Nano, ≈ 5.2 GB zip)."
+license: CC BY-NC-SA 4.0
+license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+redistribution_allowed: "Non-commercial, share-alike with attribution."
+modalities: [rgb, point_cloud, depth]
+categories: [1m1, 1m2, 1m3, 2m1, 2m2h, 2m2m, 3m1, 3m2, 3m2c, 4m1, 4m2, 4m2c, gripper_closed, gripper_open, helicalgear1, helicalgear2, rackgear, spiralgear, spurgear, tapa2m1, tapa3m1, tapa4m1, tapatbb]
+sample_count: 14120
+anomaly_types: [geometric, surface, bulge, under_extrusion, over_extrusion, cut, hole, crack]
+annotation_types: [defect masks, bounding boxes, machine-element annotations]
+data_formats: [PNG, PLY, TIFF (xyz)]
+image_resolution: "1.28k-2.21k px wide (sensor dependent; per-sensor values unverified)"
+train_split: "Anomalib subset: train/good per category"
+validation_split: "Anomalib subset: validation/good"
+test_split: "Anomalib subset: test/<defect> (test/good not observed in inspected categories)"
+ground_truth_availability: "Public masks."
+benchmark_protocol: "Paper benchmarks 2D and 3D AD methods via Anomalib on the prepared subset."
+principal_challenges:
+  - Layer lines and printing artefacts are normal but look like texture defects
+  - Four sensors with different noise characteristics
+  - Very large raw volume
+scientific_contribution: "First large-scale RGB+3D anomaly dataset for additive manufacturing with real defects."
+limitations:
+  - Very large; Anomalib subset still 5.2 GB
+  - No dedicated code repository
+recommended_educational_exercises:
+  - Discuss why defining 'normal' is harder for 3D-printed parts (conceptual)
+size_notes: "Raw ≈ 669 GB; Anomalib subset ≈ 5.2 GB — not used in the workshop."
+installation_status: not_installed
+source_verification_date: "2026-11-20"
+source_verification_status: verified_automated
+source_notes: "IEEE record 11697283 confirmed as ICRA 2026 via Crossref (IEEE Xplore blocks bots). HF dataset DOI 10.57967/hf/5526."
+publication_ids: [mchard2026adam3d]
+resource_guide: >-
+  Paper: arXiv preprint and IEEE ICRA 2026 record. Data: Hugging Face pmchard/3D-ADAM (raw) and
+  pmchard/3D-ADAM_anomalib (prepared). No dedicated code repository; the cards point to Anomalib.

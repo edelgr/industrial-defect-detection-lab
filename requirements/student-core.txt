@@ -1,0 +1,16 @@
+# IDD Lab Student Edition — CORE profile (no PyTorch): Atlas, Methods Library, Learning Center,
+# Dataset Explorer, classical methods, Educational Experiments (stored results), tests.
+# Top-level pins taken from the instructor lock; the full resolution is requirements/student-core-lock.txt.
+PySide6-Essentials==6.12.0   # Essentials only: IDD Lab uses QtCore, QtGui, QtWidgets, QtSvgWidgets (avoids the long paths of PySide6_Addons)
+numpy==2.5.4
+scipy==1.18.1
+opencv-python-headless==5.1.0.95
+scikit-learn==1.9.1
+scikit-image==0.26.0
+matplotlib==3.11.2
+pyqtgraph==0.14.0
+PyYAML==6.0.3
+jsonschema==4.26.0
+requests==2.34.2
+pytest==9.2.0
+pytest-qt==4.5.0

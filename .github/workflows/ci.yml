@@ -1,0 +1,90 @@
+# IDD Lab continuous integration.
+# - No datasets and no pretrained weights are downloaded (IDD_OFFLINE_WEIGHTS=1 makes weight-dependent
+#   tests skip instead of downloading; datasets are never fetched by the tests).
+# - GitHub-hosted runners have no NVIDIA GPU: CUDA tests skip automatically; run them locally with .\test.ps1.
+# - This workflow never publishes releases or packages.
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      deep_cpu:
+        description: "Also run the optional deep-learning (CPU PyTorch) job"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  static-docs-catalog:
+    name: Static checks, documentation, research catalog
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/student-core-lock.txt
+      - name: Static checks (syntax errors, undefined names)
+        run: |
+          python -m pip install ruff==0.6.9
+          ruff check --no-cache --select E9,F63,F7,F82 --target-version py311 app core scripts tests
+      - name: Install Student core profile
+        run: python -m pip install -r requirements/student-core-lock.txt
+      - name: Documentation checks
+        run: python -m scripts.check_docs
+      - name: Research catalog validation (schemas, referential integrity, CITATIONS.bib in sync)
+        run: python -m pytest -q tests/test_catalog.py
+
+  core-tests:
+    name: Unit + Qt tests (CPU, Student core profile)
+    runs-on: windows-latest
+    env:
+      QT_QPA_PLATFORM: offscreen
+      IDD_OFFLINE_WEIGHTS: "1"
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/student-core-lock.txt
+      - name: Install Student core profile
+        run: python -m pip install -r requirements/student-core-lock.txt
+      - name: Generate Synthetic Educational Data
+        run: python -m scripts.prepare_datasets synthetic
+      - name: Student offline readiness
+        run: python -m scripts.readiness --profile student
+      - name: Tests (deep-learning, dataset and GPU tests skip automatically)
+        run: python -m pytest -q
+      - name: Qt start-up smoke test
+        env:
+          IDD_SMOKE_TEST: "1"
+        run: python -m app.main
+
+  deep-cpu:
+    name: Optional deep-learning tests (CPU PyTorch, no weight downloads)
+    if: github.event_name == 'workflow_dispatch' && inputs.deep_cpu
+    runs-on: windows-latest
+    env:
+      QT_QPA_PLATFORM: offscreen
+      IDD_OFFLINE_WEIGHTS: "1"
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PyTorch (CPU) and the Student full profile
+        run: |
+          python -m pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements/student-full-lock.txt
+      - name: Tests
+        run: |
+          python -m scripts.prepare_datasets synthetic
+          python -m pytest -q

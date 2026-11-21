@@ -1,0 +1,229 @@
+title: "Start Learning"
+subtitle: "A guided path through industrial defect detection — from pixels to production decisions."
+intro: |
+  ## Welcome to the Learning Center
+  Nine short topics take you from the basics of industrial inspection to evaluation and deployment.
+  Every topic has an intuitive explanation, the scientific background, an interactive demonstration
+  inside IDD Lab, a practical exercise, reflection questions and the original papers and code.
+
+  **Nothing here requires a research dataset or a GPU to begin.** Demonstrations marked
+  *synthetic* use IDD Lab's procedurally generated **Synthetic Educational Data — Not a Real
+  Industrial Benchmark**. Demonstrations marked *stored results* show results that were computed
+  and verified on the instructor's computer with real MVTec AD 2 data; they are clearly labelled and
+  are never presented as inference on your computer. Live deep-learning inference needs PyTorch, the
+  dataset and a fitted model (see **Model Manager**).
+
+  The full exercise sheets are in `docs/exercises/` (English).
+topics:
+  - id: T1
+    title: "1 · Introduction to industrial defect detection"
+    minutes: 10
+    explanation: >-
+      Visual inspection decides whether a manufactured part is acceptable (OK) or defective (NOK) and,
+      ideally, where the defect is. Defects are rare, varied and often tiny; normal parts also vary.
+      That is why most modern methods learn what *normal* looks like and flag deviations.
+    example: >-
+      A brushed-metal sheet with a thin scratch: the scratch is darker than its surroundings, but the
+      brushing texture and the lighting also change brightness — a fixed brightness rule fails.
+    background: >-
+      Two families exist: supervised detection/segmentation (needs labelled defects) and unsupervised
+      anomaly detection (learns from normal images only, the setting of MVTec AD and its successors).
+    demo:
+      - {label: "Open a synthetic scratch in the Dataset Explorer", page: explorer, preset: {dataset_id: SYN}}
+      - {label: "Dataset Research Atlas — timeline", page: atlas}
+    exercise: {id: EX1, title: "Exercise 1 — Classical Defect Detection"}
+    reflection:
+      - Why are defective examples hard to collect in a factory?
+      - What changes in an image when only the lighting changes?
+    papers: [bergmann2019mvtecad, bergmann2021mvtecad_ijcv]
+    algorithms: []
+    datasets: [D01]
+
+  - id: T2
+    title: "2 · Understanding research datasets"
+    minutes: 15
+    explanation: >-
+      Benchmarks fix the data, the splits, the annotations and the metrics so that methods can be
+      compared fairly. Training sets contain only normal images; test sets contain normal and defective
+      images with pixel masks. Some benchmarks keep test labels private to prevent tuning on the test set.
+    example: >-
+      MVTec AD 2 provides train/validation (normal only), a small labelled `test_public`, and private
+      test splits scored only by MVTec's server.
+    background: >-
+      Each dataset in the Atlas has its paper, DOI, licence, access route and protocol. Licences differ:
+      CC BY-NC-SA, CC BY, research-only, or not stated — which decides what you may redistribute.
+    demo:
+      - {label: "Compare datasets in the Atlas", page: atlas}
+      - {label: "MVTec AD 2 profile", page: atlas, preset: {dataset_id: D05}}
+      - {label: "MulSen-AD profile", page: atlas, preset: {dataset_id: D06}}
+    exercise: {id: EX1, title: "Exercise 1 (part A) — reading a benchmark protocol"}
+    reflection:
+      - Why would a benchmark hide its test labels?
+      - Which dataset licence would allow you to share a trained model commercially?
+    papers: [hecklerkram2026mvtecad2, li2025mulsenad, zou2022visa, liu2023real3dad]
+    algorithms: []
+    datasets: [D05, D06, D03, D04]
+
+  - id: T3
+    title: "3 · Classical computer vision"
+    minutes: 20
+    explanation: >-
+      Thresholds, edges, texture filters, morphology and comparison with a reference image are fast,
+      explainable and need no training — but they are sensitive to lighting, texture and alignment.
+    example: >-
+      Otsu separates dark scratches from bright metal when lighting is uniform; a gradient of light
+      breaks it. Gabor filters respond to texture orientation; morphology removes small noise.
+    background: >-
+      Otsu (1979) maximises between-class variance; Canny (1986) finds thin, connected edges; Gabor
+      filters are localized frequency/orientation detectors; SSIM compares local structure.
+    demo:
+      - {label: "Run Otsu on synthetic data (Methods Laboratory)", page: lab, preset: {method_id: otsu, dataset_id: SYN}}
+      - {label: "Run morphology (top-hat / black-hat)", page: lab, preset: {method_id: morphology, dataset_id: SYN}}
+      - {label: "Reference-image comparison", page: lab, preset: {method_id: reference_difference, dataset_id: SYN}}
+      - {label: "How Otsu works (step by step)", page: library, preset: {method_id: otsu}}
+    exercise: {id: EX1, title: "Exercise 1 — Classical Defect Detection"}
+    reflection:
+      - Which classical method is least affected by a lighting gradient, and why?
+      - What does a morphological opening do to a one-pixel-wide scratch?
+    papers: [otsu1979, canny1986, jain1991, serra1982, wang2004ssim]
+    algorithms: [otsu, canny, gabor, morphology, reference_difference, ssim]
+    datasets: []
+
+  - id: T4
+    title: "4 · Supervised defect detection"
+    minutes: 10
+    explanation: >-
+      With many labelled defects, a network can classify (OK/NOK), detect (boxes) or segment (masks).
+      Supervised models are accurate on the defect types they saw — and blind to new ones.
+    example: >-
+      A detector trained on scratches and dents may miss a stain it never saw during training.
+    background: >-
+      CNN classifiers (ResNet), detectors (YOLO) and segmenters (U-Net) are the main supervised tools.
+      In IDD Lab they are explanation-only: training them requires labelled data and time.
+    demo:
+      - {label: "Methods Library — supervised family", page: library, preset: {method_id: unet}}
+    exercise: {id: EX8, title: "Exercise 8 — Industrial Decision Making (discussion)"}
+    reflection:
+      - When is collecting labelled defects worth the cost?
+      - What happens when a new defect type appears in production?
+    papers: [he2016resnet, redmon2016yolo, ronneberger2015unet]
+    algorithms: [cnn_classification, yolo, unet]
+    datasets: []
+
+  - id: T5
+    title: "5 · Unsupervised anomaly detection"
+    minutes: 25
+    explanation: >-
+      Learn normality from defect-free images; at test time, score how far each patch is from normal.
+      PaDiM fits a Gaussian per position; PatchCore keeps a memory bank of normal patch features and
+      measures the distance to the nearest one; EfficientAD trains a fast student to imitate a teacher.
+    example: >-
+      A patch on a scratch has no close neighbour among the normal patches, so its distance — the
+      anomaly score — is high and lights up in the heat-map.
+    background: >-
+      These methods reuse ImageNet-pretrained backbones (via Anomalib) and need a fitting step on
+      normal images. Their scores are raw distances, not probabilities.
+    demo:
+      - {label: "How PatchCore works (step by step)", page: library, preset: {method_id: patchcore}}
+      - {label: "PatchCore in the Methods Laboratory", page: lab, preset: {method_id: patchcore}}
+      - {label: "Model Manager — what is installed", page: models}
+    exercise: {id: EX2, title: "Exercise 2 — Understanding PatchCore (and Exercise 3 — Comparing algorithms)"}
+    reflection:
+      - Why is fitting only on normal images an advantage — and a risk?
+      - Why are raw anomaly scores of different methods not comparable?
+    papers: [defard2021padim, roth2022patchcore, batzner2024efficientad, akcay2022anomalib]
+    algorithms: [padim, patchcore, efficientad]
+    datasets: [D05]
+
+  - id: T6
+    title: "6 · Foundation models"
+    minutes: 15
+    explanation: >-
+      Large self-supervised (DINOv2) or vision-language (CLIP) models provide general features. With
+      them, anomaly detection works with only a few normal images (AnomalyDINO) or none at all, using a
+      text prompt (WinCLIP).
+    example: >-
+      WinCLIP compares image windows with prompts such as "a photo of a damaged object".
+    background: >-
+      Foundation features reduce data needs but are heavy to run and inherit the biases and licences of
+      their training data and weights.
+    demo:
+      - {label: "AnomalyDINO in the Methods Library", page: library, preset: {method_id: anomalydino}}
+      - {label: "WinCLIP in the Methods Library", page: library, preset: {method_id: winclip}}
+    exercise: {id: EX3, title: "Exercise 3 — Comparing Anomaly Detection Algorithms"}
+    reflection:
+      - What do you gain and lose with a zero-shot detector?
+      - Why does the licence of pretrained weights matter for a product?
+    papers: [oquab2023dinov2, damm2025anomalydino, radford2021clip, jeong2023winclip]
+    algorithms: [anomalydino, winclip, dino_features]
+    datasets: []
+
+  - id: T7
+    title: "7 · 3D and multimodal inspection"
+    minutes: 20
+    explanation: >-
+      Some defects change geometry, not colour (a dent under uniform paint) or are only visible in
+      infrared. 3D point clouds and multiple sensors add information that a single RGB camera lacks.
+    example: >-
+      A synthetic surface with a 0.9-unit bump is invisible in a top-down grey image but obvious as a
+      geometric deviation after registration to a normal reference.
+    background: >-
+      Registration (ICP, FPFH+RANSAC) aligns a scan to a reference; the distance after alignment is a
+      simple geometric anomaly score. Late fusion combines per-modality scores.
+    demo:
+      - {label: "3D & Multimodal Lab (synthetic surface patches)", page: lab3d}
+    exercise: {id: EX7, title: "Exercise 7 — Multimodal Anomaly Detection"}
+    reflection:
+      - Which defects can only be seen in 3D? Which only in infrared?
+      - What goes wrong if registration fails?
+    papers: [besl1992icp, rusu2009fpfh, li2025mulsenad, wang2023m3dm]
+    algorithms: [pc_deviation, multimodal_fusion, m3dm]
+    datasets: [D06, D04]
+
+  - id: T8
+    title: "8 · Evaluation metrics"
+    minutes: 20
+    explanation: >-
+      Ranking metrics (AUROC, AP, AU-PRO) ask whether defective parts score higher than normal ones;
+      decision metrics (precision, recall, F1, false accepts and false rejects) depend on one threshold,
+      which must be fixed without looking at test labels.
+    example: >-
+      A real, stored example: PaDiM on MVTec AD 2 fruit_jelly ranks reasonably (AUROC 0.73) but its
+      validation threshold rejects nothing — image F1 = 0.
+    background: >-
+      AU-PRO averages the overlap per defect region so small defects count; MVTec AD 2 integrates it up
+      to a 5 % false-positive rate. Repeated photos of one part are not independent observations.
+    demo:
+      - {label: "Understanding Evaluation Metrics (stored results)", page: experiments, preset: {tab: metrics, preset_id: d05-fruit_jelly-padim-256}}
+      - {label: "Resolution matters (stored results)", page: experiments, preset: {tab: resolution}}
+      - {label: "Illumination robustness (stored results)", page: experiments, preset: {tab: illumination}}
+    exercise: {id: EX6, title: "Exercise 6 — Understanding Evaluation Metrics (also Exercises 4 and 5)"}
+    reflection:
+      - Why can a good AUROC produce poor decisions?
+      - Why is tuning the threshold on the test set not a valid result?
+    papers: [bergmann2021mvtecad_ijcv, hecklerkram2026mvtecad2, vo2026beyondbenchmark]
+    algorithms: []
+    datasets: [D05]
+
+  - id: T9
+    title: "9 · Industrial deployment constraints"
+    minutes: 15
+    explanation: >-
+      A line needs a decision within a cycle time, a controlled false-reject rate (scrap cost) and a
+      very low false-accept rate (escapes). Lighting, part variation and drift must be monitored.
+    example: >-
+      At 100 ms per part, a 1024-px model that takes 80 ms leaves little margin for image capture and
+      communication; a lower resolution may be faster but miss small defects.
+    background: >-
+      A research anomaly-detection model is not, by itself, a certified machinery safety system. Safety
+      functions require dedicated, validated and certified safety equipment and procedures.
+    demo:
+      - {label: "Compare Methods (latency and decisions)", page: compare}
+      - {label: "Guided Workshop", page: workshop}
+    exercise: {id: EX8, title: "Exercise 8 — Industrial Decision Making"}
+    reflection:
+      - Which costs more in your industry: a false reject or a false accept?
+      - What would you monitor after deployment?
+    papers: [batzner2024efficientad, hecklerkram2026mvtecad2]
+    algorithms: [efficientad, patchcore]
+    datasets: []

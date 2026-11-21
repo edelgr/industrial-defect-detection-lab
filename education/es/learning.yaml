@@ -1,0 +1,237 @@
+title: "Empezar a aprender"
+subtitle: "Un recorrido guiado por la detección de defectos industriales: de los píxeles a las decisiones de producción."
+intro: |
+  ## Bienvenido al Centro de aprendizaje
+  Nueve temas breves le llevan desde los fundamentos de la inspección industrial hasta la evaluación y el
+  despliegue. Cada tema tiene una explicación intuitiva, el fundamento científico, una demostración
+  interactiva dentro de IDD Lab, un ejercicio práctico, preguntas de reflexión y los artículos y el código
+  originales.
+
+  **Para empezar no se necesita ningún dataset de investigación ni GPU.** Las demostraciones marcadas como
+  *sintéticas* usan los **Datos educativos sintéticos — no son un benchmark industrial real** que IDD Lab
+  genera por procedimiento. Las marcadas como *resultados almacenados* muestran resultados calculados y
+  verificados en el ordenador del instructor con datos reales de MVTec AD 2; están claramente etiquetadas y
+  nunca se presentan como inferencia en su ordenador. La inferencia en vivo con aprendizaje profundo necesita
+  PyTorch, el dataset y un modelo ajustado (véase el **Gestor de modelos**).
+
+  Las hojas completas de ejercicios están en `docs/exercises/` (en inglés).
+topics:
+  - id: T1
+    title: "1 · Introducción a la detección de defectos industriales"
+    minutes: 10
+    explanation: >-
+      La inspección visual decide si una pieza fabricada es aceptable (OK) o defectuosa (NOK) e, idealmente,
+      dónde está el defecto. Los defectos son raros, variados y a menudo diminutos; las piezas normales también
+      varían. Por eso la mayoría de los métodos modernos aprenden cómo es lo *normal* y señalan las desviaciones.
+    example: >-
+      Una chapa de metal cepillado con un rayón fino: el rayón es más oscuro que su entorno, pero la textura del
+      cepillado y la iluminación también cambian el brillo, así que una regla fija de brillo falla.
+    background: >-
+      Hay dos familias: la detección o segmentación supervisada (necesita defectos etiquetados) y la detección no
+      supervisada de anomalías (aprende solo de imágenes normales, el planteamiento de MVTec AD y sus sucesores).
+    demo:
+      - {label: "Abrir un rayón sintético en el Explorador de datasets", page: explorer, preset: {dataset_id: SYN}}
+      - {label: "Atlas de investigación de datasets: línea de tiempo", page: atlas}
+    exercise: {id: EX1, title: "Ejercicio 1 — Detección clásica de defectos"}
+    reflection:
+      - ¿Por qué es difícil reunir ejemplos defectuosos en una fábrica?
+      - ¿Qué cambia en una imagen cuando solo cambia la iluminación?
+    papers: [bergmann2019mvtecad, bergmann2021mvtecad_ijcv]
+    algorithms: []
+    datasets: [D01]
+
+  - id: T2
+    title: "2 · Comprender los datasets de investigación"
+    minutes: 15
+    explanation: >-
+      Los benchmarks fijan los datos, las particiones, las anotaciones y las métricas para comparar métodos de
+      forma justa. Los conjuntos de entrenamiento contienen solo imágenes normales; los de prueba, imágenes
+      normales y defectuosas con máscaras de píxel. Algunos benchmarks mantienen privadas las etiquetas de prueba
+      para impedir el ajuste con el conjunto de test.
+    example: >-
+      MVTec AD 2 ofrece train/validation (solo normales), un pequeño `test_public` etiquetado y particiones de
+      prueba privadas que solo evalúa el servidor de MVTec.
+    background: >-
+      Cada dataset del Atlas tiene su artículo, DOI, licencia, vía de acceso y protocolo. Las licencias difieren
+      (CC BY-NC-SA, CC BY, solo investigación o no declarada) y eso decide qué se puede redistribuir.
+    demo:
+      - {label: "Comparar datasets en el Atlas", page: atlas}
+      - {label: "Ficha de MVTec AD 2", page: atlas, preset: {dataset_id: D05}}
+      - {label: "Ficha de MulSen-AD", page: atlas, preset: {dataset_id: D06}}
+    exercise: {id: EX1, title: "Ejercicio 1 (parte A) — leer el protocolo de un benchmark"}
+    reflection:
+      - ¿Por qué ocultaría un benchmark sus etiquetas de prueba?
+      - ¿Qué licencia de dataset le permitiría compartir comercialmente un modelo entrenado?
+    papers: [hecklerkram2026mvtecad2, li2025mulsenad, zou2022visa, liu2023real3dad]
+    algorithms: []
+    datasets: [D05, D06, D03, D04]
+
+  - id: T3
+    title: "3 · Visión por computadora clásica"
+    minutes: 20
+    explanation: >-
+      Los umbrales, los bordes, los filtros de textura, la morfología y la comparación con una imagen de
+      referencia son rápidos, explicables y no necesitan entrenamiento, pero son sensibles a la iluminación, la
+      textura y la alineación.
+    example: >-
+      Otsu separa rayones oscuros del metal brillante cuando la iluminación es uniforme; un gradiente de luz lo
+      rompe. Los filtros de Gabor responden a la orientación de la textura; la morfología elimina ruido pequeño.
+    background: >-
+      Otsu (1979) maximiza la varianza entre clases; Canny (1986) encuentra bordes finos y conectados; los filtros
+      de Gabor son detectores localizados de frecuencia y orientación; SSIM compara la estructura local.
+    demo:
+      - {label: "Ejecutar Otsu con datos sintéticos (Laboratorio de métodos)", page: lab, preset: {method_id: otsu, dataset_id: SYN}}
+      - {label: "Ejecutar morfología (top-hat / black-hat)", page: lab, preset: {method_id: morphology, dataset_id: SYN}}
+      - {label: "Comparación con imagen de referencia", page: lab, preset: {method_id: reference_difference, dataset_id: SYN}}
+      - {label: "Cómo funciona Otsu (paso a paso)", page: library, preset: {method_id: otsu}}
+    exercise: {id: EX1, title: "Ejercicio 1 — Detección clásica de defectos"}
+    reflection:
+      - ¿Qué método clásico se ve menos afectado por un gradiente de iluminación y por qué?
+      - ¿Qué le hace una apertura morfológica a un rayón de un píxel de ancho?
+    papers: [otsu1979, canny1986, jain1991, serra1982, wang2004ssim]
+    algorithms: [otsu, canny, gabor, morphology, reference_difference, ssim]
+    datasets: []
+
+  - id: T4
+    title: "4 · Detección supervisada de defectos"
+    minutes: 10
+    explanation: >-
+      Con muchos defectos etiquetados, una red puede clasificar (OK/NOK), detectar (cajas) o segmentar (máscaras).
+      Los modelos supervisados son precisos con los tipos de defecto que vieron y ciegos ante los nuevos.
+    example: >-
+      Un detector entrenado con rayones y abolladuras puede no detectar una mancha que nunca vio.
+    background: >-
+      Los clasificadores CNN (ResNet), los detectores (YOLO) y los segmentadores (U-Net) son las principales
+      herramientas supervisadas. En IDD Lab son solo explicativos: entrenarlos requiere datos etiquetados y tiempo.
+    demo:
+      - {label: "Biblioteca de métodos: familia supervisada", page: library, preset: {method_id: unet}}
+    exercise: {id: EX8, title: "Ejercicio 8 — Toma de decisiones industriales (debate)"}
+    reflection:
+      - ¿Cuándo compensa el coste de reunir defectos etiquetados?
+      - ¿Qué ocurre cuando aparece un tipo de defecto nuevo en producción?
+    papers: [he2016resnet, redmon2016yolo, ronneberger2015unet]
+    algorithms: [cnn_classification, yolo, unet]
+    datasets: []
+
+  - id: T5
+    title: "5 · Detección no supervisada de anomalías"
+    minutes: 25
+    explanation: >-
+      Se aprende la normalidad a partir de imágenes sin defectos; en la prueba se mide cuánto se aleja cada parche
+      de lo normal. PaDiM ajusta una gaussiana por posición; PatchCore guarda un banco de memoria de rasgos de
+      parches normales y mide la distancia al más cercano; EfficientAD entrena un estudiante rápido que imita a un
+      profesor.
+    example: >-
+      Un parche sobre un rayón no tiene ningún vecino cercano entre los parches normales, así que su distancia
+      (la puntuación de anomalía) es alta y se ilumina en el mapa de calor.
+    background: >-
+      Estos métodos reutilizan backbones preentrenados en ImageNet (mediante Anomalib) y necesitan un ajuste con
+      imágenes normales. Sus puntuaciones son distancias brutas, no probabilidades.
+    demo:
+      - {label: "Cómo funciona PatchCore (paso a paso)", page: library, preset: {method_id: patchcore}}
+      - {label: "PatchCore en el Laboratorio de métodos", page: lab, preset: {method_id: patchcore}}
+      - {label: "Gestor de modelos: qué está instalado", page: models}
+    exercise: {id: EX2, title: "Ejercicio 2 — Comprender PatchCore (y Ejercicio 3 — Comparar algoritmos)"}
+    reflection:
+      - ¿Por qué ajustar solo con imágenes normales es una ventaja y también un riesgo?
+      - ¿Por qué no son comparables las puntuaciones brutas de métodos distintos?
+    papers: [defard2021padim, roth2022patchcore, batzner2024efficientad, akcay2022anomalib]
+    algorithms: [padim, patchcore, efficientad]
+    datasets: [D05]
+
+  - id: T6
+    title: "6 · Modelos fundacionales"
+    minutes: 15
+    explanation: >-
+      Los grandes modelos autosupervisados (DINOv2) o de visión y lenguaje (CLIP) ofrecen rasgos generales. Con
+      ellos, la detección de anomalías funciona con pocas imágenes normales (AnomalyDINO) o sin ninguna, usando un
+      texto de consulta (WinCLIP).
+    example: >-
+      WinCLIP compara ventanas de la imagen con textos como «una foto de un objeto dañado».
+    background: >-
+      Los rasgos fundacionales reducen la necesidad de datos, pero son pesados de ejecutar y heredan los sesgos y
+      las licencias de sus datos de entrenamiento y de sus pesos.
+    demo:
+      - {label: "AnomalyDINO en la Biblioteca de métodos", page: library, preset: {method_id: anomalydino}}
+      - {label: "WinCLIP en la Biblioteca de métodos", page: library, preset: {method_id: winclip}}
+    exercise: {id: EX3, title: "Ejercicio 3 — Comparar algoritmos de detección de anomalías"}
+    reflection:
+      - ¿Qué se gana y qué se pierde con un detector zero-shot?
+      - ¿Por qué importa la licencia de los pesos preentrenados para un producto?
+    papers: [oquab2023dinov2, damm2025anomalydino, radford2021clip, jeong2023winclip]
+    algorithms: [anomalydino, winclip, dino_features]
+    datasets: []
+
+  - id: T7
+    title: "7 · Inspección 3D y multimodal"
+    minutes: 20
+    explanation: >-
+      Algunos defectos cambian la geometría y no el color (una abolladura bajo una pintura uniforme) o solo son
+      visibles en infrarrojo. Las nubes de puntos 3D y los sensores múltiples aportan información que una sola
+      cámara RGB no tiene.
+    example: >-
+      Una superficie sintética con un abultamiento de 0,9 unidades es invisible en una imagen gris cenital, pero
+      evidente como desviación geométrica tras registrarla frente a una referencia normal.
+    background: >-
+      El registro (ICP, FPFH+RANSAC) alinea un escaneo con una referencia; la distancia tras la alineación es una
+      puntuación geométrica de anomalía sencilla. La fusión tardía combina las puntuaciones de cada modalidad.
+    demo:
+      - {label: "Laboratorio 3D y multimodal (parches de superficie sintéticos)", page: lab3d}
+    exercise: {id: EX7, title: "Ejercicio 7 — Detección multimodal de anomalías"}
+    reflection:
+      - ¿Qué defectos solo se ven en 3D? ¿Cuáles solo en infrarrojo?
+      - ¿Qué falla si el registro no converge?
+    papers: [besl1992icp, rusu2009fpfh, li2025mulsenad, wang2023m3dm]
+    algorithms: [pc_deviation, multimodal_fusion, m3dm]
+    datasets: [D06, D04]
+
+  - id: T8
+    title: "8 · Métricas de evaluación"
+    minutes: 20
+    explanation: >-
+      Las métricas de ranking (AUROC, AP, AU-PRO) preguntan si las piezas defectuosas puntúan más alto que las
+      normales; las métricas de decisión (precisión, exhaustividad, F1, falsas aceptaciones y falsos rechazos)
+      dependen de un único umbral, que debe fijarse sin mirar las etiquetas de prueba.
+    example: >-
+      Un ejemplo real almacenado: PaDiM en MVTec AD 2 fruit_jelly ordena razonablemente (AUROC 0,73), pero su
+      umbral de validación no rechaza nada: F1 de imagen = 0.
+    background: >-
+      AU-PRO promedia el solapamiento por región de defecto para que los defectos pequeños cuenten; MVTec AD 2 lo
+      integra hasta una tasa de falsos positivos del 5 %. Las fotos repetidas de una misma pieza no son
+      observaciones independientes.
+    demo:
+      - {label: "Comprender las métricas de evaluación (resultados almacenados)", page: experiments, preset: {tab: metrics, preset_id: d05-fruit_jelly-padim-256}}
+      - {label: "La resolución importa (resultados almacenados)", page: experiments, preset: {tab: resolution}}
+      - {label: "Robustez a la iluminación (resultados almacenados)", page: experiments, preset: {tab: illumination}}
+    exercise: {id: EX6, title: "Ejercicio 6 — Comprender las métricas de evaluación (también Ejercicios 4 y 5)"}
+    reflection:
+      - ¿Por qué un buen AUROC puede producir malas decisiones?
+      - ¿Por qué ajustar el umbral con el conjunto de prueba no es un resultado válido?
+    papers: [bergmann2021mvtecad_ijcv, hecklerkram2026mvtecad2, vo2026beyondbenchmark]
+    algorithms: []
+    datasets: [D05]
+
+  - id: T9
+    title: "9 · Restricciones del despliegue industrial"
+    minutes: 15
+    explanation: >-
+      Una línea necesita una decisión dentro del tiempo de ciclo, una tasa de falso rechazo controlada (coste de
+      chatarra) y una tasa de falsa aceptación muy baja (fugas al cliente). Hay que vigilar la iluminación, la
+      variación de las piezas y la deriva.
+    example: >-
+      Con 100 ms por pieza, un modelo de 1024 px que tarda 80 ms deja poco margen para la captura de la imagen y la
+      comunicación; una resolución menor puede ser más rápida pero no detectar defectos pequeños.
+    background: >-
+      Un modelo de investigación para detectar anomalías no es, por sí solo, un sistema de seguridad de máquinas
+      certificado. Las funciones de seguridad requieren equipos y procedimientos de seguridad específicos,
+      validados y certificados.
+    demo:
+      - {label: "Comparar métodos (latencia y decisiones)", page: compare}
+      - {label: "Taller guiado", page: workshop}
+    exercise: {id: EX8, title: "Ejercicio 8 — Toma de decisiones industriales"}
+    reflection:
+      - ¿Qué cuesta más en su industria: un falso rechazo o una falsa aceptación?
+      - ¿Qué vigilaría después del despliegue?
+    papers: [batzner2024efficientad, hecklerkram2026mvtecad2]
+    algorithms: [efficientad, patchcore]
+    datasets: []

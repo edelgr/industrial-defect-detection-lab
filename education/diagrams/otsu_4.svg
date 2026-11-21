@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="250" viewBox="0 0 960 250" font-family="Segoe UI, Arial, sans-serif">
+<text x="16" y="24" fill="#e8eef4" font-size="15" font-weight="600">Otsu thresholding</text>
+<text x="944" y="24" fill="#f0a742" font-size="11" text-anchor="end">CONCEPTUAL DIAGRAM — not real model activations</text>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9aa8b6"/></marker></defs>
+<rect x="129.0" y="70" rx="9" width="150" height="62" fill="#24303c" stroke="#2bb3a3" stroke-width="1.4"/>
+<g transform="translate(139.0,86)"><g fill="#2bb3a3"><circle cx="3" cy="5" r="2.2"/><circle cx="12" cy="9" r="2.2"/><circle cx="22" cy="4" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="18" cy="21" r="2.2"/><circle cx="27" cy="14" r="2.2"/><circle cx="14" cy="27" r="2.2"/></g></g>
+<text x="177.0" y="97" fill="#9aa8b6" font-size="11">1</text>
+<text x="177.0" y="114" fill="#e8eef4" font-size="13" font-weight="500">Grey image</text>
+<rect x="313.0" y="70" rx="9" width="150" height="62" fill="#24303c" stroke="#2bb3a3" stroke-width="1.4"/>
+<g transform="translate(323.0,86)"><g fill="#2bb3a3"><rect x="0" y="22" width="4" height="6"/><rect x="6" y="14" width="4" height="14"/><rect x="12" y="4" width="4" height="24"/><rect x="18" y="12" width="4" height="16"/><rect x="24" y="20" width="4" height="8"/></g></g>
+<text x="361.0" y="97" fill="#9aa8b6" font-size="11">2</text>
+<text x="361.0" y="114" fill="#e8eef4" font-size="13" font-weight="500">Histogram</text>
+<rect x="497.0" y="70" rx="9" width="150" height="62" fill="#24303c" stroke="#2bb3a3" stroke-width="1.4"/>
+<g transform="translate(507.0,86)"><g fill="#2bb3a3"><circle cx="3" cy="5" r="2.2"/><circle cx="12" cy="9" r="2.2"/><circle cx="22" cy="4" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="18" cy="21" r="2.2"/><circle cx="27" cy="14" r="2.2"/><circle cx="14" cy="27" r="2.2"/></g></g>
+<text x="545.0" y="97" fill="#9aa8b6" font-size="11">3</text>
+<text x="545.0" y="114" fill="#e8eef4" font-size="13" font-weight="500">Best split</text>
+<rect x="681.0" y="70" rx="9" width="150" height="62" fill="#2bb3a3" stroke="#2bb3a3" stroke-width="2.5"/>
+<g transform="translate(691.0,86)"><g fill="#0d2a27"><circle cx="3" cy="5" r="2.2"/><circle cx="12" cy="9" r="2.2"/><circle cx="22" cy="4" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="18" cy="21" r="2.2"/><circle cx="27" cy="14" r="2.2"/><circle cx="14" cy="27" r="2.2"/></g></g>
+<text x="729.0" y="97" fill="#06231f" font-size="11">4</text>
+<text x="729.0" y="114" fill="#06231f" font-size="13" font-weight="700">Mask</text>
+<line x1="279.0" y1="101.0" x2="310.0" y2="101.0" stroke="#9aa8b6" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="463.0" y1="101.0" x2="494.0" y2="101.0" stroke="#9aa8b6" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="647.0" y1="101.0" x2="678.0" y2="101.0" stroke="#9aa8b6" stroke-width="1.6" marker-end="url(#a)"/>
+</svg>

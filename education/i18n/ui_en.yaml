@@ -1,0 +1,3 @@
+# English UI strings. English defaults are also embedded in the code (tr(key, default));
+# keys listed here override them. Translators: copy ui_es.yaml as a template for new languages.
+app.subtitle: "Interactive Learning and Benchmarking for Industrial Defect and Anomaly Detection"

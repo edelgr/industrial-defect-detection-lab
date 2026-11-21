@@ -8,7 +8,7 @@
 param([switch]$Workshop)
 Set-Location $PSScriptRoot
 $py = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
-if (-not (Test-Path $py)) { Write-Error "Virtual environment not found. Run .\setup.ps1 first."; exit 1 }
+if (-not (Test-Path $py)) { Write-Error "Virtual environment not found. Run .\setup_student.ps1 first (instructor installation: .\setup.ps1)."; exit 1 }
 $env:PYTHONIOENCODING = "utf-8"
 if ($Workshop) { $env:IDD_WORKSHOP = "1" } else { Remove-Item Env:IDD_WORKSHOP -ErrorAction SilentlyContinue }
 & $py -m app.main @args

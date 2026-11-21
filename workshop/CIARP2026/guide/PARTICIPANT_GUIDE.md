@@ -16,8 +16,8 @@ By the end of the workshop you will be able to:
 ## Before the workshop: installation
 | Path | What you need | Time |
 |---|---|---|
-| **Recommended** — core profile | any Windows 10/11 laptop, Python 3.12, ≈ 6 GB free disk | ≈ 10 min |
-| Optional — full profile | + ≈ 3–6 GB disk; an NVIDIA GPU (driver ≥ 580) makes deep methods fast | ≈ 20–30 min |
+| **Recommended** — core profile | any Windows 10/11 laptop, Python 3.12, ≥ 7 GB free disk (checked by the setup) | ≈ 10 min |
+| Optional — full profile | ≥ 13 GB free disk (checked by the setup); an NVIDIA GPU (driver ≥ 580) makes deep methods fast | ≈ 20–30 min |
 
 Follow [STUDENT_QUICK_START.md](../../../STUDENT_QUICK_START.md). Run the check:
 `.\.venv\Scripts\python.exe -m scripts.readiness --profile student` → *0 required check(s) failing*.

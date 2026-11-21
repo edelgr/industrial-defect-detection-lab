@@ -115,6 +115,51 @@ def test_docs_check_passes():
     assert check() == []
 
 
+def test_docs_scope_without_git_equals_tracked_documentation():
+    """A ZIP download has no .git: the fallback must check exactly the tracked documentation."""
+    import subprocess
+
+    from core import paths
+    from scripts import check_docs as cd
+    if not (paths.PROJECT_ROOT / ".git").exists():
+        pytest.skip("not a Git checkout")
+    tracked = set(subprocess.run(["git", "ls-files", "--", "*.md"], cwd=paths.PROJECT_ROOT, capture_output=True,
+                                 text=True, check=True).stdout.split())
+    nogit = {p.relative_to(paths.PROJECT_ROOT).as_posix() for p in cd.md_files(use_git=False)}
+    untracked_docs = {p for p in nogit - tracked if cd._in_doc_dirs(p)}     # new docs not committed yet
+    assert nogit - untracked_docs == tracked
+
+
+def test_docs_scope_ignores_personal_drafts_but_not_project_docs(tmp_path):
+    import shutil
+    import subprocess
+
+    from app.pages.learning import EXERCISE_FILES
+    from scripts import check_docs as cd
+    (tmp_path / "docs" / "exercises").mkdir(parents=True)
+    for name in EXERCISE_FILES.values():
+        (tmp_path / "docs" / "exercises" / name).write_text("x", encoding="utf-8")
+    (tmp_path / "README.md").write_text("[a](missing_from_readme.md)", encoding="utf-8")
+    (tmp_path / "docs" / "new_doc.md").write_text("[b](missing_from_docs.md)", encoding="utf-8")
+    (tmp_path / "MY_DRAFT.md").write_text("[c](missing_from_draft.md)", encoding="utf-8")
+    def found():
+        return sorted(p.split(" -> ")[1] for p in cd.check(tmp_path) if "broken link" in p)
+    # no Git (ZIP download): project docs are checked, a personal draft at the root is not
+    names = {p.name for p in cd.md_files(tmp_path, use_git=False) if p.parent.name != "exercises"}
+    assert names == {"README.md", "new_doc.md"}
+    assert found() == ["missing_from_docs.md", "missing_from_readme.md"]
+    if shutil.which("git") is None:
+        return
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "add", "README.md"], cwd=tmp_path, check=True)
+    (tmp_path / "notes").mkdir()
+    (tmp_path / "notes" / "tracked.md").write_text("[d](missing_from_tracked.md)", encoding="utf-8")
+    subprocess.run(["git", "add", "notes/tracked.md"], cwd=tmp_path, check=True)
+    # Git checkout: tracked files anywhere + untracked files in docs/ are checked; the untracked draft is not
+    assert found() == ["missing_from_docs.md", "missing_from_readme.md", "missing_from_tracked.md"]
+    assert cd.unchecked_md(tmp_path) == ["MY_DRAFT.md"]
+
+
 # ------------------------------------------------------------------ release staging
 def test_release_staging_policy(tmp_path):
     from scripts.build_release import _excluded, _redact, _redactions

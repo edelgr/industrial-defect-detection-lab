@@ -99,8 +99,8 @@ def main(argv=None):
         xp.tabs.setCurrentIndex(1)
         il = xp.ill
         il.model.setCurrentIndex(max(0, il.model.findText("PatchCore · sheet_metal", Qt.MatchStartsWith)))
-        k = next((j for j in range(il.scenes.count()) if tr("xp.flips", "decision flips") in il.scenes.item(j).text()), 0)
-        il.scenes.setCurrentRow(k)
+        k = next((j for j in range(il.scenes.count()) if tr("xp.flips", "decision flips") in il.scenes.itemText(j)), 0)
+        il.scenes.setCurrentIndex(k)
         il.maps_btn.click()
         ok = wait(lambda: il.maps_btn.isEnabled() and tr("xp.same_scale", "Same colour scale")[:10] in il.msg.text())
         check("B: maps computed for every lighting condition of a scene", ok, il.scene_title.text()[:90])

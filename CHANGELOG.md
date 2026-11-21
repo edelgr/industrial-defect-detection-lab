@@ -14,7 +14,13 @@ earlier development took place in a private working copy and is summarised here,
   (PatchCore, PaDiM, EfficientAD, AnomalyDINO, CLIP-based zero-shot) through a common interface.
 - Model Registry with Workshop Verified presets (SHA-256, load and score checks) and a stored-results mode
   that shows verified results without datasets or checkpoints, clearly labelled.
-- Educational Experiments: resolution, illumination robustness and evaluation metrics.
+- Educational Experiments: resolution, illumination robustness and evaluation metrics. The illumination
+  experiment has a **Basic** mode (one scene: image, anomaly map, score against the calibrated threshold,
+  OK/NOK and TP/TN/FP/FN, plain-language explanation) and an **Advanced** mode (interactive chart of all
+  scenes, scenes × lighting decisions, AUROC per lighting with cluster-bootstrap intervals, statistical
+  limitations, references). Scores, decisions and statistics always come from stored verified results;
+  live inference, when data and models are present, only adds anomaly maps, checked against the stored
+  scores. Layout fits 1280×800 screens; images can be enlarged with synchronised zoom.
 - 3D inspection support for point-cloud / multimodal data (full profile).
 
 ### Student Edition

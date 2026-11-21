@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QComboBox, QGroupBox, QHBoxLayout, QLabel, QProgressBar, QPushButton,
-                               QSpinBox, QSplitter, QTabWidget, QTextBrowser, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QComboBox, QFrame, QGroupBox, QHBoxLayout, QLabel, QProgressBar, QPushButton,
+                               QScrollArea, QSpinBox, QSplitter, QTabWidget, QTextBrowser, QVBoxLayout,
+                               QWidget)
 
 from app.i18n import tr
 from app.widgets.common import PageHeader, markdown_browser, mask_overlay, muted, synthetic_banner
@@ -38,6 +39,17 @@ def _load_cloud(path, max_points=250_000):
         idx = np.random.default_rng(0).choice(len(pts), max_points, replace=False)
         pts, cols = pts[idx], (cols[idx] if cols is not None else None)
     return pts, cols
+
+
+def controls_column(w: QWidget) -> QScrollArea:
+    """Controls column that scrolls vertically on short screens (1280×800 with the taskbar) instead of
+    making the whole window taller than the screen; no scroll bar when there is enough height."""
+    sa = QScrollArea()
+    sa.setWidgetResizable(True)
+    sa.setFrameShape(QFrame.NoFrame)
+    sa.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    sa.setWidget(w)
+    return sa
 
 
 class PointCloudTab(QWidget):
@@ -77,7 +89,7 @@ class PointCloudTab(QWidget):
         ll.addWidget(g, 2)
         self.view = PointCloudView()
         sp = QSplitter(Qt.Horizontal)
-        sp.addWidget(left)
+        sp.addWidget(controls_column(left))
         sp.addWidget(self.view)
         sp.setSizes([360, 1000])
         lay.addWidget(sp)
@@ -255,7 +267,7 @@ class FusionTab(QWidget):
         gl.addWidget(self.prog)
         gl.addWidget(self.msg)
         ll.addWidget(g)
-        lay.addWidget(left, 1)
+        lay.addWidget(controls_column(left), 1)
         self.out = markdown_browser(content.markdown("methods", "_fusion") or "")
         lay.addWidget(self.out, 2)
         self.run.clicked.connect(self._run)

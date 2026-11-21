@@ -129,3 +129,36 @@ All verified presets reproduce the stored campaign metrics within the 1e-6 toler
 The checkpoints listed above as *unidentified* were later identified as synthetic test artefacts of the
 test suite and removed from the local installation. They were never part of any reported result; every
 other check above is unaffected. No checkpoint is distributed with this repository.
+
+## Addendum (2026-11-21, Educational Experiments B redesign — no metric changed)
+
+The illumination experiment (Educational Experiments → B) was redesigned (Basic / Advanced modes). Before
+changing the interface, the data path behind it was re-checked; every check passed and **no stored metric,
+threshold, checkpoint or dataset was changed**.
+
+| Check (8 D05 presets without `keep_aspect`) | Result |
+|---|---|
+| Stored sample ↔ dataset index (`test_public`): sample id, label, `scene_id`, `lighting_condition` | 0 mismatches; sheet_metal 114 images = 19 scenes × 6 conditions, fruit_jelly 80 = 20 × 4 (no duplicated condition in a scene) |
+| Checkpoint ↔ stored result | sha256 of every checkpoint file = stored `sha256`; registry key = stored key |
+| Threshold used by the page | `calibration.image_threshold` of the stored result; equals the threshold of the loaded LIVE session (checked for PatchCore sheet_metal and PaDiM fruit_jelly; pixel threshold equal as well) |
+| Decision rule | `score ≥ threshold → NOK`, identical to `metrics.decision_metrics`; recomputed TP/FP/TN/FN = stored `metrics.decision` for all 8 presets (also a regression test) |
+| Per-condition and pooled AUROC | recomputed values = stored `metrics.by_condition` / `image_auroc` (exact) |
+| LIVE vs stored scores | 12 images (PatchCore sheet_metal) and 8 images (PaDiM fruit_jelly), plus the scenes computed during the GUI validation: max \|Δ\| = 0 |
+
+**Correlated observations and intervals.** Lighting variants of a scene are not independent; the page keeps
+the scene-level cluster bootstrap (`core/evaluation/scenes.py`, 1000 resamples, seed 0) and shows the naive
+image-level interval only for contrast. With 4 (sheet_metal) or 5 (fruit_jelly) normal scenes every preset is
+in the *very limited* sufficiency level, and the cluster bootstrap has only 251–496 distinct resampled AUROC
+values out of 1000. In **2 of 8 presets the cluster interval is not wider than the naive one** — EfficientAD
+sheet_metal (width 0.205 vs 0.232) and PaDiM fruit_jelly (0.204 vs 0.263); in the other 6 it is wider. This is
+a property of the percentile bootstrap with very few clusters (it underestimates the uncertainty), not an
+implementation error; the page now states it explicitly for the selected model instead of only saying
+"usually too narrow", and no interval was altered.
+
+**Interface discrepancies corrected (presentation only).**
+* The former banner read "LIVE — inference runs on this computer" for the whole tab although scores, decisions,
+  AUROCs and intervals always came from the stored results; only the anomaly maps were computed live. The tab
+  now shows two separate labels (STORED / LIVE), and each live map shows its live score next to the stored one.
+* The former line plot connected categorical lighting conditions without saying so; the Advanced chart now
+  states that lines only join the same scene, and threshold crossings are drawn as markers on the threshold,
+  not as data.

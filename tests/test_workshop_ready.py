@@ -240,7 +240,7 @@ def test_educational_experiments_page(qtbot, window):
     xp.res._run()
     qtbot.waitUntil(lambda: xp.res.live.rowCount() > 0 and xp.res.run.isEnabled(), timeout=180000)
     assert xp.res.views["heat2"].view.scene().items()
-    xp.ill.scenes.setCurrentRow(1)
+    xp.ill.scenes.setCurrentIndex(1)
     xp.ill._maps()
     qtbot.waitUntil(lambda: xp.ill.maps_btn.isEnabled() and "Same colour" in xp.ill.msg.text(), timeout=180000)
     assert "cluster" in xp.ill.report.toPlainText().lower()
@@ -313,7 +313,7 @@ def test_educational_experiments_translated_to_spanish(qtbot):
         assert "Protocolo válido" in met.banner.text()
         ill = w.page("experiments").ill
         assert "Análisis por escenas" in ill.report.toPlainText()
-        assert ill.scenes.item(0).text().startswith(("ANÓMALA", "NORMAL"))
+        assert ill.scenes.itemText(0).startswith(("ANÓMALA", "NORMAL"))
         from app.pages.experiments import results_markdown
         assert "AUROC de imagen" in results_markdown("resolution")
         w.close()

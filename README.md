@@ -210,7 +210,7 @@ Continue with [Exercise 1 — Classical Defect Detection](docs/exercises/EXERCIS
 | **Methods Laboratory** | Run a method on one sample, see every intermediate output, fit deep models on normal images, calibrate thresholds on normal images only, re-threshold and evaluate on a test split |
 | **3D & Multimodal Lab** | Align a test point cloud to normal references and colour it by geometric deviation; compare RGB, infrared and 3D of the same object; run a late-fusion experiment |
 | **Compare Methods** | Run several methods on the same image, with each score divided by its own calibrated threshold so that results become comparable |
-| **Educational Experiments** | A · image resolution, B · illumination robustness, C · *Understanding Evaluation Metrics* (ranking versus decision) — live when the dataset and models are present, otherwise clearly labelled **stored results** |
+| **Educational Experiments** | A · image resolution, B · illumination robustness (**Basic** mode: one scene, its images, scores, threshold and TP/TN/FP/FN; **Advanced** mode: all scenes, decisions that change, AUROC per lighting with confidence intervals), C · *Understanding Evaluation Metrics* (ranking versus decision). Results are always labelled **stored** or **live**: stored verified results work without datasets or checkpoints; live inference needs the dataset and the models |
 | **Model Manager** | For every algorithm: implementation, availability on this computer, weight source, size and licence, CPU/GPU support, and an explicit download action |
 | **Guided Workshop** | The timed CIARP 2026 activities with objectives, instructions, expected observations and real, verified results |
 
